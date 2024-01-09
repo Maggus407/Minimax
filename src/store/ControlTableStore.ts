@@ -49,6 +49,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
       next: 0,
       description: "",
     });
+    console.log(controlTable);
   }
 
   return {

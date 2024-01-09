@@ -2,7 +2,7 @@
     <!-- Schaltfläche zum Hinzufügen einer neuen Reihe -->
     <v-btn @click="controlTable.addRow">Neue Reihe hinzufügen</v-btn>
   
-    <v-data-table :items="controlTable.controlTable"></v-data-table>
+    <v-table :items="controlTable.controlTable"></v-table>
   </template>
 
     <script setup lang="ts">

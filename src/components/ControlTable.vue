@@ -10,12 +10,4 @@
 
     const controlTable = useControlTableStore();
 
-    const headers = [
-        { text: 'Adresse', value: 'adress' },
-        { text: 'Befehl', value: 'command' },
-        { text: 'Operand', value: 'operand' },
-        { text: 'Breakpoint', value: 'breakpoint' },
-        { text: 'Zyklus', value: 'cycle' },
-    ];
-
     </script>

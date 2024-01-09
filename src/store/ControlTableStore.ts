@@ -10,13 +10,13 @@ interface ControlTable {
   breakpoint: boolean;
   label: string;
   adress: number;
-  AluSelA: number | string;
-  AluSelB: number | string;
-  MDRSel: boolean;
-  HsCs: boolean;
-  Hs_R_W: boolean;
+  AluSelA: any;
+  AluSelB: any;
+  MDRSel: number;
+  HsCs: number;
+  Hs_R_W: number;
   AluCtrl: any;
-  registerWrite: any[]; // Update: specify the type for this array if needed
+  registerWrite: { [key: string]: number }; // Für jedes Register ein Boolescher Wert
   jump: number;
   next: number;
   description: string;
@@ -29,31 +29,41 @@ export const useControlTableStore = defineStore('controlTable', () => {
     const multiplexerStore = useMultiplexerStore();
     const memoryStore = useMemoryStore();
 
-  const controlTable = reactive<ControlTable[]>([
-    // Hier können Sie anfängliche Werte einfügen, falls benötigt
-  ]);
+  const controlTable = reactive<ControlTable[]>([]);
 
   function addRow(){
-    controlTable.push({
+    const newRow: ControlTable = {
       breakpoint: false,
       label: "",
       adress: 0,
-      AluSelA: "",
-      AluSelB: "",
-      MDRSel: false,
-      HsCs: false,
-      Hs_R_W: false,
-      AluCtrl: 0,
-      registerWrite: [...registerStore.registerOrder],
-      jump: 0,
+      AluSelA: null,
+      AluSelB: null,
+      MDRSel: 0,
+      HsCs: 0,
+      Hs_R_W: 0,
+      AluCtrl: null,
+      registerWrite: {},
+      jump: -1,
       next: 0,
       description: "",
+    };
+  
+    // Für jedes Register einen Standardwert hinzufügen
+    registerStore.registerOrder.forEach(register => {
+      newRow.registerWrite[register] = 0;
     });
+  
+    controlTable.push(newRow);
     console.log(controlTable);
+  }
+
+  function deleteRow(index: number){
+    controlTable.splice(index, 1);
   }
 
   return {
     controlTable,
     addRow,
+    deleteRow
   };
 });

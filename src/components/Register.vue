@@ -40,7 +40,7 @@
         >
         <v-expansion-panels>
             <v-expansion-panel
-              v-for="regName in registerStore.registerOrder"
+              v-for="regName in registerStore.registerOrder && registerStore.registerOrder.filter((reg) => !registerStore.BASE_REGISTERS.includes(reg))"
               :key="regName"
               :title="regName"
               :text="registerStore.getRegisterData(regName)?.Description"

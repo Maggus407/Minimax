@@ -29,8 +29,10 @@
     <draggable :list="list" tag="tbody" item-key="id" group="signalTable"  @change="controlTable.updateTable">
       <template #item="{element, index}">
         <tr>
-          <td @click="element.breakpoint = !element.breakpoint">{{ element.breakpoint }}</td>
-          <td>{{ element.label }}</td>
+          <td @click.stop="element.breakpoint = !element.breakpoint">{{ element.breakpoint }}</td>
+          <td>
+            <v-text-field @change="controlTable.updateTable" v-model="element.label" dense solo-inverted hide-details></v-text-field>
+          </td>
           <td>{{ element.adress }}</td>
           <td>
             <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxA" v-model="element.AluSelA">
@@ -50,10 +52,62 @@
           <td v-for="(value, key) in element.registerWrite" :key="key" class="center" @click="element.registerWrite[key] = element.registerWrite[key] === 0 ? 1 : 0">
             {{ value }}
           </td>
-          <td>{{ element.jump }}</td>
+          <td @click.stop="openDialog(element)">{{ element.jump }}</td>
           <td>{{ element.next }}</td>
           <td>{{ element.description }}</td>
-          <td><v-btn @click="controlTable.deleteRow(index)">Löschen</v-btn></td>
+          <td><v-btn @click.stop="controlTable.deleteRow(index)">Löschen</v-btn></td>
+  <v-dialog v-model="dialog" persistent max-width="30vw">
+    <v-card>
+      <v-card-title>
+        Sprung-Einstellungen
+      </v-card-title>
+      <v-card-text>
+        <v-radio-group v-model="selectedJumpType">
+          <v-radio label="Nächster Befehl" value="next"></v-radio>
+          <v-radio label="Unbedingter Sprung" value="unconditional"></v-radio>
+          <v-radio label="Bedingter Sprung" value="conditional"></v-radio>
+        </v-radio-group>
+
+        <div v-if="selectedJumpType === 'next'" ></div>
+          <div v-if="selectedJumpType === 'unconditional'">
+            <v-text-field
+              label="Unbedingter Sprung"
+              type="number"
+              v-model="unconditionalJump"
+              :max="controlTable.controlTable.length - 1"
+            ></v-text-field>
+        </div>
+        <div v-if="selectedJumpType === 'conditional'">
+          <v-text-field
+            label="ALU == 0?"
+            type="number"
+            v-model="conditionalJumpIfZero"
+            :max="controlTable.controlTable.length - 1"
+            :rules="[requiredRule]"
+          ></v-text-field>
+          <v-text-field
+            label="ALU != 0?"
+            type="number"
+            v-model="conditionalJumpIfNotZero"
+            :max="controlTable.controlTable.length - 1"
+            :rules="[requiredRule]"
+          ></v-text-field>
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" @click="closeDialog">Abbrechen</v-btn>
+        <v-btn
+            color="green darken-1"
+            @click="applyJumpSettings"
+            :disabled="isOkButtonDisabled"
+          >
+            OK
+          </v-btn>
+
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
         </tr>
     </template>
   </draggable>
@@ -66,6 +120,7 @@ import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
 import draggable from 'vuedraggable';
+import { ref, computed } from 'vue';
 
 const registerStore = useRegisterStore();
 const controlTable = useControlTableStore();
@@ -73,5 +128,48 @@ const multiplexerStore = useMultiplexerStore();
 const aluStore = useAluStore();
 
 const list = controlTable.controlTable;
+const dialog = ref(false);
+const selectedRow = ref(null);
+const selectedJumpType = ref('next');
+const unconditionalJump = ref(null);
+const conditionalJumpIfZero = ref(null);
+const conditionalJumpIfNotZero = ref(null);
 
+const requiredRule = (value: any) => !!value || 'Erforderlich';
+
+// Berechnete Eigenschaft, die überprüft, ob der OK-Button aktiviert werden soll
+const isOkButtonDisabled = computed(() => {
+  // Deaktiviere den Button nur, wenn 'Bedingter Sprung' ausgewählt ist und nicht beide Felder ausgefüllt sind
+  return selectedJumpType.value === 'conditional' && (!conditionalJumpIfZero.value || !conditionalJumpIfNotZero.value);
+});
+
+
+function openDialog(row:any) {
+  selectedRow.value = row;
+  dialog.value = true;
+  console.log(selectedRow.value);
+}
+
+function closeDialog() {
+  dialog.value = false;
+}
+
+function applyJumpSettings() {
+  if (selectedRow.value) {
+    if (selectedJumpType.value === 'next') {
+      // Setzen Sie 'next' auf die aktuelle Adresse plus eins
+      (selectedRow.value as any).next = Number((selectedRow.value as any).adress + 1);
+      (selectedRow.value as any).jumpSet = false;
+      controlTable.updateTable();
+    } else if (selectedJumpType.value === 'unconditional') {
+      (selectedRow.value as any).next = Number(unconditionalJump.value);
+      (selectedRow.value as any).jumpSet = true; // Update the 'next' value of the selected row
+      // ...
+    } else if (selectedJumpType.value === 'conditional') {
+      // Logik für bedingten Sprung
+      // ...
+    }
+  }
+  dialog.value = false; // Dialog schließen
+}
 </script>

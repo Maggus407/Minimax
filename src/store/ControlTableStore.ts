@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { useAluStore } from '@/store/AluStore';
 import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
@@ -20,6 +20,7 @@ interface ControlTable {
   AluCtrl: any;
   registerWrite: { [key: string]: number }; // Für jedes Register ein Boolescher Wert
   jump: number;
+  jumpSet: boolean;
   next: number;
   description: string;
 }
@@ -47,6 +48,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
       AluCtrl: null,
       registerWrite: {},
       jump: -1,
+      jumpSet: false,
       next: controlTable.length + 1,
       description: "",
     };
@@ -61,19 +63,28 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateAdressesAndNext();
   }
 
+  // Berechnete Eigenschaft für Zeilen mit gesetztem Label
+  function rowsForSelection() {
+    return controlTable.find((row, index) => row.label !== '')
+  }
+
   function showTableConsole(){
     console.log(controlTable);
+    console.log(rowsForSelection());
   }
 
   function updateAdressesAndNext() {
     controlTable.forEach((row, index) => {
-      row.adress = index; // Setze die Adresse auf den aktuellen Index
-      row.next = index + 1 < controlTable.length ? index + 1 : -1; // Setze 'next' auf den nächsten Index oder -1, wenn es das letzte Element ist
+      if(!row.jumpSet){
+        row.adress = index; // Setze die Adresse auf den aktuellen Index
+        row.next = index + 1 < controlTable.length ? index + 1 : -1; // Setze 'next' auf den nächsten Index oder -1, wenn es das letzte Element ist
+      }
     });
   }
 
   function updateTable(){
-    updateAdressesAndNext()
+    updateAdressesAndNext();
+    rowsForSelection();
   }
   
   function deleteRow(index: number){
@@ -86,6 +97,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
     addRow,
     deleteRow,
     showTableConsole,
-    updateTable
+    updateTable,
+    rowsForSelection
   };
 });

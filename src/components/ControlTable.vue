@@ -46,7 +46,7 @@
           <td @click="element.HsCs = !element.HsCs">{{ +element.HsCs }}</td>
           <td @click="element.Hs_R_W = !element.Hs_R_W">{{ +element.Hs_R_W }}</td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="aluStore.aluOperationsListAdded" v-model="element.AluCtrl">
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl">
             </v-select>
           </td>
           <td v-for="(value, key) in element.registerWrite" :key="key" class="center" @click="element.registerWrite[key] = element.registerWrite[key] === 0 ? 1 : 0">

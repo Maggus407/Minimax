@@ -28,7 +28,7 @@ import { ref, watch  } from 'vue';
 
 // Definiere die Props und Emits
 defineProps(['newItemValueDec', 'newItemValueHex', 'newItemValueBin']);
-const emit = defineEmits(['update:dec', 'update:hex', 'update:bin']);
+const emit = defineEmits(['update:dec', 'update:hex', 'update:bin', 'inputCleared']);
 
 function emitUpdate() {
   emit('update:dec', newItemValueDec.value);
@@ -41,6 +41,12 @@ const newItemValueHex = ref('');
 const newItemValueBin = ref('');
 
 const formattedBinary = ref('');
+
+watch(newItemValueDec, (newValue) => {
+  if (newValue === '' || newValue === null) {
+    emit('inputCleared'); // Event auslösen, wenn das Eingabefeld gelöscht wird
+  }
+});
 
 function formatBinaryWithSpaces() {
   // Fügt alle 8 Zeichen ein Leerzeichen ein

@@ -51,6 +51,7 @@
             v-if="selectType === 'number'"
             :numberInput="numberInput"
             @update:dec="numberInput = $event"
+            @inputCleared="handleInputCleared"
             />
           <!-- Buttons zum Hinzufügen zum Multiplexer A oder B -->
           <v-btn @click="addToMux('A')">Zu MuxA hinzufügen</v-btn>
@@ -129,6 +130,10 @@ function removeFromMux(mux: string, index: number) {
     listMuxB.splice(index, 1);
   }
 }
+
+const handleInputCleared = () => {
+  numberInput.value = 0;
+};
 
 function editElement(mux: string, element: number, index: number) {
   if(isNumber(element)) {

@@ -40,21 +40,21 @@
         >
         <v-expansion-panels>
             <v-expansion-panel
-              v-for="regName in registerStore.registerOrder && registerStore.registerOrder.filter((reg) => !registerStore.BASE_REGISTERS.includes(reg))"
-              :key="regName"
-              :title="regName"
-              :text="registerStore.getRegisterData(regName)?.Description"
+              v-for="regName in registerStore.registerOrder && registerStore.registerOrder.filter((reg: any) => !registerStore.BASE_REGISTERS.includes(reg.registerName))"
+              :key="regName.registerName"
+              :title="regName.registerName"
+              :text="regName.data.Description"
             >
                 <v-card-text>
-                  <v-btn color="secondary" @click="openEditForm(regName)">Edit</v-btn>
-                  <v-btn color="error" @click="registerStore.deleteRegister(regName)">Delete</v-btn>
+                  <v-btn color="secondary" @click="openEditForm(regName.registerName)">Edit</v-btn>
+                  <v-btn color="error" @click="registerStore.deleteRegister(regName.registerName)">Delete</v-btn>
                 </v-card-text>
                 <!-- Edit Form -->
-                <v-card-text v-if="currentEditing === regName">
+                <v-card-text v-if="currentEditing === regName.registerName">
                   <v-text-field v-model="editedName" label="Name"></v-text-field>
                   <v-text-field v-model="editedDescription" label="Description"></v-text-field>
-                  <v-btn color="success" @click="saveChanges(regName)">Save</v-btn>
-                  <v-btn color="grey" @click="cancelEdit(regName)">Cancel</v-btn>
+                  <v-btn color="success" @click="saveChanges(regName.registerName)">Save</v-btn>
+                  <v-btn color="grey" @click="cancelEdit(regName.registerNames)">Cancel</v-btn>
                 </v-card-text>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -106,6 +106,7 @@ const cancelEdit = (registerName: string) => {
   const openEditForm = (registerName: string) => {
     currentEditing.value = registerName;
     const registerData = registerStore.getRegisterData(registerName);
+    console.log(registerData);
     editedName.value = registerName;
     editedDescription.value = registerData!.Description;
   };

@@ -102,7 +102,7 @@ const listMuxB = muxStore.muxB;
 const listMuxA = muxStore.muxA;
 
 // Daten für das Dropdown-Menü
-const registers = registerStore.registerOrder;
+const registers = registerStore.registerOrder.map((reg: any) => reg.registerName);
 const selectType = ref('register');
 const selectedRegister = ref('');
 const numberInput = ref(0);

@@ -21,13 +21,14 @@ export const useRegisterStore = defineStore('register', () => {
   //store for calculation. Stores all the register.
   const register: Map<string, ValueDescription> = new Map();
   //Keep Order of register entries
-  const registerOrder = ref<string[]>([...BASE_REGISTERS]);
+  const registerOrder: any = reactive([]);
 
   // Initialisiere die Map-Struktur mit den Basis-Registern und ihren Beschreibungen.
   BASE_REGISTERS.forEach(registerName => {
     const descriptionKey = `register.${registerName.toLowerCase()}`;
     const description = t(descriptionKey); // Holt die Übersetzung für den Schlüssel
     register.set(registerName, { Value: 0, Description: description });
+    registerOrder.push({ registerName, data: { Value: 0, Description: description } });
   });
 
   /**
@@ -58,12 +59,13 @@ export const useRegisterStore = defineStore('register', () => {
    * @param name - The desired name for the register.
    * @param description - A brief description or note for the register. Defaults to an empty string.
    */
-  function addRegister(name: string, description = ""): void {
+  function addRegister(name: string, description:string = ""): void {
     const uniqueName = getUniqueName(name);
-    register.set(uniqueName, { Value: 0, Description: description });
-    registerOrder.value.push(uniqueName); // Namen zur Liste hinzufügen
-  }
+    const newRegisterData = { Value: 0, Description: description };
+    register.set(uniqueName, newRegisterData);
+    registerOrder.push({ registerName: uniqueName, data: newRegisterData });
 
+  }
   /**
    * Deletes a register from the store based on its name.
    * Base Register are not deletable
@@ -73,19 +75,23 @@ export const useRegisterStore = defineStore('register', () => {
   function deleteRegister(name: string): void {
     if (!BASE_REGISTERS.includes(name)) {
       register.delete(name);
-      // Entferne den Namen aus der Liste der User-Register
-      registerOrder.value = registerOrder.value.filter(n => n !== name);
+      // Finden Sie den Index des zu löschenden Registers in der registerOrder-Liste
+      const index = registerOrder.findIndex((r: any) => r.registerName === name);
+      if (index !== -1) {
+        // Entfernen Sie das Register direkt aus der Liste
+        registerOrder.splice(index, 1);
+      }
     }
   }
-  
-/**
-   * Fetches the data associated with a specific register name.
-   * @param name - The name of the register.
-   * @returns The data associated with the register.
-   */
-function getRegisterData(name: string): ValueDescription | undefined {
-  return register.get(name);
-}
+ 
+  /**
+     * Fetches the data associated with a specific register name.
+     * @param name - The name of the register.
+     * @returns The data associated with the register.
+     */
+  function getRegisterData(name: string): ValueDescription | undefined {
+    return registerOrder.find((r: any) => r.registerName === name)?.data.Description;
+  }
 
 /**
  * Updates the data for a specific register. 
@@ -97,8 +103,16 @@ function updateRegisterData(name: string, data: ValueDescription): void {
   if (register.has(name)) {
     // Aktualisieren Sie die vorhandenen Daten mit den neuen Werten.
     register.set(name, { ...register.get(name), ...data });
+
+    // Finden und aktualisieren Sie den entsprechenden Eintrag in registerOrder
+    const registerIndex = registerOrder.findIndex((r:any) => r.registerName === name);
+    if (registerIndex !== -1) {
+      registerOrder[registerIndex].data = { ...registerOrder[registerIndex].data, ...data };
+    }
   }
+  registerOrder.value = [...registerOrder];
 }
+
 
 /**
  * Renames a register. This is only applicable for non-base registers.
@@ -106,27 +120,20 @@ function updateRegisterData(name: string, data: ValueDescription): void {
  * @param newName - The new desired name for the register.
  */
 function renameRegister(oldName: string, desiredNewName: string): void {
-  // Generieren Sie einen einzigartigen neuen Namen basierend auf dem gewünschten neuen Namen
   const uniqueNewName = getUniqueName(desiredNewName);
-
-  // Überprüfen Sie, ob das Register existiert und nicht zu den Basisregistern gehört
   if (register.has(oldName) && !BASE_REGISTERS.includes(oldName)) {
     const data = register.get(oldName);
     if (data) {
-      // Setzen Sie das Register mit dem neuen Namen und den vorhandenen Daten
       register.set(uniqueNewName, data);
-
-      // Löschen Sie das alte Register
       register.delete(oldName);
-
-      // Aktualisieren Sie den Namen in der Liste der User-Register
-      const index = registerOrder.value.indexOf(oldName);
+      const index = registerOrder.findIndex((r:any) => r.registerName === oldName);
       if (index !== -1) {
-        registerOrder.value[index] = uniqueNewName;
+        registerOrder[index] = { registerName: uniqueNewName, data };
       }
     }
   }
 }
+
 
 
 // Exposed methods and computed properties for external use.

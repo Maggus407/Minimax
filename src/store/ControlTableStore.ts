@@ -54,9 +54,10 @@ export const useControlTableStore = defineStore('controlTable', () => {
     };
   
     // Für jedes Register einen Standardwert hinzufügen
-    registerStore.getRegister.value.forEach(register => {
-      newRow.registerWrite[register] = 0;
+    registerStore.registerOrder.forEach((registerObj: any) => {
+      newRow.registerWrite[registerObj.registerName] = 0;
     });
+    
     console.log(newRow.registerWrite);
   
     controlTable.push(newRow);

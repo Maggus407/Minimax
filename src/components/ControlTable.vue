@@ -19,7 +19,7 @@
         <th class="center">HsCs</th>
         <th class="center">Hs_R_W</th>
         <th class="center">AluCtrl</th>
-        <th v-for="r in registerStore.registerOrder" class="center">{{r}}</th>
+        <th v-for="r in registerStore.registerOrder" class="center">{{r.registerName}}</th>
         <th class="center">ALU == 0?</th>
         <th class="center">next</th>
         <th class="center">description</th>
@@ -42,14 +42,14 @@
             <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxB" v-model="element.AluSelB">
             </v-select>
           </td>
-          <td @click="element.MDRSel = !element.MDRSel">{{ +element.MDRSel }}</td>
-          <td @click="element.HsCs = !element.HsCs">{{ +element.HsCs }}</td>
-          <td @click="element.Hs_R_W = !element.Hs_R_W">{{ +element.Hs_R_W }}</td>
+          <td @click.stop="element.MDRSel = !element.MDRSel">{{ +element.MDRSel }}</td>
+          <td @click.stop="element.HsCs = !element.HsCs">{{ +element.HsCs }}</td>
+          <td @click.stop="element.Hs_R_W = !element.Hs_R_W">{{ +element.Hs_R_W }}</td>
           <td>
             <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl">
             </v-select>
           </td>
-          <td v-for="(value, key) in element.registerWrite" :key="key" class="center" @click="element.registerWrite[key] = element.registerWrite[key] === 0 ? 1 : 0">
+          <td v-for="(value, key) in element.registerWrite" :key="key" class="center" @click.stop="element.registerWrite[key] = element.registerWrite[key] === 0 ? 1 : 0">
             {{ value }}
           </td>
           <td @click.stop="openDialog(element)">{{ element.jump }}</td>

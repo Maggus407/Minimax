@@ -9,11 +9,11 @@
             <v-list-item 
               :key="index" 
               three-line
-              @click="editElement('A', element, index)"
+              @click="editElement('A', element.title, index)"
               >
               <div class="d-flex justify-space-between align-center">
                 <div class="text-no-wrap">{{ formatBinary(index) }}</div>
-                <div class="mx-4">{{ element }}</div>
+                <div class="mx-4">{{ element.title }}</div>
                 <div v-if="isNumber(element)">{{ formatHex(element) }}</div>
                 <v-btn icon @click="removeFromMux('A', index)">
                   <v-icon>mdi-delete</v-icon>
@@ -41,6 +41,7 @@
           <v-select
             v-if="selectType === 'register'"
             :items="registers"
+            :item-value="item => item"
             label="Register auswählen"
             v-model="selectedRegister"
             clearable
@@ -73,7 +74,7 @@
               >
               <div class="d-flex justify-space-between align-center">
                 <div class="text-no-wrap">{{ formatBinary(index) }}</div>
-                <div class="mx-4">{{ element }}</div>
+                <div class="mx-4">{{ element.title }}</div>
                 <div v-if="isNumber(element)">{{ formatHex(element) }}</div>
                 <v-btn icon @click="removeFromMux('B', index)">
                   <v-icon>mdi-delete</v-icon>
@@ -102,25 +103,26 @@ const listMuxB = muxStore.muxB;
 const listMuxA = muxStore.muxA;
 
 // Daten für das Dropdown-Menü
-const registers = registerStore.registerOrder.map((reg: any) => reg.registerName);
+const registers = registerStore.registerOrder;
 const selectType = ref('register');
-const selectedRegister = ref('');
+const selectedRegister = ref(null);
 const numberInput = ref(0);
 
 function addToMux(mux: string) {
-  let value: string | number = '';
+  let value: any = null;
   if(selectType.value === 'register'){
     value = selectedRegister.value;
+    console.log("selected Register: " + selectedRegister);
   }
   console.log("selected Register: " + selectedRegister.value)
   // Wenn der Typ 'number' ist, konvertieren Sie den Wert explizit in eine Zahl
   if (selectType.value === 'number') {
-    value = Number(numberInput.value);
+    value = {title: numberInput.value.toString(), Value: Number(numberInput.value)};
   }
 
   if (value === '' || value === null || value === undefined) return;
   muxStore.addRegisterToMux(mux, value);
-  selectedRegister.value =''; // Reset selected Register
+  selectedRegister.value = null; // Reset selected Register
 }
 
 function removeFromMux(mux: string, index: number) {

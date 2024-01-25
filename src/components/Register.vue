@@ -15,6 +15,7 @@
             clearable
           ></v-text-field>
           <v-btn color="primary" @click="addReg" :disabled="name == '' || name == null">Add Register</v-btn>
+          <v-btn @click="testing">TEST</v-btn>
         </v-card>
 
       <!-- Base Registers Card -->
@@ -40,21 +41,21 @@
         >
         <v-expansion-panels>
             <v-expansion-panel
-              v-for="regName in registerStore.registerOrder && registerStore.registerOrder.filter((reg: any) => !registerStore.BASE_REGISTERS.includes(reg.registerName))"
-              :key="regName.registerName"
-              :title="regName.registerName"
-              :text="regName.data.Description"
+              v-for="regName in registerStore.registerOrder && registerStore.registerOrder.filter((reg: any) => !registerStore.BASE_REGISTERS.includes(reg.title))"
+              :key="regName.title"
+              :title="regName.title"
+              :text="regName.Description"
             >
                 <v-card-text>
-                  <v-btn color="secondary" @click="openEditForm(regName.registerName)">Edit</v-btn>
-                  <v-btn color="error" @click="registerStore.deleteRegister(regName.registerName)">Delete</v-btn>
+                  <v-btn color="secondary" @click="openEditForm(regName.title)">Edit</v-btn>
+                  <v-btn color="error" @click="registerStore.deleteRegister(regName)">Delete</v-btn>
                 </v-card-text>
                 <!-- Edit Form -->
-                <v-card-text v-if="currentEditing === regName.registerName">
+                <v-card-text v-if="currentEditing === regName.title">
                   <v-text-field v-model="editedName" label="Name"></v-text-field>
                   <v-text-field v-model="editedDescription" label="Description"></v-text-field>
-                  <v-btn color="success" @click="saveChanges(regName.registerName)">Save</v-btn>
-                  <v-btn color="grey" @click="cancelEdit(regName.registerNames)">Cancel</v-btn>
+                  <v-btn color="success" @click="saveChanges(regName.title)">Save</v-btn>
+                  <v-btn color="grey" @click="cancelEdit(regName.title)">Cancel</v-btn>
                 </v-card-text>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -91,12 +92,16 @@
     registerStore.addRegister(name.value, description.value);
   };
 
+  const testing = () => {
+    console.log(registerStore.registerOrder);
+  };
+
 const cancelEdit = (registerName: string) => {
   // Beenden des Bearbeitungsmodus
   currentEditing.value = null;
 
   // Zurücksetzen der bearbeiteten Werte auf die ursprünglichen Daten
-  const registerData = registerStore.getRegisterData(registerName);
+  const registerData = registerStore.getRegisterDescription(registerName);
   if (registerData) {
     editedName.value = registerName;
     editedDescription.value = registerData.Description;
@@ -105,7 +110,7 @@ const cancelEdit = (registerName: string) => {
 
   const openEditForm = (registerName: string) => {
     currentEditing.value = registerName;
-    const registerData = registerStore.getRegisterData(registerName);
+    const registerData = registerStore.getRegisterDescription(registerName);
     console.log(registerData);
     editedName.value = registerName;
     editedDescription.value = registerData!.Description;
@@ -116,18 +121,9 @@ const cancelEdit = (registerName: string) => {
 
   // Wenn sich der Name geändert hat, benennen Sie das Register um
   if (registerName !== newName) {
+    console.log(newName);
     registerStore.renameRegister(registerName, newName);
   }
-
-  // Aktualisieren Sie die Beschreibung des Registers
-  const existingData = registerStore.getRegisterData(newName);
-  if (existingData) {
-    registerStore.updateRegisterData(newName, {
-      ...existingData,
-      Description: editedDescription.value,
-    });
-  }
-
   currentEditing.value = null;
 };
 

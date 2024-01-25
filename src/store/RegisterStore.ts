@@ -2,40 +2,27 @@
 import { defineStore } from 'pinia';
 import {ref, computed, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
-
-/**
- * Type definition for storing register values.
- * - Value: The numeric value of the register.
- * - Description: A brief description or note associated with the register.
- */
-type ValueDescription = {
-  Value: number;
-  Description: string;
-};
+import { useMultiplexerStore } from './MultiplexerStore';
 
 export const useRegisterStore = defineStore('register', () => {
+  const multiplexerStore = useMultiplexerStore();
 
   const { t } = useI18n({ useScope: 'global' });
   //Base Register
   const BASE_REGISTERS = ['MAR', 'MDR', 'ACCU', 'IR', 'PC'];
   //store for calculation. Stores all the register.
-  const register: Map<string, ValueDescription> = new Map();
-  //Keep Order of register entries
+  const register: Map<string, number> = new Map();
+  //rective Register for UI
   const registerOrder: any = reactive([]);
 
   // Initialisiere die Map-Struktur mit den Basis-Registern und ihren Beschreibungen.
   BASE_REGISTERS.forEach(registerName => {
     const descriptionKey = `register.${registerName.toLowerCase()}`;
     const description = t(descriptionKey); // Holt die Übersetzung für den Schlüssel
-    register.set(registerName, { Value: 0, Description: description });
-    registerOrder.push({ registerName, data: { Value: 0, Description: description } });
+    register.set(registerName, 0);
+    registerOrder.push({ title: registerName, Value: 0, Description: description });
+    multiplexerStore.addRegisterToMux('B', {title: registerName, Value: 0, Description: description});
   });
-
-  /**
-   * A computed property that returns the names of all the registers.
-   * @returns An array of register names.
-   */
-  const getRegister = computed(() => registerOrder);
 
   /**
    * Generates a unique name for a register based on the provided name.
@@ -61,10 +48,9 @@ export const useRegisterStore = defineStore('register', () => {
    */
   function addRegister(name: string, description:string = ""): void {
     const uniqueName = getUniqueName(name);
-    const newRegisterData = { Value: 0, Description: description };
-    register.set(uniqueName, newRegisterData);
-    registerOrder.push({ registerName: uniqueName, data: newRegisterData });
-
+    const newRegisterData = {title: uniqueName, Value: 0, Description: description };
+    register.set(uniqueName, 0);
+    registerOrder.push(newRegisterData);
   }
   /**
    * Deletes a register from the store based on its name.
@@ -72,11 +58,13 @@ export const useRegisterStore = defineStore('register', () => {
    * @param name - The name of the register to delete.
    */
 
-  function deleteRegister(name: string): void {
-    if (!BASE_REGISTERS.includes(name)) {
-      register.delete(name);
+  function deleteRegister(reg: any): void {
+    console.log(register);
+    if (!BASE_REGISTERS.includes(reg.title)) {
+      register.delete(reg.title);
+      multiplexerStore.deleteRegisterFromMux('AB', reg);
       // Finden Sie den Index des zu löschenden Registers in der registerOrder-Liste
-      const index = registerOrder.findIndex((r: any) => r.registerName === name);
+      const index = registerOrder.findIndex((r: any) => r.title === reg.title);
       if (index !== -1) {
         // Entfernen Sie das Register direkt aus der Liste
         registerOrder.splice(index, 1);
@@ -89,8 +77,8 @@ export const useRegisterStore = defineStore('register', () => {
      * @param name - The name of the register.
      * @returns The data associated with the register.
      */
-  function getRegisterData(name: string): ValueDescription | undefined {
-    return registerOrder.find((r: any) => r.registerName === name)?.data.Description;
+  function getRegisterDescription(name: string): any {
+    return registerOrder.find((r: any) => r.title === name)?.Description;
   }
 
 /**
@@ -99,20 +87,20 @@ export const useRegisterStore = defineStore('register', () => {
  * @param name - The name of the register.
  * @param data - The new data for the register.
  */
-function updateRegisterData(name: string, data: ValueDescription): void {
+function updateRegisterData(name: string, value: number, description: string): void {
   if (register.has(name)) {
-    // Aktualisieren Sie die vorhandenen Daten mit den neuen Werten.
-    register.set(name, { ...register.get(name), ...data });
+    // Aktualisiere den Wert und die Beschreibung im register-Map
+    register.set(name, value);
 
-    // Finden und aktualisieren Sie den entsprechenden Eintrag in registerOrder
-    const registerIndex = registerOrder.findIndex((r:any) => r.registerName === name);
+    // Finde den Index des Registers im registerOrder-Array
+    const registerIndex = registerOrder.findIndex((r: any) => r.title === name);
     if (registerIndex !== -1) {
-      registerOrder[registerIndex].data = { ...registerOrder[registerIndex].data, ...data };
+      // Aktualisiere Value und Description im registerOrder-Array
+      registerOrder[registerIndex].Value = value;
+      registerOrder[registerIndex].Description = description;
     }
   }
-  registerOrder.value = [...registerOrder];
 }
-
 
 /**
  * Renames a register. This is only applicable for non-base registers.
@@ -120,29 +108,36 @@ function updateRegisterData(name: string, data: ValueDescription): void {
  * @param newName - The new desired name for the register.
  */
 function renameRegister(oldName: string, desiredNewName: string): void {
+  console.log(oldName + " renamed to " + desiredNewName);
   const uniqueNewName = getUniqueName(desiredNewName);
+
   if (register.has(oldName) && !BASE_REGISTERS.includes(oldName)) {
     const data = register.get(oldName);
-    if (data) {
+    console.log(data);
+    if (data != undefined) {
+      // Aktualisiere die Map `register`
       register.set(uniqueNewName, data);
       register.delete(oldName);
-      const index = registerOrder.findIndex((r:any) => r.registerName === oldName);
+
+      // Finde den Index des alten Namens in der `registerOrder` Liste
+      const index = registerOrder.findIndex((r:any) => r.title === oldName);
+      console.log(index);
       if (index !== -1) {
-        registerOrder[index] = { registerName: uniqueNewName, data };
+        // Aktualisiere das Objekt an diesem Index
+        registerOrder[index].title = uniqueNewName;
+        // Der Wert und die Beschreibung bleiben unverändert
       }
     }
   }
 }
 
 
-
 // Exposed methods and computed properties for external use.
 return {
   addRegister,
-  getRegister,
   deleteRegister,
   BASE_REGISTERS,
-  getRegisterData,
+  getRegisterDescription,
   updateRegisterData,
   renameRegister,
   registerOrder

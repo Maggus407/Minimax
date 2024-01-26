@@ -3,9 +3,11 @@ import { defineStore } from 'pinia';
 import {ref, computed, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMultiplexerStore } from './MultiplexerStore';
+import { useControlTableStore } from './ControlTableStore';
 
 export const useRegisterStore = defineStore('register', () => {
   const multiplexerStore = useMultiplexerStore();
+  const controlTableStore = useControlTableStore();
 
   const { t } = useI18n({ useScope: 'global' });
   //Base Register
@@ -51,24 +53,25 @@ export const useRegisterStore = defineStore('register', () => {
     const newRegisterData = {title: uniqueName, Value: 0, Description: description };
     register.set(uniqueName, 0);
     registerOrder.push(newRegisterData);
+    controlTableStore.updateControlTableWithNewRegister(uniqueName);
   }
   /**
    * Deletes a register from the store based on its name.
    * Base Register are not deletable
    * @param name - The name of the register to delete.
    */
-
   function deleteRegister(reg: any): void {
     console.log(register);
     if (!BASE_REGISTERS.includes(reg.title)) {
       register.delete(reg.title);
-      multiplexerStore.deleteRegisterFromMux('AB', reg);
       // Finden Sie den Index des zu löschenden Registers in der registerOrder-Liste
       const index = registerOrder.findIndex((r: any) => r.title === reg.title);
       if (index !== -1) {
         // Entfernen Sie das Register direkt aus der Liste
         registerOrder.splice(index, 1);
       }
+      multiplexerStore.deleteRegisterFromMux('AB', reg);
+      controlTableStore.updateControlTableWithRemovedRegister(reg.title);
     }
   }
  
@@ -139,6 +142,7 @@ function renameRegister(oldName: string, desiredNewName: string): void {
         // Der Wert und die Beschreibung bleiben unverändert
       }
     }
+    controlTableStore.updateRenamedRegister(uniqueNewName);
   }
 }
 

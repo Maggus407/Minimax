@@ -27,7 +27,12 @@
 import { ref, watch  } from 'vue';
 
 // Definiere die Props und Emits
-defineProps(['newItemValueDec', 'newItemValueHex', 'newItemValueBin']);
+const props = defineProps({
+  numberInput: {
+    type: Number,
+    default: 0
+  }
+});
 const emit = defineEmits(['update:dec', 'update:hex', 'update:bin', 'inputCleared']);
 
 function emitUpdate() {
@@ -42,15 +47,37 @@ const newItemValueBin = ref('');
 
 const formattedBinary = ref('');
 
-watch(newItemValueDec, (newValue) => {
-  if (newValue === '' || newValue === null) {
-    emit('inputCleared'); // Event auslösen, wenn das Eingabefeld gelöscht wird
+// Beobachte Änderungen von numberInput und aktualisiere die Werte entsprechend
+watch(() => props.numberInput, (newValue) => {
+  if (!newValue && newValue !== 0) {
+    clearInputs();
+    emit('inputCleared');
+    return;
   }
-});
+  updateValuesBasedOnDec(newValue);
+}, { immediate: true });
 
 function formatBinaryWithSpaces() {
   // Fügt alle 8 Zeichen ein Leerzeichen ein
   return newItemValueBin.value.replace(/(.{8})/g, '$1 ').trim();
+}
+
+function clearInputs() {
+  newItemValueDec.value = '';
+  newItemValueHex.value = '';
+  newItemValueBin.value = '';
+  formattedBinary.value = '';
+}
+
+function updateValuesBasedOnDec(decValue: any) {
+  const result = convertTo32Bit(decValue.toString(), 'dec');
+  if (result) {
+    newItemValueDec.value = result.dec;
+    newItemValueHex.value = result.hex;
+    newItemValueBin.value = result.bin;
+    formattedBinary.value = formatBinaryWithSpaces();
+    emitUpdate();
+  }
 }
 
 // Maximale und minimale Werte für einen 32-Bit-Integer

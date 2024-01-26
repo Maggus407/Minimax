@@ -52,16 +52,47 @@ export const useControlTableStore = defineStore('controlTable', () => {
       next: controlTable.length + 1,
       description: "",
     };
-  
-    // Für jedes Register einen Standardwert hinzufügen
-    registerStore.registerOrder.forEach((registerObj: any) => {
-      newRow.registerWrite[registerObj.registerName] = 0;
-    });
     
+    registerStore.registerOrder.forEach((registerObj: any) => {
+      newRow.registerWrite[registerObj.title] = 0;
+    });
+  
     console.log(newRow.registerWrite);
   
     controlTable.push(newRow);
     updateAdressesAndNext();
+  }
+
+  function updateControlTableWithNewRegister(newRegisterName: string) {
+    controlTable.forEach(row => {
+      if (!(newRegisterName in row.registerWrite)) {
+        row.registerWrite[newRegisterName] = 0;
+      }
+    });
+  }
+  
+  function updateControlTableWithRemovedRegister(removedRegisterName: string) {
+    controlTable.forEach(row => {
+      if (removedRegisterName in row.registerWrite) {
+        delete row.registerWrite[removedRegisterName];
+      }
+      
+    // Aktualisiere AluSelA und AluSelB, falls nötig
+    if (row.AluSelA && row.AluSelA.title === removedRegisterName) {
+      row.AluSelA = null;
+    }
+    if (row.AluSelB && row.AluSelB.title === removedRegisterName) {
+      row.AluSelB = null;
+    }
+    });
+  }  
+
+  function updateRenamedRegister(name: string){
+    controlTable.forEach(row => {
+      if (name in row.registerWrite) {
+        row.registerWrite[name] = row.registerWrite[name];
+      }
+    });
   }
 
   // Berechnete Eigenschaft für Zeilen mit gesetztem Label
@@ -99,6 +130,9 @@ export const useControlTableStore = defineStore('controlTable', () => {
     deleteRow,
     showTableConsole,
     updateTable,
-    rowsForSelection
+    rowsForSelection,
+    updateControlTableWithNewRegister,
+    updateControlTableWithRemovedRegister,
+    updateRenamedRegister
   };
 });

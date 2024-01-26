@@ -9,12 +9,12 @@
             <v-list-item 
               :key="index" 
               three-line
-              @click="editElement('A', element.title, index)"
+              @click="editElement('A', element)"
               >
               <div class="d-flex justify-space-between align-center">
                 <div class="text-no-wrap">{{ formatBinary(index) }}</div>
                 <div class="mx-4">{{ element.title }}</div>
-                <div v-if="isNumber(element)">{{ formatHex(element) }}</div>
+                <div v-if="isNumber(element.title)">{{ formatHex(element.Value) }}</div>
                 <v-btn icon @click="removeFromMux('A', index)">
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
@@ -34,29 +34,33 @@
           <!-- Auswahl zwischen Register und Zahlen -->
           <v-radio-group v-model="selectType" row>
             <v-radio label="Register" value="register"></v-radio>
-            <v-radio label="Zahl" value="number"></v-radio>
-          </v-radio-group>
-
           <!-- Dropdown-Menü für Register, wenn 'register' ausgewählt ist -->
           <v-select
-            v-if="selectType === 'register'"
+            :disabled="selectType === 'number'"
             :items="registers"
             :item-value="item => item"
             label="Register auswählen"
             v-model="selectedRegister"
             clearable
           ></v-select>
-
+          <v-radio label="Zahl" value="number"></v-radio>
           <!-- Eingabefeld für Zahlen, wenn 'number' ausgewählt ist -->
           <Dec_Hex_Bin_Inputs
-            v-if="selectType === 'number'"
-            :numberInput="numberInput"
+            :disabled="selectType === 'number'"
+            :numberInput="Number(numberInput)"
             @update:dec="numberInput = $event"
             @inputCleared="handleInputCleared"
-            />
+          />
+          </v-radio-group>
           <!-- Buttons zum Hinzufügen zum Multiplexer A oder B -->
           <v-btn @click="addToMux('A')">Zu MuxA hinzufügen</v-btn>
           <v-btn @click="addToMux('B')">Zu MuxB hinzufügen</v-btn>
+          <v-btn 
+            v-if="isEditedElementNumber && editedElement"
+            @click="saveChanges"
+          >
+            Speichern
+          </v-btn>
         </v-container>
       </v-card>
     </v-col>
@@ -70,12 +74,12 @@
             <v-list-item 
               :key="index" 
               three-line
-              @click="editElement('B', element, index)"
+              @click="editElement('B', element)"
               >
               <div class="d-flex justify-space-between align-center">
                 <div class="text-no-wrap">{{ formatBinary(index) }}</div>
                 <div class="mx-4">{{ element.title }}</div>
-                <div v-if="isNumber(element)">{{ formatHex(element) }}</div>
+                <div v-if="isNumber(element.title)">{{ formatHex(element.Value) }}</div>
                 <v-btn icon @click="removeFromMux('B', index)">
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
@@ -94,8 +98,31 @@
 import draggable from 'vuedraggable';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useRegisterStore } from '@/store/RegisterStore';
-import {ref} from 'vue'
 import Dec_Hex_Bin_Inputs from './ReUsable/Dec_Hex_Bin_Inputs.vue';
+import { ref, watch } from 'vue';
+import { useControlTableStore } from '@/store/ControlTableStore';
+
+const multiplexerStore = useMultiplexerStore();
+const controlTableStore = useControlTableStore();
+
+// Refs für die Kopien der ursprünglichen Werte
+const originalMuxA = ref([...multiplexerStore.muxA]);
+const originalMuxB = ref([...multiplexerStore.muxB]);
+
+// Watcher, um die ControlTable zu aktualisieren
+watch([multiplexerStore.muxA, multiplexerStore.muxB], () => {
+  const movedFromA = originalMuxA.value.filter(item => !multiplexerStore.muxA.includes(item));
+  const movedFromB = originalMuxB.value.filter(item => !multiplexerStore.muxB.includes(item));
+
+  movedFromA.concat(movedFromB).forEach(movedItem => {
+    controlTableStore.controlTable.forEach(row => {
+      if (row.AluSelA.title === movedItem.title|| row.AluSelB.title === movedItem.title) {
+        if (row.AluSelA.title === movedItem.title) row.AluSelA = null;
+        if (row.AluSelB.title === movedItem.title) row.AluSelB = null;
+      }
+    });
+  });
+}, { deep: true });
 
 const muxStore = useMultiplexerStore();
 const registerStore = useRegisterStore();
@@ -107,6 +134,10 @@ const registers = registerStore.registerOrder;
 const selectType = ref('register');
 const selectedRegister = ref(null);
 const numberInput = ref(0);
+
+//Values for editing existing elements-Value
+const editedElement = ref(null);
+const isEditedElementNumber = ref(false);
 
 function addToMux(mux: string) {
   let value: any = null;
@@ -137,18 +168,35 @@ const handleInputCleared = () => {
   numberInput.value = 0;
 };
 
-function editElement(mux: string, element: number, index: number) {
-  if(isNumber(element)) {
+function editElement(mux: string, element: any) {
+  if (isNumber(element.title)) {
+    // Wenn das Element eine Zahl ist, aktualisiere numberInput
     selectType.value = 'number';
-    numberInput.value = element;
-  }else{
+    numberInput.value = element.Value;
+    selectedRegister.value = null; // Setze selectedRegister zurück
+    isEditedElementNumber.value = true;
+    editedElement.value = element;
+  } else {
+    // Wenn das Element ein Register ist, aktualisiere selectedRegister
     selectType.value = 'register';
-    selectedRegister.value = element;
+    selectedRegister.value = element; // Setze selectedRegister auf das ganze Objekt
+
+  }
+}
+
+function saveChanges() {
+  if(editedElement.value){
+    if (editedElement.value) {
+      (editedElement.value as { title: string }).title = numberInput.value.toString();
+    }
+    (editedElement.value as { Value: number }).Value = Number(numberInput.value);
   }
 }
 
 // Helper functions
-const isNumber = (value: unknown): value is number => typeof value === 'number';
+const isNumber = (value: string): boolean => {
+  return !isNaN(parseFloat(value)) && isFinite(parseFloat(value));
+};
 
 const formatBinary = (value: number): string => value.toString(2).padStart(6, '0');
 

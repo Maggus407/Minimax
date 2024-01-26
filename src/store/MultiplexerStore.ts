@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 import {reactive } from 'vue';
 
 export const useMultiplexerStore = defineStore('multiplexer', () => {
-  const muxA: (string | number | any)[] = reactive([{title: "0",Value: 0}, {title: "1", Value: 1}]);
-  const muxB: (string | number | any)[] = reactive([]);
+  const muxA: (any)[] = reactive([{title: "0",Value: 0}, {title: "1", Value: 1}]);
+  const muxB: (any)[] = reactive([]);
 
   // Funktion zum Hinzufügen eines Registers zu einem Multiplexer
   function addRegisterToMux(mux: string, register: object) {

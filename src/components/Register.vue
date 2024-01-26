@@ -81,9 +81,9 @@
   const correctSaving = ref(false)
 
   // Beobachte Änderungen an editedName und aktualisiere correctSaving
-watch(editedName, (newVal) => {
-  correctSaving.value = newVal.trim().length > 0;
-});
+  watch(editedName, (newVal) => {
+    correctSaving.value = newVal.trim().length > 0;
+  });
   
   // Erstellen Sie eine berechnete Eigenschaft, um die Beschreibungen zu erhalten.
   const registerDescriptions = computed(() => {

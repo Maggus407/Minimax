@@ -19,7 +19,9 @@
         <th class="center">HsCs</th>
         <th class="center">Hs_R_W</th>
         <th class="center">AluCtrl</th>
-        <th v-for="r in registerStore.registerOrder" class="center">{{r.registerName}}</th>
+        <th v-for="r in registerStore.registerOrder" :key="r.title" class="center">
+          {{ r.title }}
+        </th>
         <th class="center">ALU == 0?</th>
         <th class="center">next</th>
         <th class="center">description</th>
@@ -28,18 +30,18 @@
     </thead>
     <draggable :list="list" tag="tbody" item-key="id" group="signalTable"  @change="controlTable.updateTable">
       <template #item="{element, index}">
-        <tr>
+        <tr :key="index">
           <td @click.stop="element.breakpoint = !element.breakpoint">{{ element.breakpoint }}</td>
           <td>
             <v-text-field @change="controlTable.updateTable" v-model="element.label" dense solo-inverted hide-details></v-text-field>
           </td>
           <td>{{ element.adress }}</td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxA" v-model="element.AluSelA">
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxA" v-model="element.AluSelA" return-object>
             </v-select>
           </td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxB" v-model="element.AluSelB">
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxB" v-model="element.AluSelB" return-object>
             </v-select>
           </td>
           <td @click.stop="element.MDRSel = !element.MDRSel">{{ +element.MDRSel }}</td>
@@ -49,7 +51,7 @@
             <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl">
             </v-select>
           </td>
-          <td v-for="(value, key) in element.registerWrite" :key="key" class="center" @click.stop="element.registerWrite[key] = element.registerWrite[key] === 0 ? 1 : 0">
+          <td v-for="(value, key) in element.registerWrite" :key="value" class="center" @click.stop="element.registerWrite[key] = element.registerWrite[key] === 0 ? 1 : 0">
             {{ value }}
           </td>
           <td @click.stop="openDialog(element)">{{ element.jump }}</td>
@@ -120,7 +122,7 @@ import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
 import draggable from 'vuedraggable';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const registerStore = useRegisterStore();
 const controlTable = useControlTableStore();
@@ -142,7 +144,6 @@ const isOkButtonDisabled = computed(() => {
   // Deaktiviere den Button nur, wenn 'Bedingter Sprung' ausgewählt ist und nicht beide Felder ausgefüllt sind
   return selectedJumpType.value === 'conditional' && (!conditionalJumpIfZero.value || !conditionalJumpIfNotZero.value);
 });
-
 
 function openDialog(row:any) {
   selectedRow.value = row;

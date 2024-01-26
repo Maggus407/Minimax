@@ -28,10 +28,12 @@
         <th class="center">Aktionen</th>
       </tr>
     </thead>
-    <draggable :list="list" tag="tbody" item-key="id" group="signalTable"  @change="controlTable.updateTable">
+    <draggable :list="list" tag="tbody"  item-key="id" group="signalTable"  @change="controlTable.updateTable">
       <template #item="{element, index}">
         <tr :key="index">
-          <td @click.stop="element.breakpoint = !element.breakpoint">{{ element.breakpoint }}</td>
+          <td @click.stop="element.breakpoint = !element.breakpoint">
+            <v-icon v-if="element.breakpoint" color="red">mdi-record</v-icon>
+          </td>
           <td>
             <v-text-field @change="controlTable.updateTable" v-model="element.label" dense solo-inverted hide-details></v-text-field>
           </td>

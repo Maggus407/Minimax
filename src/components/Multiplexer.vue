@@ -116,9 +116,9 @@ watch([multiplexerStore.muxA, multiplexerStore.muxB], () => {
 
   movedFromA.concat(movedFromB).forEach(movedItem => {
     controlTableStore.controlTable.forEach(row => {
-      if (row.AluSelA.title === movedItem.title|| row.AluSelB.title === movedItem.title) {
-        if (row.AluSelA.title === movedItem.title) row.AluSelA = null;
-        if (row.AluSelB.title === movedItem.title) row.AluSelB = null;
+      if (row.AluSelA === movedItem|| row.AluSelB === movedItem) {
+        if (row.AluSelA === movedItem) row.AluSelA = null;
+        if (row.AluSelB === movedItem) row.AluSelB = null;
       }
     });
   });

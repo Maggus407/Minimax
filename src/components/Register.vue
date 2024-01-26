@@ -54,7 +54,7 @@
                 <v-card-text v-if="currentEditing === regName.title">
                   <v-text-field v-model="editedName" label="Name"></v-text-field>
                   <v-text-field v-model="editedDescription" label="Description"></v-text-field>
-                  <v-btn color="success" @click="saveChanges(regName.title)">Save</v-btn>
+                  <v-btn color="success" :disabled="correctSaving == false" @click="saveChanges(regName.title)">Save</v-btn>
                   <v-btn color="grey" @click="cancelEdit(regName.title)">Cancel</v-btn>
                 </v-card-text>
             </v-expansion-panel>
@@ -64,10 +64,9 @@
     </v-row>
   </template>
   
-
   <script setup lang="ts">
   import { useRegisterStore } from '@/store/RegisterStore';
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { useI18n } from 'vue-i18n';
   
   const registerStore = useRegisterStore();
@@ -78,6 +77,13 @@
   const currentEditing = ref<string | null>(null);
   const editedName = ref('');
   const editedDescription = ref('');
+
+  const correctSaving = ref(false)
+
+  // Beobachte Änderungen an editedName und aktualisiere correctSaving
+watch(editedName, (newVal) => {
+  correctSaving.value = newVal.trim().length > 0;
+});
   
   // Erstellen Sie eine berechnete Eigenschaft, um die Beschreibungen zu erhalten.
   const registerDescriptions = computed(() => {
@@ -113,13 +119,17 @@ const cancelEdit = (registerName: string) => {
     const registerData = registerStore.getRegisterDescription(registerName);
     console.log(registerData);
     editedName.value = registerName;
-    editedDescription.value = registerData!.Description;
+    editedDescription.value = registerData;
   };
   
   const saveChanges = (registerName: string) => {
   const newName = editedName.value;
+  const newDescription = editedDescription.value;
 
   // Wenn sich der Name geändert hat, benennen Sie das Register um
+  if(description.value !== newDescription){
+    registerStore.updateRegisterDescription(registerName, newDescription);
+  }
   if (registerName !== newName) {
     console.log(newName);
     registerStore.renameRegister(registerName, newName);

@@ -102,6 +102,17 @@ function updateRegisterData(name: string, value: number, description: string): v
   }
 }
 
+function updateRegisterDescription(name: string, description: string): void {
+  if (register.has(name)) {
+    // Finde den Index des Registers im registerOrder-Array
+    const registerIndex = registerOrder.findIndex((r: any) => r.title === name);
+    if (registerIndex !== -1) {
+      // Aktualisiere Value und Description im registerOrder-Array
+      registerOrder[registerIndex].Description = description;
+    }
+  }
+}
+
 /**
  * Renames a register. This is only applicable for non-base registers.
  * @param oldName - The current name of the register.
@@ -140,6 +151,7 @@ return {
   getRegisterDescription,
   updateRegisterData,
   renameRegister,
-  registerOrder
+  registerOrder,
+  updateRegisterDescription
 };
 });

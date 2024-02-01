@@ -7,6 +7,7 @@
     :items="controlTable.controlTable"
     density="compact"
     height="91vh"
+    fixed-header
   >
   <thead>
       <tr>
@@ -53,11 +54,11 @@
             <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl">
             </v-select>
           </td>
-          <td v-for="(value, key) in element.registerWrite" :key="value" class="center" @click.stop="element.registerWrite[key] = element.registerWrite[key] === 0 ? 1 : 0">
-            {{ value }}
+          <td v-for="register in element.registerWrite" :class="'cursor-pointer'" :key="register.title" class="center pointer" @click.stop="register.isActive = !register.isActive">
+            <p>{{ register.isActive ? 1 : 0 }}</p>
           </td>
           <td @click.stop="openDialog(element)">{{ element.jump }}</td>
-          <td>{{ element.next }}</td>
+          <td>{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</td>
           <td>{{ element.description }}</td>
           <td><v-btn @click.stop="controlTable.deleteRow(index)">Löschen</v-btn></td>
   <v-dialog v-model="dialog" persistent max-width="30vw">
@@ -133,7 +134,7 @@ const aluStore = useAluStore();
 
 const list = controlTable.controlTable;
 const dialog = ref(false);
-const selectedRow = ref(null);
+const selectedRow = ref<any | null>(null);
 const selectedJumpType = ref('next');
 const unconditionalJump = ref(null);
 const conditionalJumpIfZero = ref(null);
@@ -160,19 +161,29 @@ function closeDialog() {
 function applyJumpSettings() {
   if (selectedRow.value) {
     if (selectedJumpType.value === 'next') {
-      // Setzen Sie 'next' auf die aktuelle Adresse plus eins
-      (selectedRow.value as any).next = Number((selectedRow.value as any).adress + 1);
       (selectedRow.value as any).jumpSet = false;
-      controlTable.updateTable();
+      controlTable.updateAdressesAndNext();
     } else if (selectedJumpType.value === 'unconditional') {
-      (selectedRow.value as any).next = Number(unconditionalJump.value);
-      (selectedRow.value as any).jumpSet = true; // Update the 'next' value of the selected row
-      // ...
+      (selectedRow.value as any).jumpSet = true;
+      (selectedRow.value as any).next = findRowById(unconditionalJump.value);
     } else if (selectedJumpType.value === 'conditional') {
-      // Logik für bedingten Sprung
-      // ...
+      (selectedRow.value as any).jumpSet = true;
+      (selectedRow.value as any).next = findRowById(conditionalJumpIfNotZero.value);
+      (selectedRow.value as any).jump = findRowById(conditionalJumpIfZero.value);
     }
   }
-  dialog.value = false; // Dialog schließen
+  dialog.value = false;
 }
+
+// Hilfsfunktion, um eine Reihe anhand ihrer ID zu finden
+function findRowById(adress: any) {
+  return controlTable.getNextRowById(adress);
+}
+
 </script>
+
+<style scoped>
+.pointer{
+  cursor: pointer;
+}
+</style>

@@ -46,7 +46,7 @@
           <v-radio label="Zahl" value="number"></v-radio>
           <!-- Eingabefeld für Zahlen, wenn 'number' ausgewählt ist -->
           <Dec_Hex_Bin_Inputs
-            :disabled="selectType === 'number'"
+            :disabled="selectType === 'register'"
             :numberInput="Number(numberInput)"
             @update:dec="numberInput = $event"
             @inputCleared="handleInputCleared"

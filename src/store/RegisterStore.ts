@@ -22,7 +22,7 @@ export const useRegisterStore = defineStore('register', () => {
     const descriptionKey = `register.${registerName.toLowerCase()}`;
     const description = t(descriptionKey); // Holt die Übersetzung für den Schlüssel
     register.set(registerName, 0);
-    registerOrder.push({ title: registerName, Value: 0, Description: description });
+    registerOrder.push({ title: registerName, Value: 0, Description: description, isActive: false });
     multiplexerStore.addRegisterToMux('B', {title: registerName, Value: 0, Description: description});
   });
 
@@ -53,7 +53,7 @@ export const useRegisterStore = defineStore('register', () => {
     const newRegisterData = {title: uniqueName, Value: 0, Description: description };
     register.set(uniqueName, 0);
     registerOrder.push(newRegisterData);
-    controlTableStore.updateControlTableWithNewRegister(uniqueName);
+    controlTableStore.updateCTAddedRegister(uniqueName);
   }
   /**
    * Deletes a register from the store based on its name.
@@ -71,8 +71,8 @@ export const useRegisterStore = defineStore('register', () => {
         registerOrder.splice(index, 1);
       }
       multiplexerStore.deleteRegisterFromMux('AB', reg);
-      controlTableStore.updateControlTableWithRemovedRegister(reg.title);
     }
+    controlTableStore.updateRemovedRegisterInCT(reg.title);
   }
  
   /**
@@ -142,7 +142,6 @@ function renameRegister(oldName: string, desiredNewName: string): void {
         // Der Wert und die Beschreibung bleiben unverändert
       }
     }
-    controlTableStore.updateRenamedRegister(uniqueNewName);
   }
 }
 

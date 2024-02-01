@@ -18,19 +18,16 @@ interface ControlTable {
   HsCs: boolean;
   Hs_R_W: boolean;
   AluCtrl: any;
-  registerWrite: { [key: string]: number }; // Für jedes Register ein Boolescher Wert
-  jump: number;
+  registerWrite: any;
+  jump: any;
   jumpSet: boolean;
-  next: number;
+  next: any;
   description: string;
 }
 
 export const useControlTableStore = defineStore('controlTable', () => {
-    // Import stores
-    const aluStore = useAluStore();
-    const registerStore = useRegisterStore();
-    const multiplexerStore = useMultiplexerStore();
-    const memoryStore = useMemoryStore();
+  // Import stores
+  const registerStore = useRegisterStore();
 
   const controlTable = reactive<ControlTable[]>([]);
 
@@ -46,52 +43,39 @@ export const useControlTableStore = defineStore('controlTable', () => {
       HsCs: false,
       Hs_R_W: false,
       AluCtrl: null,
-      registerWrite: {},
-      jump: -1,
+      registerWrite: [],
+      jump: null,
       jumpSet: false,
       next: controlTable.length + 1,
       description: "",
     };
-    
-    registerStore.registerOrder.forEach((registerObj: any) => {
-      newRow.registerWrite[registerObj.title] = 0;
+
+    newRow.registerWrite = registerStore.registerOrder.map((register: any) => {
+      return { title: register.title, isActive: false};
     });
-  
-    console.log(newRow.registerWrite);
-  
+
     controlTable.push(newRow);
     updateAdressesAndNext();
   }
 
-  function updateControlTableWithNewRegister(newRegisterName: string) {
-    controlTable.forEach(row => {
-      if (!(newRegisterName in row.registerWrite)) {
-        row.registerWrite[newRegisterName] = 0;
-      }
+
+  //given a number, return the next row with that id
+  function getNextRowById(adress: number) {
+    let row = controlTable.find((row) => row.adress == adress);
+    console.log("ROW: "+ row);
+    return row;
+  }
+
+  //remove Register from writable register in control table
+  function updateRemovedRegisterInCT(register: string){
+    controlTable.forEach((row) => {
+      row.registerWrite = row.registerWrite.filter((reg: any) => reg.title !== register);
     });
   }
-  
-  function updateControlTableWithRemovedRegister(removedRegisterName: string) {
-    controlTable.forEach(row => {
-      if (removedRegisterName in row.registerWrite) {
-        delete row.registerWrite[removedRegisterName];
-      }
-      
-    // Aktualisiere AluSelA und AluSelB, falls nötig
-    if (row.AluSelA && row.AluSelA.title === removedRegisterName) {
-      row.AluSelA = null;
-    }
-    if (row.AluSelB && row.AluSelB.title === removedRegisterName) {
-      row.AluSelB = null;
-    }
-    });
-  }  
 
-  function updateRenamedRegister(name: string){
-    controlTable.forEach(row => {
-      if (name in row.registerWrite) {
-        row.registerWrite[name] = row.registerWrite[name];
-      }
+  function updateCTAddedRegister(register: string){
+    controlTable.forEach((row) => {
+      row.registerWrite.push({title: register, isActive: false});
     });
   }
 
@@ -131,8 +115,9 @@ export const useControlTableStore = defineStore('controlTable', () => {
     showTableConsole,
     updateTable,
     rowsForSelection,
-    updateControlTableWithNewRegister,
-    updateControlTableWithRemovedRegister,
-    updateRenamedRegister
+    getNextRowById,
+    updateAdressesAndNext,
+    updateRemovedRegisterInCT,
+    updateCTAddedRegister
   };
 });

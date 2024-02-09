@@ -145,9 +145,23 @@ function renameRegister(oldName: string, desiredNewName: string): void {
   }
 }
 
+function registerReset(){
+  registerOrder.forEach((r: any) => {
+    if (!BASE_REGISTERS.includes(r.title)) {
+      register.set(r.title, 0);
+      r.Value = 0;
+    }
+  });
+
+  register.forEach((value, key) => {
+    register.set(key, 0);
+});
+}
+
 
 // Exposed methods and computed properties for external use.
 return {
+  register,
   addRegister,
   deleteRegister,
   BASE_REGISTERS,
@@ -155,6 +169,7 @@ return {
   updateRegisterData,
   renameRegister,
   registerOrder,
-  updateRegisterDescription
+  updateRegisterDescription,
+  registerReset
 };
 });

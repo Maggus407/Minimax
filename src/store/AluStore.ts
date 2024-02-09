@@ -26,25 +26,25 @@ export const useAluStore = defineStore('Alu', () => {
     });
 
     aluOperations.set('B SUB A', {
-        operation: Sub,
+        operation: SubB,
         description: 'A_sub_B',
         rt: 'ALU.result ← A - B'
     });
 
     aluOperations.set('A SUB B', {
-        operation: Sub,
+        operation: SubA,
         description: 'B_sub_A',
         rt: 'ALU.result ← B - A'
     });
 
     aluOperations.set('Transfer A', {
-        operation: transfer,
+        operation: transferA,
         description: 'transferA',
         rt: 'ALU.result ← A'
     });
 
     aluOperations.set('Transfer B', {
-        operation: transfer,
+        operation: transferB,
         description: 'transferB',
         rt: 'ALU.result ← B'
     });
@@ -283,7 +283,7 @@ function checkNumber(input: number | null | undefined): void {
 }
 
 // Subtrahiert b von a im 32-Bit-Int-Fenster.
- function Sub(a: number, b: number): number {
+ function SubB(a: number, b: number): number {
     checkNumber(a);
     checkNumber(b);
     const arrayA = new Int32Array([a]);
@@ -291,15 +291,31 @@ function checkNumber(input: number | null | undefined): void {
     return arrayA[0] - arrayB[0];
 }
 
+// Subtrahiert a von b im 32-Bit-Int-Fenster.
+ function SubA(a: number, b: number): number {
+    checkNumber(a);
+    checkNumber(b);
+    const arrayA = new Int32Array([a]);
+    const arrayB = new Int32Array([b]);
+    return arrayB[0] - arrayA[0];
+}
+
 // Überträgt den Wert a im 32-Bit-Int-Fenster.
- function transfer(a: number): number {
+ function transferA(a: number, b:any): number {
     checkNumber(a);
     const arrayA = new Int32Array([a]);
     return arrayA[0];
 }
 
+// Überträgt den Wert b im 32-Bit-Int-Fenster.
+ function transferB(a: any, b:number): number {
+    checkNumber(b);
+    const arrayB = new Int32Array([b]);
+    return arrayB[0];
+}
+
 // Inkrementiert a um 1 im 32-Bit-Int-Fenster.
- function increment(a: number): number {
+ function increment(a: number, b:any): number {
     checkNumber(a);
     const arrayA = new Int32Array([a]);
     arrayA[0] += 1;
@@ -307,7 +323,7 @@ function checkNumber(input: number | null | undefined): void {
 }
 
 // Dekrementiert a um 1 im 32-Bit-Int-Fenster.
- function decrement(a: number): number {
+ function decrement(a: number, b:any): number {
     checkNumber(a);
     const arrayA = new Int32Array([a]);
     arrayA[0] -= 1;
@@ -367,19 +383,19 @@ function checkNumber(input: number | null | undefined): void {
         return (arrayA[0] ^ arrayB[0]);
     }
 
-    function Invert(a: number): number {
+    function Invert(a: number, b:any): number {
         checkNumber(a);
         const arrayA = new Int32Array([a]);
         return ~arrayA[0];
     }
     
-    function ShiftLeft(a: number): number {
+    function ShiftLeft(a: number, b:any): number {
         checkNumber(a);
         const arrayA = new Int32Array([a]);
         return arrayA[0] << 1;
     }
     
-    function ShiftRight(a: number): number {
+    function ShiftRight(a: number, b:any): number {
         checkNumber(a);
         const arrayA = new Int32Array([a]);
         return arrayA[0] >> 1;
@@ -401,7 +417,7 @@ function checkNumber(input: number | null | undefined): void {
         return arrayA[0] >> arrayB[0];
     }
     
-    function ShiftRightUnsigned(a: number): number {
+    function ShiftRightUnsigned(a: number, b:any): number {
         checkNumber(a);
         const arrayA = new Int32Array([a]);
         return arrayA[0] >>> 1;
@@ -415,7 +431,7 @@ function checkNumber(input: number | null | undefined): void {
         return arrayA[0] >>> arrayB[0];
     }
     
-    function RotateLeft(a: number): number {
+    function RotateLeft(a: number, b:any): number {
         checkNumber(a);
         const MSB = 0x80000000;
         const LSB = 0x00000001;
@@ -440,7 +456,7 @@ function checkNumber(input: number | null | undefined): void {
         return result;
     }
     
-    function RotateRight(a: number): number {
+    function RotateRight(a: number, b:any): number {
         checkNumber(a);
         const MSB = 0x80000000;
         const LSB = 0x00000001;

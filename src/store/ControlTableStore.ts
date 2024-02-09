@@ -103,10 +103,27 @@ export const useControlTableStore = defineStore('controlTable', () => {
     rowsForSelection();
   }
   
-  function deleteRow(index: number){
+  function deleteRow(index: number) {
+        // Speichere die ID und die Adresse der zu löschenden Zeile vor dem Löschen
+        const deletedRowId = controlTable[index].id;
+  
+        // Gehe durch alle Zeilen und aktualisiere die 'jump' und 'next' Werte, falls nötig
+        controlTable.forEach(row => {
+          // Überprüfe, ob 'jump' oder 'next' die gelöschte Zeile referenzieren
+          if (row.jump !== null && row.jump.id === deletedRowId) {
+            row.jump = -1; // Oder einen anderen geeigneten Wert
+          }
+          if (row.next.id === deletedRowId) {
+            row.next = -1; // Oder den Wert für "kein Sprungziel"
+          }
+        });
+    // Lösche die Zeile aus dem Array
     controlTable.splice(index, 1);
-    updateAdressesAndNext(); // Aktualisiere Adressen und Next-Werte nach dem Löschen
+  
+    // Aktualisiere die Adressen und 'next'-Werte aller Zeilen
+    updateAdressesAndNext();
   }
+  
 
   return {
     controlTable,

@@ -54,11 +54,24 @@
             <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl">
             </v-select>
           </td>
-          <td v-for="register in element.registerWrite" :class="'cursor-pointer'" :key="register.title" class="center pointer" @click.stop="register.isActive = !register.isActive">
-            <p>{{ register.isActive ? 1 : 0 }}</p>
+          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer" @click.stop="register.isActive = !register.isActive">
+              <p>{{ register.isActive ? 1 : 0 }}</p>
           </td>
-          <td @click.stop="openDialog(element)">{{ element.jump }}</td>
-          <td>{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</td>
+          <!-- ALU == 0? -->
+          <td @click.stop="openDialog(element)">
+            <p v-if="element.jump === null">{{ element.jump !== null ?  element.jump.adress : "-"}}</p>
+            <div class="flex flex-col">
+              <p v-if="element.jump !== null && element.jumpSet === true">1</p>
+              <p v-if="element.jump !== null && element.jumpSet === true">0</p>
+            </div>
+          </td>
+          <!-- next -->
+          <td>
+            <div class="flex flex-col">
+              <p v-if="element.jump !== null">{{ element.jump.adress }}</p>
+              <p v-if="true">{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</p>
+            </div>
+          </td>
           <td>{{ element.description }}</td>
           <td><v-btn @click.stop="controlTable.deleteRow(index)">Löschen</v-btn></td>
   <v-dialog v-model="dialog" persistent max-width="30vw">
@@ -80,21 +93,24 @@
               type="number"
               v-model="unconditionalJump"
               :max="controlTable.controlTable.length - 1"
+              :min="0"
             ></v-text-field>
         </div>
         <div v-if="selectedJumpType === 'conditional'">
-          <v-text-field
-            label="ALU == 0?"
-            type="number"
-            v-model="conditionalJumpIfZero"
-            :max="controlTable.controlTable.length - 1"
-            :rules="[requiredRule]"
-          ></v-text-field>
           <v-text-field
             label="ALU != 0?"
             type="number"
             v-model="conditionalJumpIfNotZero"
             :max="controlTable.controlTable.length - 1"
+            :min="0"
+            :rules="[requiredRule]"
+          ></v-text-field>
+          <v-text-field
+            label="ALU == 0?"
+            type="number"
+            v-model="conditionalJumpIfZero"
+            :max="controlTable.controlTable.length - 1"
+            :min="0"
             :rules="[requiredRule]"
           ></v-text-field>
         </div>
@@ -125,7 +141,7 @@ import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
 import draggable from 'vuedraggable';
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 
 const registerStore = useRegisterStore();
 const controlTable = useControlTableStore();
@@ -145,7 +161,7 @@ const requiredRule = (value: any) => !!value || 'Erforderlich';
 // Berechnete Eigenschaft, die überprüft, ob der OK-Button aktiviert werden soll
 const isOkButtonDisabled = computed(() => {
   // Deaktiviere den Button nur, wenn 'Bedingter Sprung' ausgewählt ist und nicht beide Felder ausgefüllt sind
-  return selectedJumpType.value === 'conditional' && (!conditionalJumpIfZero.value || !conditionalJumpIfNotZero.value);
+  return selectedJumpType.value === 'conditional' && (!conditionalJumpIfZero.value || !conditionalJumpIfNotZero.value) || selectedJumpType.value === 'unconditional' && !unconditionalJump.value;
 });
 
 function openDialog(row:any) {
@@ -162,14 +178,20 @@ function applyJumpSettings() {
   if (selectedRow.value) {
     if (selectedJumpType.value === 'next') {
       (selectedRow.value as any).jumpSet = false;
+      (selectedRow.value as any).next = null;
+      (selectedRow.value as any).jump = null;
       controlTable.updateAdressesAndNext();
     } else if (selectedJumpType.value === 'unconditional') {
       (selectedRow.value as any).jumpSet = true;
+      (selectedRow.value as any).next = null;
+      (selectedRow.value as any).jump = null;
       (selectedRow.value as any).next = findRowById(unconditionalJump.value);
     } else if (selectedJumpType.value === 'conditional') {
       (selectedRow.value as any).jumpSet = true;
-      (selectedRow.value as any).next = findRowById(conditionalJumpIfNotZero.value);
       (selectedRow.value as any).jump = findRowById(conditionalJumpIfZero.value);
+      console.log("IF Zero: " + conditionalJumpIfZero.value + " ---- " + selectedRow.value.jump.id);
+      (selectedRow.value as any).next = findRowById(conditionalJumpIfNotZero.value);
+      console.log("IF Not Zero: " + conditionalJumpIfNotZero.value + " ---- " + selectedRow.value.next.id);
     }
   }
   dialog.value = false;

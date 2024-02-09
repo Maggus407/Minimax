@@ -1,8 +1,9 @@
-import { start } from 'node:repl';
 import { defineStore } from 'pinia';
 import { reactive, ref, watch } from 'vue';
+import { useRegisterStore } from './RegisterStore';
 
 export const useMemoryStore = defineStore('memory', () => {
+    const registerStore = useRegisterStore();
     //Page Settings
     const PAGE_SIZE = 16
     const memoryPage = ref(1)
@@ -85,8 +86,15 @@ export const useMemoryStore = defineStore('memory', () => {
         console.log("end: " + end);
         return rawMemory.slice(start, end+1).buffer;
     }
+
+    function setRawMemoryValue(value: number, index: number) {
+        rawMemory[index] = value;
+    }
     
-    
+    function getValue_at_MAR_Address(): number {
+        const marIndex = registerStore.register.get("MAR") as number;
+        return rawMemory[marIndex];
+    }
     
     function getMemory() {
         return displayedMemory;
@@ -162,7 +170,9 @@ export const useMemoryStore = defineStore('memory', () => {
         setFileName,
         getFileName,
         getPageSize,
-        updateMemory
+        updateMemory,
+        setRawMemoryValue,
+        getValue_at_MAR_Address
      };
 
 });

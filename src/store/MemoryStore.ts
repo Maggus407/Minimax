@@ -1,18 +1,16 @@
 import { defineStore } from 'pinia';
 import { reactive, ref, watch } from 'vue';
-import { useRegisterStore } from './RegisterStore';
 
 export const useMemoryStore = defineStore('memory', () => {
-    const registerStore = useRegisterStore();
     //Page Settings
-    const PAGE_SIZE = 16
+    const PAGE_SIZE = ref(16)
     const memoryPage = ref(1)
     const debuggerPage = ref(1)
 
     const rawMemory = new Int32Array(16777216).fill(0);
-    let initialMemory = new Int32Array()
+    let initialMemory = new Int32Array(16777216).fill(0)
     
-    const displayedMemory = reactive(new Array(PAGE_SIZE).fill(0))
+    const displayedMemory = reactive(new Array(PAGE_SIZE.value).fill(0))
     const fileName = ref<string>("memory.bin"); // Default-Wert
 
     watch(memoryPage, (newPage) => {
@@ -24,8 +22,8 @@ export const useMemoryStore = defineStore('memory', () => {
     });
     
     function updateDisplayedMemory(pageValue: number) {
-        const startIdx = (pageValue - 1) * PAGE_SIZE; // Berechnung des Startindex basierend auf der Seite
-        const endIdx = startIdx + PAGE_SIZE; // Berechnung des Endindex basierend auf der Seitengröße
+        const startIdx = (pageValue - 1) * PAGE_SIZE.value; // Berechnung des Startindex basierend auf der Seite
+        const endIdx = startIdx + PAGE_SIZE.value; // Berechnung des Endindex basierend auf der Seitengröße
     
         let temp = rawMemory.slice(startIdx, endIdx); // Schneiden des Arrays basierend auf den berechneten Indizes
     
@@ -91,8 +89,19 @@ export const useMemoryStore = defineStore('memory', () => {
         rawMemory[index] = value;
     }
     
-    function getValue_at_MAR_Address(): number {
-        const marIndex = registerStore.register.get("MAR") as number;
+    function changePageSize_Memory(pageSize: number){
+        PAGE_SIZE.value = pageSize;
+        displayedMemory.length = pageSize;
+        updateDisplayedMemory(memoryPage.value);
+    }
+
+    function changePageSize_Debugger(pageSize: number){
+        PAGE_SIZE.value = pageSize;
+        displayedMemory.length = pageSize;
+        updateDisplayedMemory(debuggerPage.value);
+    }
+
+    function getValue_at_MAR_Address(marIndex: number): number {
         return rawMemory[marIndex];
     }
     
@@ -145,7 +154,7 @@ export const useMemoryStore = defineStore('memory', () => {
     }
 
     function getPageSize(): number {
-        return PAGE_SIZE
+        return PAGE_SIZE.value
     }
 
     function updateMemory(index: number, newValue: number) {
@@ -172,7 +181,10 @@ export const useMemoryStore = defineStore('memory', () => {
         getPageSize,
         updateMemory,
         setRawMemoryValue,
-        getValue_at_MAR_Address
+        getValue_at_MAR_Address,
+        updateDisplayedMemory,
+        changePageSize_Memory,
+        changePageSize_Debugger
      };
 
 });

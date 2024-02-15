@@ -65,7 +65,7 @@
           <v-dialog width="70vw" v-model="showConfirmDialog" persistent>
             <v-card>
           <v-card-title class="text-h5">Warnung</v-card-title>
-          <v-card-text>Die Datei ist um {{overSizeBytes}} Bytes ({{ (overSizeBytes / 1048576).toFixed(2) }} MB) größer als die erlaubten 16MB. Diese werden abgeschnitten. Möchten Sie trotzdem fortfahren?</v-card-text>
+          <v-card-text>Die Datei ist um {{overSizeBytes}} Bytes ({{ (overSizeBytes / 1048576).toFixed(2) }} MB) größer als die erlaubten 64MB. Diese werden abgeschnitten. Möchten Sie trotzdem fortfahren?</v-card-text>
           <v-card-actions>
             <v-btn color="red darken-1" @click="showConfirmDialog = false">Abbrechen</v-btn>
             <v-btn color="green darken-1" @click="proceedWithFileImport">Fortfahren</v-btn>
@@ -87,7 +87,7 @@ import MemoryList from './ReUsable/MemoryList.vue'
 
 //Init Stores
 const memStore = useMemoryStore()
-
+memStore.changePageSize_Memory(16);
 //Import Data
 let int32Array: Int32Array;
 

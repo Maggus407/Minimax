@@ -1,6 +1,6 @@
 <template>
   <v-card variant="outlined">
-    <v-container>
+    <v-container class="pt-1 pb-0">
     <v-row align="center">
       <!--Left Buttons-->
       <v-col cols="3" class="d-flex align-center justify-start">
@@ -18,6 +18,7 @@
           v-model="jumpAddress"
           label="Jump to Address"
           outlined
+          density="compact"
           hint="Hex-Format eingeben (z.B. '00FFFF')"
           persistent-hint
           @keydown="validateHexInput"
@@ -38,7 +39,7 @@
     </v-row>
   </v-container>
   <!--Tabelle-->
-  <v-table fixed-header density="comfortable" @wheel="handleWheel">
+  <v-table fixed-header :density="denseVersion as any" @wheel="handleWheel">
     <thead>
       <tr>
         <th class="text-center" style="width: 20%">{{ $t('memory.address') }}</th>
@@ -94,19 +95,24 @@ import { useMemoryStore } from '@/store/MemoryStore';
 import { ref, computed } from 'vue';
 import Dec_Hex_Bin_Inputs from './Dec_Hex_Bin_Inputs.vue';
 
+const props = defineProps({
+    mode: {
+        type: String,
+        required: true
+    },
+    denseVersion: {
+        type: String,
+        required: false,
+        default: "comfortable", // Stellen Sie sicher, dass dies einer der erlaubten Werte ist
+    }
+});
+
 const memStore = useMemoryStore();
 const PAGE_SIZE = memStore.getPageSize();
 const displayFormat = ref('hex');  // 'hex' oder 'bin'
 const jumpAddress = ref("");
 
 const markedAddress = ref(-1); // -1 bedeutet, dass keine Adresse markiert ist
-
-const props = defineProps({
-    mode: {
-        type: String,
-        required: true
-    }
-});
 
 // Zustand für die Detailansicht
 const selectedItem = ref({ index: 0, value: 0 });
@@ -246,9 +252,6 @@ const validateHexInput = (event: KeyboardEvent) => {
     event.preventDefault();
   }
 };
-
-
-
 
 // Anzahl der Gesamtseiten berechnen
 const totalPages = computed(() => {

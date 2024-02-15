@@ -28,6 +28,7 @@ interface ControlTable {
 export const useControlTableStore = defineStore('controlTable', () => {
   // Import stores
   const registerStore = useRegisterStore();
+  const aluStore = useAluStore();
 
   const controlTable = reactive<ControlTable[]>([]);
 
@@ -99,8 +100,10 @@ export const useControlTableStore = defineStore('controlTable', () => {
   }
 
   function updateTable(){
+    console.log("updateTable");
     updateAdressesAndNext();
     rowsForSelection();
+    createRT_Notation();
   }
   
   function deleteRow(index: number) {
@@ -123,7 +126,36 @@ export const useControlTableStore = defineStore('controlTable', () => {
     // Aktualisiere die Adressen und 'next'-Werte aller Zeilen
     updateAdressesAndNext();
   }
-  
+
+  function createRT_Notation() {
+    console.log("createRT_Notation");
+    controlTable.forEach((row, index) => {
+      let RT_Notation = ""; // Beginne mit der Basis-RT-Notation der Operation
+      if (row.AluCtrl !== null) {
+        const aluOperation = aluStore.aluOperations.get(row.AluCtrl);
+        RT_Notation = aluOperation ? aluOperation.rt : "???";
+        console.log(RT_Notation);
+      }
+       // Ersetze ALU.result durch die Register, die in registerWrite aufgeführt sind
+       if (RT_Notation.includes('ALU.result') && row.registerWrite.length > 0) {
+        const activeRegister = row.registerWrite.filter((reg: any) => reg.isActive);
+        const registerTitles = activeRegister.map((reg: any) => reg.title).join(', ');
+        RT_Notation = RT_Notation.replace('ALU.result', registerTitles);
+      } else if (RT_Notation.includes('ALU.result')) {
+          RT_Notation = RT_Notation.replace('ALU.result', '???'); // Fallback, falls keine Register zum Schreiben vorhanden sind
+      }
+      // Überprüfe und ersetze A und B in der RT-Notation
+      if (RT_Notation.includes('A')) {
+        RT_Notation = RT_Notation.replace(/A/g, row.AluSelA.title || "???");
+      }
+      if (RT_Notation.includes('B')) {
+        RT_Notation = RT_Notation.replace(/B/g, row.AluSelB.title || "???");
+      }
+      row.description = RT_Notation;
+      console.log(row.description);
+    });
+}
+
 
   return {
     controlTable,
@@ -135,6 +167,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
     getNextRowById,
     updateAdressesAndNext,
     updateRemovedRegisterInCT,
-    updateCTAddedRegister
+    updateCTAddedRegister,
+    createRT_Notation
   };
 });

@@ -200,6 +200,12 @@ const isNumber = (value: string): boolean => {
 
 const formatBinary = (value: number): string => value.toString(2).padStart(6, '0');
 
-const formatHex = (value: number): string => '0x' + value.toString(16).toUpperCase().padStart(8, '0');
+function formatHex(value: number): string {
+  if(value < 0) {
+    return '0x' + (value >>> 0).toString(16).toUpperCase();
+  } else {
+    return '0x' + value.toString(16).toUpperCase().padStart(8, '0');
+  }
+}
 
 </script>

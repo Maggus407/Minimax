@@ -147,15 +147,9 @@ function renameRegister(oldName: string, desiredNewName: string): void {
 
 function registerReset(){
   registerOrder.forEach((r: any) => {
-    if (!BASE_REGISTERS.includes(r.title)) {
       register.set(r.title, 0);
       r.Value = 0;
-    }
   });
-
-  register.forEach((value, key) => {
-    register.set(key, 0);
-});
 }
 
 

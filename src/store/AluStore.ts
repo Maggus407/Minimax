@@ -8,6 +8,7 @@ type AluOperationInfo = {
     operation: AluOperation;
     description: string;
     rt: string;
+    
   };
 
 export const useAluStore = defineStore('Alu', () => {
@@ -102,7 +103,6 @@ export const useAluStore = defineStore('Alu', () => {
         description: 'A_XOR_B',
         rt: 'ALU.result ← A ^ B'
     });
-
 
     aluOperations.set('A MUL B', {
         operation: Multiplikation,

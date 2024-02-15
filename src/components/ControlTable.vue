@@ -36,25 +36,25 @@
             <v-icon v-if="element.breakpoint" color="red">mdi-record</v-icon>
           </td>
           <td>
-            <v-text-field @change="controlTable.updateTable" v-model="element.label" dense solo-inverted hide-details></v-text-field>
+            <v-text-field @change="controlTable.updateTable()" v-model="element.label" dense solo-inverted hide-details></v-text-field>
           </td>
           <td>{{ element.adress }}</td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxA" v-model="element.AluSelA" return-object>
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxA" v-model="element.AluSelA" return-object @change="controlTable.createRT_Notation()">
             </v-select>
           </td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxB" v-model="element.AluSelB" return-object>
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxB" v-model="element.AluSelB" return-object @change="controlTable.createRT_Notation">
             </v-select>
           </td>
           <td @click.stop="element.MDRSel = !element.MDRSel">{{ +element.MDRSel }}</td>
           <td @click.stop="element.HsCs = !element.HsCs">{{ +element.HsCs }}</td>
           <td @click.stop="element.Hs_R_W = !element.Hs_R_W">{{ +element.Hs_R_W }}</td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl">
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl" @change="controlTable.createRT_Notation">
             </v-select>
           </td>
-          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer" @click.stop="register.isActive = !register.isActive">
+          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer" @click.stop="register.isActive = !register.isActive" @change="controlTable.createRT_Notation">
               <p>{{ register.isActive ? 1 : 0 }}</p>
           </td>
           <!-- ALU == 0? -->

@@ -15,6 +15,7 @@
             </v-card>
         </v-col>
         <v-col>
+
             <v-card>
                 <v-btn :disabled="executing" @click="start">Start</v-btn>
                 <v-btn :disabled="!executing" @click="stop">Stop</v-btn>
@@ -25,6 +26,9 @@
             <v-card class="mt-3" title="ALU" variant="outlined">
                 <v-card-text>
                     RESULT
+                </v-card-text>
+                <v-card-text>
+                    Step: {{ debuggerStore.counter}}
                 </v-card-text>
             </v-card>
             <v-card>

@@ -3,6 +3,7 @@ import { useControlTableStore } from './ControlTableStore';
 import { useRegisterStore } from './RegisterStore';
 import { useMemoryStore } from './MemoryStore';
 import { useAluStore } from './AluStore';
+import { ref } from 'vue';
 
 
 export const useDebugerStore = defineStore('debugger', () => {
@@ -15,6 +16,8 @@ export const useDebugerStore = defineStore('debugger', () => {
     const aluResult = 0;
     let currentRow: any;
     let finished = false;
+    const counter = ref(0);
+    let currentStep = 0;
 
     //faster?
     const tempRegister: Map<string, number> = new Map();
@@ -98,35 +101,54 @@ export const useDebugerStore = defineStore('debugger', () => {
             }
             // Versuche, den Wert in eine Zahl umzuwandeln
             const num = Number(value.title);
+            console.log(num);
             // Prüfe, ob die Umwandlung gültig ist (nicht NaN)
             return isNaN(num) ? value.title : num;
         };
 
-        function step() {
-            if (finished || debuggerCompiled.length === 0) {
-                if (finished) writeToRegister();
-                return;
+        function step(){
+            let result:any = 0;
+            if(finished){
+                writeToRegister();
+                return; 
             }
-        
-            const currentOperation = aluStore.aluOperations.get(currentRow.aluCtrl);
-            let result = 0;
-        
-            if (currentOperation) {
-                const A = typeof currentRow.aluA === 'string' ? tempRegister.get(currentRow.aluA) || 0 : currentRow.aluA;
-                const B = typeof currentRow.aluB === 'string' ? tempRegister.get(currentRow.aluB) || 0 : currentRow.aluB;
-                result = currentOperation.operation(A, B);
+            currentStep++;
+            if(debuggerCompiled.length === 0 )return;
+            //Start Alu Operation
+            if(currentRow.aluCtrl !== null){
+                let A = 0;
+                let B = 0;
+                if(typeof currentRow.aluA === 'string'){
+                    A = tempRegister.get(currentRow.aluA) as number;
+                }else{
+                    A = currentRow.aluA;
+                }
+                if(typeof currentRow.aluB === 'string'){
+                    B = tempRegister.get(currentRow.aluB) as number;
+                }else{
+                    B = currentRow.aluB;
+                }
+                result = aluStore.aluOperations.get(currentRow.aluCtrl)?.operation(A, B);
             }
-        
-            if (currentRow.read_or_write_mem) {
+            //Start Memory Operation
+            if(currentRow.read_or_write_mem !== null){
                 currentRow.read_or_write_mem();
             }
-        
-            currentRow.registerWrite.forEach((register: any) => tempRegister.set(register, result));
-        
-            if (currentRow.next === -1) {
+            //Write to Register
+            if(currentRow.registerWrite.length > 0){
+                currentRow.registerWrite.forEach((register: string) => {
+                    tempRegister.set(register, result);
+                });
+            }
+            //Jump to next row
+            if(currentRow.next === -1){
                 finished = true;
-            } else {
-                currentRow = debuggerCompiled[currentRow.jump !== null && result === 0 ? currentRow.jump : currentRow.next];
+                return;
+            }
+            if(currentRow.jump !== null && result === 0){
+                currentRow = debuggerCompiled[currentRow.jump];
+            }else{
+                currentRow = debuggerCompiled[currentRow.next];
             }
         }
         
@@ -153,7 +175,7 @@ function run() {
         // Wenn die Ausführung aufgrund eines Breakpoints pausiert wird, setze das Flag
         isPausedAtBreakpoint = true;
     }
-
+    counter.value = currentStep;
     let page = memoryStore.getDebuggerPage();
     writeToRegister();
     memoryStore.setDebuggerPage(page);
@@ -204,7 +226,8 @@ function run() {
         step,
         stepBack,
         stop,
-        run
+        run,
+        counter
     }
 
 });

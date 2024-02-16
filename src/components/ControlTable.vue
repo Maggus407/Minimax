@@ -40,21 +40,21 @@
           </td>
           <td>{{ element.adress }}</td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxA" v-model="element.AluSelA" return-object @change="controlTable.createRT_Notation()">
-            </v-select>
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxA" v-model="element.AluSelA" return-object>
+          </v-select>
           </td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxB" v-model="element.AluSelB" return-object @change="controlTable.createRT_Notation">
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="multiplexerStore.muxB" v-model="element.AluSelB" return-object>
             </v-select>
           </td>
           <td @click.stop="element.MDRSel = !element.MDRSel">{{ +element.MDRSel }}</td>
           <td @click.stop="element.HsCs = !element.HsCs">{{ +element.HsCs }}</td>
           <td @click.stop="element.Hs_R_W = !element.Hs_R_W">{{ +element.Hs_R_W }}</td>
           <td>
-            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl" @change="controlTable.createRT_Notation">
+            <v-select :hide-details="true" density="compact" variant="outlined" menu-icon="" :items="['-', ...aluStore.aluOperationsListAdded]" v-model="element.AluCtrl">
             </v-select>
           </td>
-          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer" @click.stop="register.isActive = !register.isActive" @change="controlTable.createRT_Notation">
+          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer" @click.stop="register.isActive = !register.isActive">
               <p>{{ register.isActive ? 1 : 0 }}</p>
           </td>
           <!-- ALU == 0? -->
@@ -157,6 +157,10 @@ const conditionalJumpIfZero = ref(null);
 const conditionalJumpIfNotZero = ref(null);
 
 const requiredRule = (value: any) => !!value || 'Erforderlich';
+
+function test() {
+  console.log("test");
+}
 
 // Berechnete Eigenschaft, die überprüft, ob der OK-Button aktiviert werden soll
 const isOkButtonDisabled = computed(() => {

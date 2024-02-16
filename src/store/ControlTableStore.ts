@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { reactive, computed } from 'vue';
+import { reactive, watch } from 'vue';
 import { useAluStore } from '@/store/AluStore';
 import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
@@ -54,11 +54,15 @@ export const useControlTableStore = defineStore('controlTable', () => {
     newRow.registerWrite = registerStore.registerOrder.map((register: any) => {
       return { title: register.title, isActive: false};
     });
-
     controlTable.push(newRow);
     updateAdressesAndNext();
   }
 
+    // Funktion zum Neu-Berechnen der RT-Notation für eine Zeile
+    function recalculateRTNotation(row: ControlTable) {
+      // Ihre Logik zur Neuberechnung der RT-Notation für `row`
+      console.log(`RT-Notation für Zeile ${row.id} neu berechnet`);
+    }
 
   //given a number, return the next row with that id
   function getNextRowById(adress: number) {
@@ -103,7 +107,6 @@ export const useControlTableStore = defineStore('controlTable', () => {
     console.log("updateTable");
     updateAdressesAndNext();
     rowsForSelection();
-    createRT_Notation();
   }
   
   function deleteRow(index: number) {
@@ -127,36 +130,6 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateAdressesAndNext();
   }
 
-  function createRT_Notation() {
-    console.log("createRT_Notation");
-    controlTable.forEach((row, index) => {
-      let RT_Notation = ""; // Beginne mit der Basis-RT-Notation der Operation
-      if (row.AluCtrl !== null) {
-        const aluOperation = aluStore.aluOperations.get(row.AluCtrl);
-        RT_Notation = aluOperation ? aluOperation.rt : "???";
-        console.log(RT_Notation);
-      }
-       // Ersetze ALU.result durch die Register, die in registerWrite aufgeführt sind
-       if (RT_Notation.includes('ALU.result') && row.registerWrite.length > 0) {
-        const activeRegister = row.registerWrite.filter((reg: any) => reg.isActive);
-        const registerTitles = activeRegister.map((reg: any) => reg.title).join(', ');
-        RT_Notation = RT_Notation.replace('ALU.result', registerTitles);
-      } else if (RT_Notation.includes('ALU.result')) {
-          RT_Notation = RT_Notation.replace('ALU.result', '???'); // Fallback, falls keine Register zum Schreiben vorhanden sind
-      }
-      // Überprüfe und ersetze A und B in der RT-Notation
-      if (RT_Notation.includes('A')) {
-        RT_Notation = RT_Notation.replace(/A/g, row.AluSelA.title || "???");
-      }
-      if (RT_Notation.includes('B')) {
-        RT_Notation = RT_Notation.replace(/B/g, row.AluSelB.title || "???");
-      }
-      row.description = RT_Notation;
-      console.log(row.description);
-    });
-}
-
-
   return {
     controlTable,
     addRow,
@@ -168,6 +141,5 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateAdressesAndNext,
     updateRemovedRegisterInCT,
     updateCTAddedRegister,
-    createRT_Notation
   };
 });

@@ -1,9 +1,7 @@
 import { defineStore } from 'pinia';
-import { reactive, watch } from 'vue';
+import { reactive } from 'vue';
 import { useAluStore } from '@/store/AluStore';
 import { useRegisterStore } from '@/store/RegisterStore';
-import { useMultiplexerStore } from '@/store/MultiplexerStore';
-import { useMemoryStore } from './MemoryStore';
 import { v4 as uuidv4 } from 'uuid'
 
 // Interface for control table
@@ -58,12 +56,6 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateAdressesAndNext();
   }
 
-    // Funktion zum Neu-Berechnen der RT-Notation für eine Zeile
-    function recalculateRTNotation(row: ControlTable) {
-      // Ihre Logik zur Neuberechnung der RT-Notation für `row`
-      console.log(`RT-Notation für Zeile ${row.id} neu berechnet`);
-    }
-
   //given a number, return the next row with that id
   function getNextRowById(adress: number) {
     let row = controlTable.find((row) => row.adress == adress);
@@ -74,7 +66,10 @@ export const useControlTableStore = defineStore('controlTable', () => {
   //remove Register from writable register in control table
   function updateRemovedRegisterInCT(register: string){
     controlTable.forEach((row) => {
+      row.AluSelA?.title === register ? row.AluSelA = null : null;
+      row.AluSelB?.title === register ? row.AluSelB = null : null;
       row.registerWrite = row.registerWrite.filter((reg: any) => reg.title !== register);
+      create_RT_Notation(row);
     });
   }
 
@@ -107,8 +102,52 @@ export const useControlTableStore = defineStore('controlTable', () => {
     console.log("updateTable");
     updateAdressesAndNext();
     rowsForSelection();
+    controlTable.forEach((row) => {
+      create_RT_Notation(row);
+    });
+    console.log(controlTable);
   }
+
+  function aluRemoved(alu: string){
+    controlTable.forEach((row) => {
+      if(row.AluCtrl === alu){
+        row.AluCtrl = null;
+      }
+    });
+    updateTable();
+  }
+
+  function create_RT_Notation(row: any) {
+    console.log(row)
+
+    if (!row || !row.AluCtrl || !aluStore.aluOperations.has(row.AluCtrl)){
+      row.description = "";
+      return;
+    }
   
+    // Speichere ALU-Operation und RT-Notation
+    const AluOperation = aluStore.aluOperations.get(row.AluCtrl);
+    let RT_Notation = AluOperation ? AluOperation.rt : "???";
+
+    const AluSelA = row.AluSelA?.title || "???";
+    const AluSelB = row.AluSelB?.title || "???";
+  
+    // Variablen für die zu schreibenden Register
+    const regWrite = row.registerWrite
+      .filter((reg: any) => reg.isActive)
+      .map((reg: any) => reg.title)
+      .join(", ") || "???";
+
+    // Präzises Ersetzen von 'A' und 'B'
+    RT_Notation = RT_Notation.replace(/\bA\b/g, AluSelA);
+    RT_Notation = RT_Notation.replace(/\bB\b/g, AluSelB);
+    // Ersetze 'ALU.result'
+    RT_Notation = RT_Notation.replace('ALU.result', regWrite);
+  
+    // Update der RT-Notation im Row-Objekt
+    row.description = RT_Notation;
+  }
+
   function deleteRow(index: number) {
         // Speichere die ID und die Adresse der zu löschenden Zeile vor dem Löschen
         const deletedRowId = controlTable[index].id;
@@ -141,5 +180,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateAdressesAndNext,
     updateRemovedRegisterInCT,
     updateCTAddedRegister,
+    create_RT_Notation,
+    aluRemoved
   };
 });

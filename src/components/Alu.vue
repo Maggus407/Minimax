@@ -26,7 +26,13 @@
           <v-card-title>{{$t('alu.availableOps')}}</v-card-title>
           <v-expansion-panels>
           <v-card-text class="overflow-y-auto" style="height: 90vh;">
-            <draggable style="height: 85vh;" :list="aluStore.aluOperationsListAvailable" tag="div" item-key="i" group="items">
+            <draggable
+            :list="aluStore.aluOperationsListAvailable"
+            tag="div"
+            item-key="i"
+            group="items"
+            @change="onChange($event)"
+          >
               <template #item="{element, index}">
                   <v-expansion-panel 
                   :key="index" 
@@ -46,8 +52,17 @@
 
 <script setup lang="ts">
 import { useAluStore } from '@/store/AluStore';
+import { useControlTableStore } from '@/store/ControlTableStore';
 import draggable from 'vuedraggable';
 
 const aluStore = useAluStore();
+const controlTable = useControlTableStore();
+
+const onChange = (event: any) => {
+  if(event.added) {
+    console.log('Änderungen:', event.added.element);
+    controlTable.aluRemoved(event.added.element);
+  }
+}
 
 </script>

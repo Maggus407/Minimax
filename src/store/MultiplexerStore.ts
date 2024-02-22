@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia';
 import {reactive } from 'vue';
+import { useControlTableStore } from './ControlTableStore';
 
 export const useMultiplexerStore = defineStore('multiplexer', () => {
+  // Import stores
+  const controlTableStore = useControlTableStore();
   const muxA: (any)[] = reactive([{title: "0",Value: 0}, {title: "1", Value: 1}]);
   const muxB: (any)[] = reactive([]);
 
@@ -38,6 +41,7 @@ export const useMultiplexerStore = defineStore('multiplexer', () => {
         muxB.splice(index2, 1);
       }
     }
+    controlTableStore.updateTable();
   }
 
   return {

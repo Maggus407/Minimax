@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch, reactive } from 'vue';
+import { useControlTableStore } from './ControlTableStore';
 
 // Definieren des Typs für die ALU-Operationen
 type AluOperation = (a: number, b: number) => number;
@@ -18,6 +19,8 @@ export const useAluStore = defineStore('Alu', () => {
      * Add, SubA, SubB, TransferA, TransferB, IncrementA, IncrementB, DecrementA, DecrementB, ModuloA, ModuloB, And, Or, Xor, Multiplikation, DivisionA, DivisionB, InvertA, InvertB, ShiftLeftA, ShiftLeftB, ShiftRightA, ShiftRightB, ShiftLeft_by_X, ShiftRight_by_X, ShiftRightUnsigned, ShiftRightUnsignedByX, RotateLeft, RotateLeftByX, RotateRight, RotateRightByX
      */
     const aluOperations = new Map<string, AluOperationInfo>();
+
+    const controlTable = useControlTableStore();
 
     // Hier können Sie Ihre ALU-Operationen hinzufügen
     aluOperations.set('A ADD B', {
@@ -481,13 +484,13 @@ function checkNumber(input: number | null | undefined): void {
         return result;
     }
     
-                // Basisoperationen
+        // Basisoperationen
         const BASE_OPERATIONS = ['A ADD B', 'B SUB A', 'Transfer A', 'Transfer B'];
 
         // Reactive Listen für die ALU-Operationen
-        const aluOperationsListAdded = ref<string[]>([...BASE_OPERATIONS]);
+        const aluOperationsListAdded = reactive<string[]>([...BASE_OPERATIONS]);
         const aluOperationsListAvailable = ref<string[]>([]);
-    
+
         // Operationen zu den Listen hinzufügen
         aluOperations.forEach((_, key) => {
             if (!BASE_OPERATIONS.includes(key)) {

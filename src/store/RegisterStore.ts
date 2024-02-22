@@ -143,6 +143,7 @@ function renameRegister(oldName: string, desiredNewName: string): void {
       }
     }
   }
+  controlTableStore.updateTable();
 }
 
 function registerReset(){

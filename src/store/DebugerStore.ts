@@ -78,13 +78,20 @@ export const useDebugerStore = defineStore('debugger', () => {
             if(row.HsCs && !row.Hs_R_W){
                 memOP = writeToMemory;
             }
+            let alu = null;
+            if(row.AluCtrl === null || row.AluCtrl === undefined || row.AluCtrl === "-"){
+                alu = null;
+            }else{
+                alu = row.AluCtrl;
+            
+            }
 
             debuggerCompiled.push({
                 breakpoint: row.breakpoint,
                 registerWrite: regNames,
                 aluA: convertIfNumeric(row.AluSelA),
                 aluB: convertIfNumeric(row.AluSelB),
-                aluCtrl: row.AluCtrl,
+                aluCtrl: alu,
                 read_or_write_mem: memOP,
                 next: next,
                 jump: jump,
@@ -108,12 +115,12 @@ export const useDebugerStore = defineStore('debugger', () => {
 
         function step(){
             let result:any = 0;
+            if(debuggerCompiled.length === 0 )return;
             if(finished){
                 writeToRegister();
                 return; 
             }
             currentStep++;
-            if(debuggerCompiled.length === 0 )return;
             //Start Alu Operation
             if(currentRow.aluCtrl !== null){
                 let A = 0;
@@ -158,7 +165,7 @@ let isPausedAtBreakpoint = false;
 
 function run() {
     const startTime = performance.now();
-
+    if(debuggerCompiled.length === 0)return;
     // Prüfen, ob die Ausführung beim letzten Mal bei einem Breakpoint pausiert wurde
     if (isPausedAtBreakpoint) {
         // Wenn ja, versuche, mit dem nächsten Schritt fortzufahren, bevor die Schleife beginnt

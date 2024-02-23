@@ -126,7 +126,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
   
     // Speichere ALU-Operation und RT-Notation
     const AluOperation = aluStore.aluOperations.get(row.AluCtrl);
-    let RT_Notation_Base = AluOperation ? AluOperation.rt : "???";
+    let RT_Notation_Base = AluOperation ? AluOperation.rt : "";
     
     // Ersetze 'ALU.result' mit Platzhalter für die spätere Ersetzung
     RT_Notation_Base = RT_Notation_Base.replace('ALU.result', '{}');

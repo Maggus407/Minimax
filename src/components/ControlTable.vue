@@ -65,9 +65,9 @@
             >
             </v-select>
           </td>
-          <td @click.stop="element.MDRSel = !element.MDRSel">{{ +element.MDRSel }}</td>
-          <td @click.stop="element.HsCs = !element.HsCs">{{ +element.HsCs }}</td>
-          <td @click.stop="element.Hs_R_W = !element.Hs_R_W">{{ +element.Hs_R_W }}</td>
+          <td @click.stop="update(element,null,null,'MDRSel')">{{ +element.MDRSel }}</td>
+          <td @click.stop="update(element,null,null,'HsCs')">{{ +element.HsCs }}</td>
+          <td @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
           <td>
             <v-select
               :hide-details="true"
@@ -98,7 +98,14 @@
               <p v-if="true">{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</p>
             </div>
           </td>
-          <td>{{ element.description }}</td>
+          <td>
+            <div v-if="element.description.length > 0">
+              <p v-for="(d, index) in element.description" :key="index">{{ d }}</p>
+            </div>
+            <div v-else>
+              <p>&nbsp;</p>
+            </div>
+          </td>
           <td><v-btn @click.stop="controlTable.deleteRow(index)">Löschen</v-btn></td>
   <v-dialog v-model="dialog" persistent max-width="30vw">
     <v-card>
@@ -184,8 +191,11 @@ const conditionalJumpIfNotZero = ref(null);
 
 const requiredRule = (value: any) => !!value || 'Erforderlich';
 
-function update(row: any, register: any, alu: any = null){
+function update(row: any, register: any, alu: any = null, memory: any = null){
   console.log("ALU " + alu);
+  if(memory === 'MDRSel'){row.MDRSel = !row.MDRSel};
+  if(memory === 'HsCs'){row.HsCs = !row.HsCs};
+  if(memory === 'Hs_R_W'){row.Hs_R_W = !row.Hs_R_W};
   if(register != null){register.isActive = !register.isActive};
   controlTable.create_RT_Notation(row);
 }

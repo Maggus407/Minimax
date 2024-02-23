@@ -20,12 +20,13 @@
                 <v-btn :disabled="executing" @click="start">Start</v-btn>
                 <v-btn :disabled="!executing" @click="stop">Stop</v-btn>
                 <v-btn :disabled="!executing" @click="step">Step</v-btn>
+                <v-btn :disabled="!executing" @click="stepBack">Step Back</v-btn>
                 <v-btn :disabled="!executing" @click="run">RUN BOY</v-btn>
                 <v-btn @click="testing">Test</v-btn>
             </v-card>   
             <v-card class="mt-3" title="ALU" variant="outlined">
                 <v-card-text>
-                    RESULT
+                    RESULT: {{ debuggerStore.Alu_UI }}
                 </v-card-text>
                 <v-card-text>
                     Step: {{ debuggerStore.counter}}
@@ -75,7 +76,13 @@ function stop() {
 function step() {
     debuggerStore.step();
     updateMemory();
+    debuggerStore.writeToRegister();
     console.log(registerStore.register);
+}
+
+function stepBack() {
+    debuggerStore.stepBack();
+    updateMemory();
 }
 
 function run() {

@@ -20,7 +20,7 @@ interface ControlTable {
   jump: any;
   jumpSet: boolean;
   next: any;
-  description: string;
+  description: [];
 }
 
 export const useControlTableStore = defineStore('controlTable', () => {
@@ -46,7 +46,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
       jump: null,
       jumpSet: false,
       next: controlTable.length + 1,
-      description: "",
+      description: [],
     };
 
     newRow.registerWrite = registerStore.registerOrder.map((register: any) => {
@@ -118,36 +118,54 @@ export const useControlTableStore = defineStore('controlTable', () => {
   }
 
   function create_RT_Notation(row: any) {
-    console.log(row)
-
-    if (!row || !row.AluCtrl || !aluStore.aluOperations.has(row.AluCtrl)){
-      row.description = "";
+    row.description = []; // Initialisiere das description-Array neu
+    if (!row) {
+      row.description.push("");
       return;
     }
   
     // Speichere ALU-Operation und RT-Notation
     const AluOperation = aluStore.aluOperations.get(row.AluCtrl);
-    let RT_Notation = AluOperation ? AluOperation.rt : "???";
-
+    let RT_Notation_Base = AluOperation ? AluOperation.rt : "???";
+    
+    // Ersetze 'ALU.result' mit Platzhalter für die spätere Ersetzung
+    RT_Notation_Base = RT_Notation_Base.replace('ALU.result', '{}');
+  
+    // Variablen für 'A' und 'B' Werte
     const AluSelA = row.AluSelA?.title || "???";
     const AluSelB = row.AluSelB?.title || "???";
   
-    // Variablen für die zu schreibenden Register
-    const regWrite = row.registerWrite
-      .filter((reg: any) => reg.isActive)
-      .map((reg: any) => reg.title)
-      .join(", ") || "???";
-
     // Präzises Ersetzen von 'A' und 'B'
-    RT_Notation = RT_Notation.replace(/\bA\b/g, AluSelA);
-    RT_Notation = RT_Notation.replace(/\bB\b/g, AluSelB);
-    // Ersetze 'ALU.result'
-    RT_Notation = RT_Notation.replace('ALU.result', regWrite);
+    RT_Notation_Base = RT_Notation_Base.replace(/\bA\b/g, AluSelA);
+    RT_Notation_Base = RT_Notation_Base.replace(/\bB\b/g, AluSelB);
   
-    // Update der RT-Notation im Row-Objekt
-    row.description = RT_Notation;
-  }
+    // Wenn MDR selektiert ist, überspringe MDR bei der RT-Notation
+    let MDR = row.registerWrite.some((reg: any) => reg.title === "MDR" && reg.isActive);
+    
+    if(row.HsCs && row.Hs_R_W == false){
+      row.description.push("M[MAR] ← MDR");
+    }
 
+    if(row.Hs_R_W && row.HsCs && row.MDRSel && MDR){
+      row.description.push("MDR ← M[MAR]");
+    }
+
+    
+    // Erstelle für jedes aktive Register einen eigenen String, überspringe MDR falls nötig
+    row.registerWrite.forEach((reg: any) => {
+      if (reg.isActive && !(MDR && reg.title === 'MDR' && row.MDRSel)) { // Überspringe MDR wenn skipMDR true ist
+        let RT_Notation = RT_Notation_Base.replace('{}', reg.title);
+        row.description.push(RT_Notation);
+      }
+    });
+  
+    // Wenn kein Register aktiv ist, füge den Basis-RT-Notation-String hinzu
+    if (row.description.length === 0) {
+      let RT_Notation = RT_Notation_Base.replace('{}', '???');
+      row.description.push(RT_Notation);
+    }
+  }
+  
   function deleteRow(index: number) {
         // Speichere die ID und die Adresse der zu löschenden Zeile vor dem Löschen
         const deletedRowId = controlTable[index].id;

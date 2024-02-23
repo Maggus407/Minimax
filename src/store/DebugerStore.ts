@@ -13,14 +13,12 @@ export const useDebugerStore = defineStore('debugger', () => {
     const memoryStore = useMemoryStore();
     const aluStore = useAluStore();
     const debuggerCompiled: any = [];
-    const aluResult = 0;
+    let aluResult = 0;
+    let Alu_UI = ref(0);
     let currentRow: any;
     let finished = false;
     const counter = ref(0);
     let currentStep = 0;
-
-    //faster?
-    const tempRegister: Map<string, number> = new Map();
 
     /**
      * Prepare the debuger for the start
@@ -30,9 +28,9 @@ export const useDebugerStore = defineStore('debugger', () => {
     function start(){
         let a = [...registerStore.register];
         a.forEach((value) => {
-            tempRegister.set(value[0], value[1]);
+            registerStore.register.set(value[0], value[1]);
         });
-        console.log(tempRegister);
+        console.log(registerStore.register);
         if(controlTable.controlTable.length === 0){
             return;
         }
@@ -49,8 +47,9 @@ export const useDebugerStore = defineStore('debugger', () => {
                         }
                 });
             }
+            let mdr = row.registerWrite.find((reg: any) => reg.title === "MDR" && reg.isActive);
             //Remove MDR if MDR is selected for Memory Operation
-            if(row.MDRSel && row.HsCs){
+            if(row.MDRSel){
                 regNames.splice(regNames.indexOf("MDR"), 1);
             }
 
@@ -72,10 +71,10 @@ export const useDebugerStore = defineStore('debugger', () => {
              */
             let memOP = null;
 
-            if(row.HsCs && row.Hs_R_W){
+            if(row.Hs_R_W && row.HsCs && row.MDRSel && mdr){
                 memOP = writeMemoryToMDR;
             }
-            if(row.HsCs && !row.Hs_R_W){
+            if(row.HsCs && row.Hs_R_W == false){
                 memOP = writeToMemory;
             }
             let alu = null;
@@ -113,29 +112,24 @@ export const useDebugerStore = defineStore('debugger', () => {
             return isNaN(num) ? value.title : num;
         };
 
-        function step(){
+        function calculateOperation(){
             let result:any = 0;
-            if(debuggerCompiled.length === 0 )return;
-            if(finished){
-                writeToRegister();
-                return; 
-            }
-            currentStep++;
             //Start Alu Operation
             if(currentRow.aluCtrl !== null){
                 let A = 0;
                 let B = 0;
                 if(typeof currentRow.aluA === 'string'){
-                    A = tempRegister.get(currentRow.aluA) as number;
+                    A = registerStore.register.get(currentRow.aluA) as number;
                 }else{
                     A = currentRow.aluA;
                 }
                 if(typeof currentRow.aluB === 'string'){
-                    B = tempRegister.get(currentRow.aluB) as number;
+                    B = registerStore.register.get(currentRow.aluB) as number;
                 }else{
                     B = currentRow.aluB;
                 }
                 result = aluStore.aluOperations.get(currentRow.aluCtrl)?.operation(A, B);
+                aluResult = result;
             }
             //Start Memory Operation
             if(currentRow.read_or_write_mem !== null){
@@ -144,7 +138,7 @@ export const useDebugerStore = defineStore('debugger', () => {
             //Write to Register
             if(currentRow.registerWrite.length > 0){
                 currentRow.registerWrite.forEach((register: string) => {
-                    tempRegister.set(register, result);
+                    registerStore.register.set(register, result);
                 });
             }
             //Jump to next row
@@ -158,6 +152,19 @@ export const useDebugerStore = defineStore('debugger', () => {
                 currentRow = debuggerCompiled[currentRow.next];
             }
         }
+
+        function step(){
+            if(debuggerCompiled.length === 0)return;
+            if(finished){
+                writeToRegister();
+                return; 
+            }else{
+                calculateOperation();
+                currentStep++;
+                counter.value = currentStep;
+                Alu_UI.value = aluResult;
+            }
+        }
         
 
 // Füge eine neue Zustandsvariable hinzu, um zu verfolgen, ob die Ausführung bei einem Breakpoint pausiert wurde
@@ -166,16 +173,23 @@ let isPausedAtBreakpoint = false;
 function run() {
     const startTime = performance.now();
     if(debuggerCompiled.length === 0)return;
+    if(finished){
+        writeToRegister();
+        return; 
+    }
     // Prüfen, ob die Ausführung beim letzten Mal bei einem Breakpoint pausiert wurde
     if (isPausedAtBreakpoint) {
         // Wenn ja, versuche, mit dem nächsten Schritt fortzufahren, bevor die Schleife beginnt
-        step();
+        calculateOperation();
+        currentStep++;
+        Alu_UI.value = aluResult;
         isPausedAtBreakpoint = false; // Setze das Flag zurück, da wir versuchen, fortzufahren
     }
 
     // Laufe durch die Befehle, bis ein Breakpoint erreicht oder die Ausführung beendet ist
     while (!currentRow.breakpoint && !finished) {
-        step();
+        calculateOperation();
+        currentStep++;
     }
 
     if (currentRow.breakpoint) {
@@ -195,13 +209,13 @@ function run() {
 
 
     function writeToRegister(){
-        let a = [...tempRegister.keys()];
+        let a = [...registerStore.register.keys()];
 
         a.forEach((value) => {
-            registerStore.register.set(value, tempRegister.get(value) as number);
+            registerStore.register.set(value, registerStore.register.get(value) as number);
             registerStore.registerOrder.forEach((reg: any) => {
                 if(reg.title === value){
-                    reg.Value = tempRegister.get(value) as number;
+                    reg.Value = registerStore.register.get(value) as number;
                 }
             });
         });
@@ -215,17 +229,22 @@ function run() {
         //clear the debuggerCompiled
         debuggerCompiled.splice(0, debuggerCompiled.length);
         registerStore.registerReset();
+        memoryStore.setInitialMemory();
         finished = false;
+        currentStep = 0;
+        counter.value = 0;
+        Alu_UI.value = 0;
+        aluResult = 0;
     }
 
     function writeToMemory(){
-        const index = tempRegister.get("MAR") as number;
-        const value = tempRegister.get("MDR") as number;
+        const index = registerStore.register.get("MAR") as number;
+        const value = registerStore.register.get("MDR") as number;
         memoryStore.setRawMemoryValue(index, value);
     }
 
     function writeMemoryToMDR(){
-        tempRegister.set("MDR", memoryStore.getValue_at_MAR_Address(tempRegister.get("MAR") as number));
+        registerStore.register.set("MDR", memoryStore.getValue_at_MAR_Address(registerStore.register.get("MAR") as number));
     }
 
     return{
@@ -234,7 +253,9 @@ function run() {
         stepBack,
         stop,
         run,
-        counter
+        counter,
+        writeToRegister,
+        Alu_UI
     }
 
 });

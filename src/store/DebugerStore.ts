@@ -5,6 +5,12 @@ import { useMemoryStore } from './MemoryStore';
 import { useAluStore } from './AluStore';
 import { ref } from 'vue';
 
+interface StepBack{
+    Register: object;
+    Alu: number;
+    Memory: object;
+}
+
 
 export const useDebugerStore = defineStore('debugger', () => {
 
@@ -20,12 +26,23 @@ export const useDebugerStore = defineStore('debugger', () => {
     const counter = ref(0);
     let currentStep = 0;
 
+    const ringBuffer = new Map<number, StepBack>();
+    const ringBufferSize = 100;
+
+
+
     /**
      * Prepare the debuger for the start
      * Create's an array with essential information for the debuger.
      * @returns void
      */
     function start(){
+        //Init the RingBuffer
+        ringBuffer.clear();
+        for(let i = 0; i < ringBufferSize; i++){
+            ringBuffer.set(i, {} as StepBack);
+        }
+
         let a = [...registerStore.register];
         a.forEach((value) => {
             registerStore.register.set(value[0], value[1]);
@@ -113,6 +130,8 @@ export const useDebugerStore = defineStore('debugger', () => {
         };
 
         function calculateOperation(){
+            let ringbufferIndex = currentStep % ringBufferSize;
+            let memorySave = {changed: false, index: 0, value: 0};
             let result:any = 0;
             //Start Alu Operation
             if(currentRow.aluCtrl !== null){
@@ -133,8 +152,24 @@ export const useDebugerStore = defineStore('debugger', () => {
             }
             //Start Memory Operation
             if(currentRow.read_or_write_mem !== null){
-                currentRow.read_or_write_mem();
+                if(currentRow.read_or_write_mem === writeToMemory) {
+                    //Speicher Zelle sichern
+                    memorySave.changed = true;
+                    memorySave.index = registerStore.register.get("MAR") as number;
+                    memorySave.value = memoryStore.getValue_at_MAR_Address(memorySave.index);
+                    currentRow.read_or_write_mem();
+                } else {
+                    // Andere Funktion ausführen
+                    currentRow.read_or_write_mem();
+                }                
             }
+            //Save StepBack
+            ringBuffer.set(ringbufferIndex, {
+                Register: currentRow.registerWrite,
+                Alu: aluResult,
+                Memory: memorySave
+            });
+
             //Write to Register
             if(currentRow.registerWrite.length > 0){
                 currentRow.registerWrite.forEach((register: string) => {
@@ -164,6 +199,7 @@ export const useDebugerStore = defineStore('debugger', () => {
                 counter.value = currentStep;
                 Alu_UI.value = aluResult;
             }
+            console.log(ringBuffer);
         }
         
 
@@ -185,7 +221,7 @@ function run() {
         Alu_UI.value = aluResult;
         isPausedAtBreakpoint = false; // Setze das Flag zurück, da wir versuchen, fortzufahren
     }
-
+    
     // Laufe durch die Befehle, bis ein Breakpoint erreicht oder die Ausführung beendet ist
     while (!currentRow.breakpoint && !finished) {
         calculateOperation();
@@ -200,6 +236,7 @@ function run() {
     let page = memoryStore.getDebuggerPage();
     writeToRegister();
     memoryStore.setDebuggerPage(page);
+    console.log(ringBuffer);
 
     // Nachdem die Funktion ausgeführt wurde
     const endTime = performance.now();
@@ -222,6 +259,7 @@ function run() {
     }
 
     function stepBack(){
+        if(currentStep === 0)return;
         console.log("StepBack");
     }
 

@@ -44,7 +44,7 @@
       <tr>
         <th class="text-center" style="width: 20%">{{ $t('memory.address') }}</th>
         <th class="text-center" style="width: 20%">{{ $t('memory.decimal') }}</th>
-        <th class="text-center" style="width: 60%" @click="toggleFormat">Hex/BIN</th>
+        <th class="text-center" style="width: 60%" @click="memStore.hexBinSwitch = !memStore.hexBinSwitch">Hex/BIN</th>
       </tr>
     </thead>
     <tbody>
@@ -56,7 +56,7 @@
       >
         <td style="width: 20%; text-align: center;">{{ toHex(getCurrentPage(index)) }}</td>
         <td style="width: 20%; text-align: center;">{{ item }}</td>
-        <td style="width: 60%; text-align: center;">{{ displayFormat === 'hex' ? '0x' + toHex(item) : toBinary(item) }}</td>
+        <td style="width: 60%; text-align: center;">{{ memStore.hexBinSwitch === false ? '0x' + toHex(item) : toBinary(item) }}</td>
       </tr>
     </tbody>
 </v-table>
@@ -109,7 +109,6 @@ const props = defineProps({
 
 const memStore = useMemoryStore();
 const PAGE_SIZE = memStore.getPageSize();
-const displayFormat = ref('hex');  // 'hex' oder 'bin'
 const jumpAddress = ref("");
 
 const markedAddress = ref(-1); // -1 bedeutet, dass keine Adresse markiert ist
@@ -265,10 +264,6 @@ function handleWheel(event: WheelEvent) {
   } else if (event.deltaY < 0) {
     prevPage();
   }
-}
-
-function toggleFormat() {
-  displayFormat.value = displayFormat.value === 'hex' ? 'bin' : 'hex';
 }
 </script>
 

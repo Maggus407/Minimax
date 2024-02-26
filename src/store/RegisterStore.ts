@@ -153,6 +153,14 @@ function registerReset(){
   });
 }
 
+//Create a List of all Registers with their values
+function getRegisters(){
+  let registers: any = [];
+  register.forEach((title, value) => {
+    registers.push({title: title, value: value});
+  });
+  return registers;
+}
 
 // Exposed methods and computed properties for external use.
 return {
@@ -165,6 +173,7 @@ return {
   renameRegister,
   registerOrder,
   updateRegisterDescription,
-  registerReset
+  registerReset,
+  getRegisters
 };
 });

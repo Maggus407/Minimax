@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { reactive } from 'vue';
 import { useAluStore } from '@/store/AluStore';
 import { useRegisterStore } from '@/store/RegisterStore';
+import { useDebugerStore } from '@/store/DebugerStore';
 import { v4 as uuidv4 } from 'uuid'
 
 // Interface for control table
@@ -27,6 +28,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
   // Import stores
   const registerStore = useRegisterStore();
   const aluStore = useAluStore();
+  const debuggerStore = useDebugerStore();
 
   const controlTable = reactive<ControlTable[]>([]);
 
@@ -105,6 +107,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
     controlTable.forEach((row) => {
       create_RT_Notation(row);
     });
+    debuggerStore.executing = false;
     console.log(controlTable);
   }
 

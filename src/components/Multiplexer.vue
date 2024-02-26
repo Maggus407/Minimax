@@ -191,6 +191,7 @@ function saveChanges() {
     }
     (editedElement.value as { Value: number }).Value = Number(numberInput.value);
   }
+  controlTableStore.updateTable();
 }
 
 // Helper functions

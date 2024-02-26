@@ -175,10 +175,12 @@ import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
 import draggable from 'vuedraggable';
 import { ref, computed } from 'vue';
+import { useDebugerStore } from '@/store/DebugerStore';
 
 const registerStore = useRegisterStore();
 const controlTable = useControlTableStore();
 const multiplexerStore = useMultiplexerStore();
+const deb = useDebugerStore();
 const aluStore = useAluStore();
 
 const list = controlTable.controlTable;
@@ -197,6 +199,7 @@ function update(row: any, register: any, alu: any = null, memory: any = null){
   if(memory === 'HsCs'){row.HsCs = !row.HsCs};
   if(memory === 'Hs_R_W'){row.Hs_R_W = !row.Hs_R_W};
   if(register != null){register.isActive = !register.isActive};
+  deb.executing = false;
   controlTable.create_RT_Notation(row);
 }
 

@@ -485,7 +485,7 @@ function checkNumber(input: number | null | undefined): void {
     }
     
         // Basisoperationen
-        const BASE_OPERATIONS = ['A ADD B', 'B SUB A', 'Transfer A', 'Transfer B'];
+        const BASE_OPERATIONS = ['A ADD B', 'B SUB A', 'Transfer A', 'Transfer B', 'A SUB B'];
 
         // Reactive Listen für die ALU-Operationen
         const aluOperationsListAdded = reactive<string[]>([...BASE_OPERATIONS]);

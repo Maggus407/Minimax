@@ -15,16 +15,7 @@
             </v-card>
         </v-col>
         <v-col>
-
-            <v-card>
-                <v-btn :disabled="executing" @click="start">Start</v-btn>
-                <v-btn :disabled="!executing" @click="stop">Stop</v-btn>
-                <v-btn :disabled="!executing" @click="step">Step</v-btn>
-                <v-btn :disabled="!executing" @click="stepBack">Step Back</v-btn>
-                <v-btn :disabled="!executing" @click="run">RUN BOY</v-btn>
-                <v-btn @click="testing">Test</v-btn>
-            </v-card>   
-            <v-card class="mt-3" title="ALU" variant="outlined">
+            <v-card title="ALU" variant="outlined">
                 <v-card-text>
                     RESULT: {{ debuggerStore.Alu_UI }}
                 </v-card-text>
@@ -33,8 +24,16 @@
                 </v-card-text>
             </v-card>
             <v-card>
+                <v-btn :disabled="debuggerStore.executing" @click="start">Start</v-btn>
+                <v-btn :disabled="!debuggerStore.executing" @click="stop">Stop</v-btn>
+                <v-btn :disabled="!debuggerStore.executing" @click="step">Step</v-btn>
+                <v-btn :disabled="!debuggerStore.executing" @click="stepBack">Step Back</v-btn>
+                <v-btn :disabled="!debuggerStore.executing" @click="run">RUN BOY</v-btn>
+                <v-btn @click="testing">Test</v-btn>
+            </v-card>   
+            <v-card>
                 <v-card-title>
-                    Simulation
+                    <Simulation/>
                 </v-card-title>
             </v-card>
         </v-col>
@@ -43,7 +42,7 @@
 
 <script setup lang="ts">
 import { useDebugerStore } from '@/store/DebugerStore';
-import { useControlTableStore } from '@/store/ControlTableStore';
+import Simulation from './ReUsable/Simulation.vue';
 import {useRegisterStore} from '@/store/RegisterStore';
 import { useMemoryStore } from '@/store/MemoryStore';
 import MemoryList from './ReUsable/MemoryList.vue';
@@ -52,8 +51,6 @@ import { ref } from 'vue';
 const debuggerStore = useDebugerStore();
 const registerStore = useRegisterStore();
 const memoryStore = useMemoryStore();
-const controlTableStore = useControlTableStore();
-const executing = ref(false);
 
 memoryStore.changePageSize_Debugger(10);
 
@@ -62,12 +59,12 @@ function testing() {
 }
 
 function start() {
-    executing.value = true;
+    debuggerStore.executing = true;
     debuggerStore.start();
 }
 
 function stop() {
-    executing.value = false;
+    debuggerStore.executing = false;
     debuggerStore.stop();
     memoryStore.setInitialMemory();
     updateMemory();
@@ -76,7 +73,6 @@ function stop() {
 function step() {
     debuggerStore.step();
     updateMemory();
-    debuggerStore.writeToRegister();
     console.log(registerStore.register);
 }
 

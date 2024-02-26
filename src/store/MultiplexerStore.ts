@@ -5,7 +5,7 @@ import { useControlTableStore } from './ControlTableStore';
 export const useMultiplexerStore = defineStore('multiplexer', () => {
   // Import stores
   const controlTableStore = useControlTableStore();
-  const muxA: (any)[] = reactive([{title: "0",Value: 0}, {title: "1", Value: 1}]);
+  const muxA: (any)[] = reactive([{title: "0",Value: 0}, {title: "1", Value: 1}, {title: "10", Value: 10}]);
   const muxB: (any)[] = reactive([]);
 
   // Funktion zum Hinzufügen eines Registers zu einem Multiplexer

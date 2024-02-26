@@ -6,6 +6,7 @@ export const useMemoryStore = defineStore('memory', () => {
     const PAGE_SIZE = ref(16)
     const memoryPage = ref(1)
     const debuggerPage = ref(1)
+    const hexBinSwitch = ref(false)
 
     const rawMemory = new Int32Array(16777216).fill(0);
     let initialMemory = new Int32Array(16777216).fill(0)
@@ -184,7 +185,8 @@ export const useMemoryStore = defineStore('memory', () => {
         getValue_at_MAR_Address,
         updateDisplayedMemory,
         changePageSize_Memory,
-        changePageSize_Debugger
+        changePageSize_Debugger,
+        hexBinSwitch
      };
 
 });

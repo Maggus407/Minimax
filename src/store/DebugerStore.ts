@@ -3,14 +3,13 @@ import { useControlTableStore } from './ControlTableStore';
 import { useRegisterStore } from './RegisterStore';
 import { useMemoryStore } from './MemoryStore';
 import { useAluStore } from './AluStore';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 interface StepBack{
-    Register: object;
+    Register: any;
     Alu: number;
-    Memory: object;
+    Memory: any;
 }
-
 
 export const useDebugerStore = defineStore('debugger', () => {
 
@@ -25,11 +24,10 @@ export const useDebugerStore = defineStore('debugger', () => {
     let finished = false;
     const counter = ref(0);
     let currentStep = 0;
+    const executing = ref(false);
 
     const ringBuffer = new Map<number, StepBack>();
-    const ringBufferSize = 100;
-
-
+    const ringBufferSize = 200;
 
     /**
      * Prepare the debuger for the start
@@ -103,6 +101,7 @@ export const useDebugerStore = defineStore('debugger', () => {
             }
 
             debuggerCompiled.push({
+                predecessor: null,
                 breakpoint: row.breakpoint,
                 registerWrite: regNames,
                 aluA: convertIfNumeric(row.AluSelA),
@@ -112,6 +111,7 @@ export const useDebugerStore = defineStore('debugger', () => {
                 next: next,
                 jump: jump,
             });
+            
         });
         console.log(debuggerCompiled);
         currentRow = debuggerCompiled[0];
@@ -132,6 +132,7 @@ export const useDebugerStore = defineStore('debugger', () => {
         function calculateOperation(){
             let ringbufferIndex = currentStep % ringBufferSize;
             let memorySave = {changed: false, index: 0, value: 0};
+            let tmpAlu = aluResult;
             let result:any = 0;
             //Start Alu Operation
             if(currentRow.aluCtrl !== null){
@@ -165,8 +166,8 @@ export const useDebugerStore = defineStore('debugger', () => {
             }
             //Save StepBack
             ringBuffer.set(ringbufferIndex, {
-                Register: currentRow.registerWrite,
-                Alu: aluResult,
+                Register: registerStore.getRegisters(),
+                Alu: tmpAlu,
                 Memory: memorySave
             });
 
@@ -182,19 +183,26 @@ export const useDebugerStore = defineStore('debugger', () => {
                 return;
             }
             if(currentRow.jump !== null && result === 0){
+                let a = debuggerCompiled.indexOf(currentRow)
                 currentRow = debuggerCompiled[currentRow.jump];
+                currentRow.predecessor = a;
             }else{
+                let a = debuggerCompiled.indexOf(currentRow);
                 currentRow = debuggerCompiled[currentRow.next];
+                currentRow.predecessor = a;
             }
         }
 
         function step(){
+            console.log(debuggerCompiled);  
+            console.log(currentRow);
             if(debuggerCompiled.length === 0)return;
             if(finished){
                 writeToRegister();
                 return; 
             }else{
                 calculateOperation();
+                writeToRegister();
                 currentStep++;
                 counter.value = currentStep;
                 Alu_UI.value = aluResult;
@@ -231,12 +239,13 @@ function run() {
     if (currentRow.breakpoint) {
         // Wenn die Ausführung aufgrund eines Breakpoints pausiert wird, setze das Flag
         isPausedAtBreakpoint = true;
+        Alu_UI.value = aluResult;
     }
     counter.value = currentStep;
+    Alu_UI.value = aluResult;
     let page = memoryStore.getDebuggerPage();
     writeToRegister();
     memoryStore.setDebuggerPage(page);
-    console.log(ringBuffer);
 
     // Nachdem die Funktion ausgeführt wurde
     const endTime = performance.now();
@@ -247,9 +256,7 @@ function run() {
 
     function writeToRegister(){
         let a = [...registerStore.register.keys()];
-
         a.forEach((value) => {
-            registerStore.register.set(value, registerStore.register.get(value) as number);
             registerStore.registerOrder.forEach((reg: any) => {
                 if(reg.title === value){
                     reg.Value = registerStore.register.get(value) as number;
@@ -258,10 +265,71 @@ function run() {
         });
     }
 
+    //Set the currentRow for the StepBack function
+    function setCurrentRow(){
+        if(currentRow === undefined)return;
+        if(finished){
+            finished = false;
+            currentRow = currentRow;
+            return;
+        }
+        currentRow = debuggerCompiled[currentRow.predecessor];
+        console.log(currentRow);
+    }
+
+    function resetForStepBack(){
+        registerStore.registerReset();
+        //memoryStore.setInitialMemory();
+        finished = false;
+        currentStep = 0;
+        counter.value = 0;
+        Alu_UI.value = 0;
+        aluResult = 0;
+    }
+
     function stepBack(){
-        if(currentStep === 0)return;
+
+        if(currentStep <= 0){
+            currentRow = debuggerCompiled[0];
+            resetForStepBack();
+            return;
+        }else{
+            currentStep--;
+            setCurrentRow();
+            set_Data_Back();
+            console.log(registerStore.register);    
+        }
+    }
+
+    function set_Data_Back(){
+        let ringbufferIndex = currentStep % ringBufferSize;
+        let stepBack = ringBuffer.get(ringbufferIndex);
+        if (stepBack === undefined) return;
+        if (stepBack.Memory != undefined && stepBack.Memory.changed === true) {
+            memoryStore.setRawMemoryValue(stepBack.Memory.index, stepBack.Memory.value);
+        }
+        if (stepBack.Alu !== undefined) {
+            aluResult = stepBack.Alu;
+            Alu_UI.value = stepBack.Alu;
+        }
+        //Set the Register
+        if(stepBack.Register !== undefined){
+            stepBack.Register.forEach((value: any) => {
+                console.log(value);
+                registerStore.register.set(value.value, value.title);
+            });
+        }
+        counter.value = currentStep;
+        writeToRegister();
         console.log("StepBack");
     }
+
+    //watch if executing got changed to false then stop the execution
+    watch(executing, (value) => {
+        if(value === false){
+            stop();
+        }
+    });
 
     function stop(){
         //clear the debuggerCompiled
@@ -293,7 +361,8 @@ function run() {
         run,
         counter,
         writeToRegister,
-        Alu_UI
+        Alu_UI,
+        executing
     }
 
 });

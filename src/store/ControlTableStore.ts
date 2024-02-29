@@ -167,8 +167,14 @@ export const useControlTableStore = defineStore('controlTable', () => {
   
     // Wenn kein Register aktiv ist, füge den Basis-RT-Notation-String hinzu
     if (row.description.length === 0) {
-      let RT_Notation = RT_Notation_Base.replace('{}', '???');
-      row.description.push(RT_Notation);
+      if(row.AluCtrl == "Transfer A" && AluSelA != "???"){
+        row.description.push(AluSelA + " == 0?");
+      }else if(row.AluCtrl == "Transfer B" && AluSelB != "???"){
+        row.description.push(AluSelB + " == 0?");
+      }else{
+        let RT_Notation = RT_Notation_Base.replace('{}', '???');
+        row.description.push(RT_Notation);
+      }
     }
   }
   

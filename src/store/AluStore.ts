@@ -9,7 +9,7 @@ type AluOperationInfo = {
     operation: AluOperation;
     description: string;
     rt: string;
-    
+    export: string;
   };
 
 export const useAluStore = defineStore('Alu', () => {
@@ -26,246 +26,285 @@ export const useAluStore = defineStore('Alu', () => {
     aluOperations.set('A ADD B', {
         operation: Add,
         description: 'add',
-        rt: 'ALU.result ← A + B'
+        rt: 'ALU.result ← A + B',
+        export: "A_ADD_B",
     });
 
     aluOperations.set('B SUB A', {
         operation: SubB,
         description: 'A_sub_B',
-        rt: 'ALU.result ← A - B'
+        rt: 'ALU.result ← A - B',
+        export: "B_SUB_A",
     });
 
     aluOperations.set('A SUB B', {
         operation: SubA,
         description: 'B_sub_A',
-        rt: 'ALU.result ← B - A'
+        rt: 'ALU.result ← B - A',
+        export: "A_SUB_B",
     });
 
     aluOperations.set('Transfer A', {
         operation: transferA,
         description: 'transferA',
-        rt: 'ALU.result ← A'
+        rt: 'ALU.result ← A',
+        export: "TRANS_A",
     });
 
     aluOperations.set('Transfer B', {
         operation: transferB,
         description: 'transferB',
-        rt: 'ALU.result ← B'
+        rt: 'ALU.result ← B',
+        export: "TRANS_B",
     });
 
     aluOperations.set('Increment A', {
         operation: increment,
         description: 'incA',
-        rt: 'ALU.result ← A + 1'
+        rt: 'ALU.result ← A + 1',
+        export: "A_INC",
     });
 
     aluOperations.set('Increment B', {
         operation: increment,
         description: 'incB',
-        rt: 'ALU.result ← B + 1'
+        rt: 'ALU.result ← B + 1',
+        export: "B_INC",
     });
 
     aluOperations.set('Decrement A', {
         operation: decrement,
         description: 'decA',
-        rt: 'ALU.result ← A - 1'
+        rt: 'ALU.result ← A - 1',
+        export: "A_DEC",
     });
 
     aluOperations.set('Decrement B', {
         operation: decrement,
         description: 'decB',
-        rt: 'ALU.result ← B - 1'
+        rt: 'ALU.result ← B - 1',
+        export: "B_DEC",
     });
 
     aluOperations.set('A MOD B', {
         operation: Modulo,
         description: 'A_mod_B',
-        rt: 'ALU.result ← A % B'
+        rt: 'ALU.result ← A % B',
+        export: "A_MOD_B",
     });
 
     aluOperations.set('B MOD A', {
         operation: Modulo,
         description: 'B_mod_A',
-        rt: 'ALU.result ← B % A'
+        rt: 'ALU.result ← B % A',
+        export: "B_MOD_A",
     });
 
     aluOperations.set('A AND B', {
         operation: And,
         description: 'A_and_B',
-        rt: 'ALU.result ← A & B'
+        rt: 'ALU.result ← A & B',
+        export: "A_AND_B",
     });
 
     aluOperations.set('A OR B', {
         operation: Or,
         description: 'A_OR_B',
-        rt: 'ALU.result ← A | B'
+        rt: 'ALU.result ← A | B',
+        export: "A_OR_B",
     });
 
     aluOperations.set('A XOR B', {
         operation: Xor,
         description: 'A_XOR_B',
-        rt: 'ALU.result ← A ^ B'
+        rt: 'ALU.result ← A ^ B',
+        export: "A_XOR_B",
     });
 
     aluOperations.set('A MUL B', {
         operation: Multiplikation,
         description: 'A_mul_B',
-        rt: 'ALU.result ← A * B'
+        rt: 'ALU.result ← A * B',
+        export: "A_MUL_B",
     });
     aluOperations.set('A DIV B', {
         operation: Division,
         description: 'A_div_B',
         rt: 'ALU.result ← A / B',
+        export: "A_DIV_B",
     });
 
     aluOperations.set('B DIV A', {
         operation: Division,
         description: 'B_div_A',
-        rt: 'ALU.result ← B / A'
+        rt: 'ALU.result ← B / A',
+        export: "B_DIV_A",
     });
 
     aluOperations.set('Invert A', {
         operation: Invert,
         description: 'INV_A',
         rt: 'ALU.result ← ~A',
+        export: "A_INV",
     });
 
     aluOperations.set('Invert B', {
         operation: Invert,
         description: 'INV_B',
-        rt: 'ALU.result ← ~B'
+        rt: 'ALU.result ← ~B',
+        export: "B_INV",
     });
     aluOperations.set('A S.L.', {
         operation: ShiftLeft,
         description: 'A_SL',
-        rt: 'ALU.result ← A[30..0]@0'
+        rt: 'ALU.result ← A[30..0]@0',
+        export: "A_SL",
     });
 
     aluOperations.set('B S.L.', {
         operation: ShiftLeft,
         description: 'B_SL',
-        rt: 'ALU.result ← B[30..0]@0'
+        rt: 'ALU.result ← B[30..0]@0',
+        export: "B_SL",
     });
     aluOperations.set('A S.R.', {
         operation: ShiftRight,
         description: 'A_SR',
-        rt: 'ALU.result ← A [31]@A[31..1]'
+        rt: 'ALU.result ← A [31]@A[31..1]',
+        export: "A_SR",
     });
 
     aluOperations.set('B S.R.', {
         operation: ShiftRight,
         description: 'B_SR',
-        rt: 'ALU.result ← B [31]@B[31..1]'
+        rt: 'ALU.result ← B [31]@B[31..1]',
+        export: "B_SR",
     });
 
     aluOperations.set('A S.L. B', {
         operation: ShiftLeft_by_X,
         description: 'A_SL_B',
-        rt: 'ALU.result ← A[31-B..0]@0^B'
+        rt: 'ALU.result ← A[31-B..0]@0^B',
+        export: "A_SL_B",
     });
 
     aluOperations.set('B S.L. A', {
         operation: ShiftLeft_by_X,
         description: 'B_SL_A',
-        rt: 'ALU.result ← B[31-A..0]@0^A'
+        rt: 'ALU.result ← B[31-A..0]@0^A',
+        export: "B_SL_A",
     });
 
     aluOperations.set('B S.R. A', 
     {
         operation: ShiftRight_by_X,
         description: 'B_SR_A',
-        rt: 'ALU.result ← B[31]^A@B[31..A]'
+        rt: 'ALU.result ← B[31]^A@B[31..A]',
+        export: "B_SR_A",
     });
 
     aluOperations.set('A S.R. B', 
     {
         operation: ShiftRight_by_X,
         description: 'A_SR_B',
-        rt: 'ALU.result ← A[31]^B@A[31..B]'
+        rt: 'ALU.result ← A[31]^B@A[31..B]',
+        export: "A_SR_B",
     });
 
     aluOperations.set('A S.R.U.', 
     {
         operation: ShiftRightUnsigned,
         description: 'A_SRU',
-        rt: 'ALU.result ← 0@A[31..1]'
+        rt: 'ALU.result ← 0@A[31..1]',
+        export: "A_SRU",
     });
 
     aluOperations.set('B S.R.U.', 
     {
         operation: ShiftRightUnsigned,
         description: 'B_SRU',
-        rt: 'ALU.result ← 0@B[31..1]'
+        rt: 'ALU.result ← 0@B[31..1]',
+        export: "B_SRU",
     });
 
     aluOperations.set('B S.R.U. A', 
     {
         operation: ShiftRightUnsignedByX,
         description: 'B_SRU_A',
-        rt: 'ALU.result ← 0^A@B[31..A]'
+        rt: 'ALU.result ← 0^A@B[31..A]',
+        export: "B_SRU_A",
     });
 
     aluOperations.set('A S.R.U. B', 
     {
         operation: ShiftRightUnsignedByX,
         description: 'A_SRU_B',
-        rt: 'ALU.result ← 0^B@A[31..B]'
+        rt: 'ALU.result ← 0^B@A[31..B]',
+        export: "A_SRU_B",
     });
 
     aluOperations.set('A R.L', 
     {
         operation: RotateLeft,
         description: 'A_RL',
-        rt: 'ALU.result ← A [31]@A[31..1]'
+        rt: 'ALU.result ← A [31]@A[31..1]',
+        export: "A_ROTL",
     });
 
     aluOperations.set('B R.L.', 
     {
         operation: RotateLeft,
         description: 'B_RL',
-        rt: 'ALU.result ← B [31]@B[31..1]'
+        rt: 'ALU.result ← B [31]@B[31..1]',
+        export: "B_ROTL",
     });
 
     aluOperations.set('B R.L. A', 
     {
         operation: RotateLeftByX,
         description: 'B_RL_A',
-        rt: 'ALU.result ← B[31-A..0]@B[31..32-A]'
+        rt: 'ALU.result ← B[31-A..0]@B[31..32-A]',
+        export: "B_ROTL_A",
     });
 
     aluOperations.set('A R.L. B', 
     {
         operation: RotateLeftByX,
         description: 'A_RL_B',
-        rt: 'ALU.result ← A[31-B..0]@A[31..32-B]'
+        rt: 'ALU.result ← A[31-B..0]@A[31..32-B]',
+        export: "A_ROTL_B",
     });
 
     aluOperations.set('A R.R.', 
     {
         operation: RotateRight,
         description: 'A_RR',
-        rt: 'ALU.result ← A [31]@A[31..1]'
+        rt: 'ALU.result ← A [31]@A[31..1]',
+        export: "A_ROTR",
     });
 
     aluOperations.set('B R.R.', 
     {
         operation: RotateRight,
         description: 'B_RR',
-        rt: 'ALU.result ← B [31]@B[31..1]'
+        rt: 'ALU.result ← B [31]@B[31..1]',
+        export: "B_ROTR",
     });
 
     aluOperations.set('A R.R. B', 
     {
         operation: RotateRightByX,
         description: 'A_RR_B',
-        rt: 'ALU.result ← A[B-1..0]@A[31..B]'
+        rt: 'ALU.result ← A[B-1..0]@A[31..B]',
+        export: "A_ROTR_B",
     });
 
     aluOperations.set('B R.R. A', 
     {
         operation: RotateRightByX,
         description: 'B_RR_A',
-        rt: 'ALU.result ← B[A-1..0]@B[31..A]'
+        rt: 'ALU.result ← B[A-1..0]@B[31..A]',
+        export: "B_ROTR_A",
     });
 
 
@@ -497,10 +536,28 @@ function checkNumber(input: number | null | undefined): void {
                 aluOperationsListAvailable.value.push(key);
             }
         });
-    
+
+        /**
+         * Returns the Alu Operations which are in the aluOperationsListAdded
+         * @return {Array} - the export names of the added operations
+         */
+        function getOperation_Export(){
+            return aluOperationsListAdded.map((operation) => aluOperations.get(operation)?.export);
+        }
+
+        /**
+         * Return the key from the Operation
+         * @input the export String
+         * @return {Array} - key found by the export string
+         */
+        function getOperation_Import(exportString: string): string | undefined {
+            return Array.from(aluOperations.keys()).find((key) => aluOperations.get(key)?.export === exportString);
+        }
     return {
         aluOperations,
         aluOperationsListAdded,
         aluOperationsListAvailable,
+        getOperation_Export,
+        getOperation_Import,
     };
 });

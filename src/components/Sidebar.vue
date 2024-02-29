@@ -24,12 +24,16 @@
           </v-list>
         </v-menu>
       </v-btn>
+      <v-btn @click="Export">Export</v-btn>
     </v-navigation-drawer>
   </template>
   
   <script setup lang="ts">
   import { useTheme } from 'vuetify'
   import {useI18n} from 'vue-i18n'
+  import {useExport} from '../Import-Export/Export'
+
+  const exportStore = useExport()
 
 const theme = useTheme()
 
@@ -53,5 +57,10 @@ const languages = ['de', 'en']
     { path: "/multiplexer", label: "MUX" },
     { path: "/memory", label: "Memory" },
   ];
+
+
+  function Export(){
+    exportStore.testOutput()
+  }
   </script>
   

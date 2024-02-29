@@ -169,10 +169,6 @@ async function testOutput() {
       });
 }
 
-//signal.json
-
-//Export the files in a zip file
-
 return{
     testOutput
 }

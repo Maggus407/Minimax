@@ -546,6 +546,30 @@ function checkNumber(input: number | null | undefined): void {
         }
 
         /**
+         * Set the Alu Operations from the import
+         * @input Array of the export names
+         */
+        function setOperation_Import(exportString: any){
+            console.log("setOperation_Import: ", exportString);
+            // Leere aluOperationsListAdded
+            aluOperationsListAdded.splice(0, aluOperationsListAdded.length);
+            
+            // Füge die neuen Operationen hinzu, basierend auf der Reihenfolge in exportString
+            exportString.forEach((expOp: string) => {
+                // Finde den Schlüssel basierend auf dem Exportnamen
+                let opKey = Array.from(aluOperations.keys()).find(key => aluOperations.get(key)?.export === expOp);
+                if (opKey) {
+                    aluOperationsListAdded.push(opKey);
+                }
+            });
+            
+            // Entferne die hinzugefügten Operationen aus der verfügbaren Liste
+            aluOperationsListAvailable.value = Array.from(aluOperations.keys()).filter((opKey) => !aluOperationsListAdded.includes(opKey));
+            console.log("aluOperationsListAdded: ", aluOperationsListAdded);
+        }
+        
+
+        /**
          * Return the key from the Operation
          * @input the export String
          * @return {Array} - key found by the export string
@@ -553,11 +577,13 @@ function checkNumber(input: number | null | undefined): void {
         function getOperation_Import(exportString: string): string | undefined {
             return Array.from(aluOperations.keys()).find((key) => aluOperations.get(key)?.export === exportString);
         }
+
     return {
         aluOperations,
         aluOperationsListAdded,
         aluOperationsListAvailable,
         getOperation_Export,
         getOperation_Import,
+        setOperation_Import
     };
 });

@@ -3,7 +3,9 @@ import { reactive } from 'vue';
 import { useAluStore } from '@/store/AluStore';
 import { useRegisterStore } from '@/store/RegisterStore';
 import { useDebugerStore } from '@/store/DebugerStore';
+import { useMultiplexerStore } from './MultiplexerStore';
 import { v4 as uuidv4 } from 'uuid'
+import { parse } from 'path';
 
 // Interface for control table
 interface ControlTable {
@@ -29,6 +31,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
   const registerStore = useRegisterStore();
   const aluStore = useAluStore();
   const debuggerStore = useDebugerStore();
+  const multiplexerStore = useMultiplexerStore();
 
   const controlTable = reactive<ControlTable[]>([]);
 
@@ -169,7 +172,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
     }
   }
   
-  function deleteRow(index: number) {
+  function deleteRow(index: number): void {
         // Speichere die ID und die Adresse der zu löschenden Zeile vor dem Löschen
         const deletedRowId = controlTable[index].id;
   
@@ -190,6 +193,145 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateAdressesAndNext();
   }
 
+  /**
+   * 
+   */
+  function setControlTableFromImport(rows: Array<any>): void {
+    //Clear the current control table
+    console.log("Set Control Table from Import: " + rows);
+    controlTable.splice(0, controlTable.length);
+    //Set the new rows
+    rows.forEach((row: any) => {
+      let label = row.label;
+      let jumpSet = false;
+      let jump = null;
+      let next = null;
+      let AluSelA = null;
+      let AluSelB = null;
+      let MDRSel = false;
+      let HsCs = false;
+      let Hs_R_W = false;
+      let AluCtrl = null;
+      let registerWrite: any;
+      let description:any;
+
+      console.log(row);
+      if(row.label){
+        label = row.label;
+      }
+      if (row['unconditional-jump']) {
+        jumpSet = true;
+        next = row['unconditional-jump'].target;
+        jump = null;
+      }
+      if (row['conditional-jump']) {
+        jumpSet = true;
+        next = row['conditional-jump']['cond0-target']; // Zugriff auf den Wert von cond0-target
+        jump = row['conditional-jump']['cond1-target']; // Zugriff auf den Wert von cond1-target
+      }
+      let reg = registerStore.registerOrder.map((register: any) => {
+        return { title: register.title, isActive: false};
+      });
+
+      row.signal.forEach((signal: any) => {
+        if (signal.name === 'ALU_SELECT_A') {
+          AluSelA = findAluA(parseInt(signal.value));
+        } else if (signal.name === 'ALU_SELECT_B') {
+          AluSelB = findAluB(parseInt(signal.value));
+        } else if (signal.name === 'ALU_CTRL') {
+          AluCtrl = findAluSel(parseInt(signal.value));
+        } else if (signal.name === 'MEM_RW') {
+          Hs_R_W = signal.value === "1";
+        } else if (signal.name === 'MDR_SEL') {
+          MDRSel = signal.value === "1";
+        } else if (signal.name === 'MEM_CS') {
+          HsCs = signal.value === "1";
+        } else if (signal.name.endsWith('.W')) {
+          // Extrahiere den Register-Namen aus dem Signal-Namen, indem du '.W' entfernst
+          let registerName = signal.name.replace('.W', '');
+          // Finde das Register-Objekt, das diesen Titel hat
+          let registerObj = reg.find((r:any) => r.title === registerName);
+          // Wenn das Register gefunden wurde, setze isActive auf true
+          if (registerObj) {
+            registerObj.isActive = signal.value === "1";
+          }
+        }
+      });
+            
+      const newRow: ControlTable = {
+        id: uuidv4(),
+        breakpoint: false,
+        label: label,
+        adress: controlTable.length,
+        AluSelA: AluSelA,
+        AluSelB: AluSelB,
+        MDRSel: MDRSel,
+        HsCs: HsCs,
+        Hs_R_W: Hs_R_W,
+        AluCtrl: AluCtrl,
+        registerWrite: reg,
+        jump: jump,
+        jumpSet: jumpSet,
+        next: next != null ? next : controlTable.length + 1,
+        description: [],
+      };
+      controlTable.push(newRow);
+    });
+    console.log(controlTable);
+    updateTable();
+    setJumps();
+  }
+
+  //Remove the next, jump Number with the controlTable Object with the Index IF jumpSet is True
+  function setJumps() {
+    controlTable.forEach((row, index) => {
+      if (row.jumpSet) {
+        // Überprüfen, ob 'next' eine Nummer ist
+        const nextIndex = parseInt(row.next);
+        if (!isNaN(nextIndex) && nextIndex >= 0) {
+          // Sicherstellen, dass der Index innerhalb des Bereichs des Arrays liegt
+          if (nextIndex < controlTable.length) {
+            // Ersetze 'next' durch das entsprechende Objekt aus 'controlTable'
+            row.next = controlTable[nextIndex];
+          } else {
+            // Wenn der Index außerhalb des Bereichs ist, setze 'next' auf null
+            row.next = null;
+          }
+        }
+        
+        // Überprüfe und handle 'jump' in ähnlicher Weise, falls notwendig
+        const jumpIndex = parseInt(row.jump);
+        if (!isNaN(jumpIndex) && jumpIndex >= 0) {
+          if (jumpIndex < controlTable.length) {
+            row.jump = controlTable[jumpIndex];
+          } else {
+            row.jump = null;
+          }
+        }
+        
+        // Wenn 'next' auf -1 gesetzt ist, dann setze 'jump' auf null
+        if (nextIndex === -1) {
+          row.jump = null;
+        }
+      }
+    });
+  }
+  
+
+  function findAluSel(index:number):string{
+    console.log("Find Alu Sel: " + aluStore.aluOperationsListAdded[index]);
+    return aluStore.aluOperationsListAdded[index]
+  }
+
+  function findAluA(index: number):object{
+    return multiplexerStore.muxA[index];
+  }
+
+  function findAluB(index: number):object{
+    return multiplexerStore.muxB[index];
+  }
+
+
   return {
     controlTable,
     addRow,
@@ -202,6 +344,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateRemovedRegisterInCT,
     updateCTAddedRegister,
     create_RT_Notation,
-    aluRemoved
+    aluRemoved,
+    setControlTableFromImport
   };
 });

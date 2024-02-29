@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import {reactive } from 'vue';
 import { useControlTableStore } from './ControlTableStore';
+import { useRegisterStore } from './RegisterStore';
 
 export const useMultiplexerStore = defineStore('multiplexer', () => {
   // Import stores
   const controlTableStore = useControlTableStore();
+  const registerStore = useRegisterStore();
   const muxA: (any)[] = reactive([{title: "0",Value: 0}, {title: "1", Value: 1}, {title: "10", Value: 10}]);
   const muxB: (any)[] = reactive([]);
 
@@ -15,8 +17,6 @@ export const useMultiplexerStore = defineStore('multiplexer', () => {
     } else {
       muxB.push(register);
     }
-    console.log(muxA);
-    console.log(muxB);
   }
 
   // Funktion zum Entfernen eines Registers aus einem Multiplexer
@@ -42,6 +42,43 @@ export const useMultiplexerStore = defineStore('multiplexer', () => {
       }
     }
     controlTableStore.updateTable();
+  }/**
+   * Set the Mux Values from the imported JSON
+   * @param mux Which site A or B
+   * @param values Array of Mux Values
+   */
+  function setMuxFromImport(values: any) {
+    console.log(values)
+    //Clear muxA and muxB
+      muxA.splice(0, muxA.length);
+      muxB.splice(0, muxB.length);
+    //Set now the values from the imported JSON
+   if(values[0].muxType === 'A'){
+    values[0].input.forEach((element: any) => {
+      if(element.type === "constant"){
+        addRegisterToMux("A", {title: element.value, Value: element.value});
+      }
+      if(element.type === "register"){
+        //find the register in the registerStore
+        let reg = registerStore.getRegister(element.value);
+        addRegisterToMux("A", reg);
+      }
+    })
+   }
+   if(values[1].muxType === 'B'){
+    values[1].input.forEach((element: any) => {
+      if(element.type === "constant"){
+        addRegisterToMux("B", {title: element.value, Value: element.value});
+      }
+      if(element.type === "register"){
+        //find the register in the registerStore
+        let reg = registerStore.getRegister(element.value);
+        console.log(reg);
+        addRegisterToMux("B", reg);
+      }
+    })
+   }
+     
   }
 
   return {
@@ -49,5 +86,6 @@ export const useMultiplexerStore = defineStore('multiplexer', () => {
     muxB,
     addRegisterToMux,
     deleteRegisterFromMux,
+    setMuxFromImport
   };
 });

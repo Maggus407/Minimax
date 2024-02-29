@@ -1,6 +1,6 @@
 // Utilities
 import { defineStore } from 'pinia';
-import {ref, computed, reactive } from 'vue';
+import { reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMultiplexerStore } from './MultiplexerStore';
 import { useControlTableStore } from './ControlTableStore';
@@ -107,6 +107,11 @@ function updateRegisterData(name: string, value: number, description: string): v
   }
 }
 
+//return the register with the given name as an object
+function getRegister(name:string){
+  return registerOrder.find((r: any) => r.title === name);
+}
+
 function updateRegisterDescription(name: string, description: string): void {
   if (register.has(name)) {
     // Finde den Index des Registers im registerOrder-Array
@@ -164,6 +169,28 @@ function getRegisters(){
   return registers;
 }
 
+/**
+ * Imports register data from an external source and updates the store accordingly.
+ * @param reg Array of Registers
+ */
+function setRegisterFromImport(reg: any){
+  //check if reg is empty
+  if(reg.length == 0){
+    return;
+  }
+  //reset all registers and remove all Register except the Base Registers
+  registerOrder.forEach((r: any) => {
+    if(!BASE_REGISTERS.includes(r.title)){
+      deleteRegister(r);
+    }
+  });
+  //add all Registers from the import
+  reg.forEach((r: any) => {
+    addRegister(r.name, r.description);
+  });
+
+}
+
 // Exposed methods and computed properties for external use.
 return {
   register,
@@ -176,6 +203,8 @@ return {
   registerOrder,
   updateRegisterDescription,
   registerReset,
-  getRegisters
+  getRegisters,
+  setRegisterFromImport,
+  getRegister
 };
 });

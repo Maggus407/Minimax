@@ -33,14 +33,14 @@ export const useAluStore = defineStore('Alu', () => {
     aluOperations.set('B SUB A', {
         operation: SubB,
         description: 'A_sub_B',
-        rt: 'ALU.result ← A - B',
+        rt: 'ALU.result ← B - A',
         export: "B_SUB_A",
     });
 
     aluOperations.set('A SUB B', {
         operation: SubA,
         description: 'B_sub_A',
-        rt: 'ALU.result ← B - A',
+        rt: 'ALU.result ← A - B',
         export: "A_SUB_B",
     });
 
@@ -330,7 +330,7 @@ function checkNumber(input: number | null | undefined): void {
     checkNumber(b);
     const arrayA = new Int32Array([a]);
     const arrayB = new Int32Array([b]);
-    return arrayA[0] - arrayB[0];
+    return arrayB[0] - arrayA[0];
 }
 
 // Subtrahiert a von b im 32-Bit-Int-Fenster.
@@ -339,7 +339,7 @@ function checkNumber(input: number | null | undefined): void {
     checkNumber(b);
     const arrayA = new Int32Array([a]);
     const arrayB = new Int32Array([b]);
-    return arrayB[0] - arrayA[0];
+    return arrayA[0] - arrayB[0];
 }
 
 // Überträgt den Wert a im 32-Bit-Int-Fenster.

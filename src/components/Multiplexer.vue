@@ -130,7 +130,7 @@ const listMuxB = muxStore.muxB;
 const listMuxA = muxStore.muxA;
 
 // Daten für das Dropdown-Menü
-const registers = registerStore.registerOrder;
+const registers = registerStore.registerOrder.filter((register:any) => register.title !== 'MAR');
 const selectType = ref('register');
 const selectedRegister = ref(null);
 const numberInput = ref(0);

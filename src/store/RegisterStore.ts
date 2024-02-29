@@ -11,7 +11,7 @@ export const useRegisterStore = defineStore('register', () => {
 
   const { t } = useI18n({ useScope: 'global' });
   //Base Register
-  const BASE_REGISTERS = ['MAR', 'MDR', 'ACCU', 'IR', 'PC'];
+  const BASE_REGISTERS = ['PC', 'IR', 'MDR', 'MAR', 'ACCU'];
   //store for calculation. Stores all the register.
   const register: Map<string, number> = new Map();
   //rective Register for UI
@@ -23,7 +23,9 @@ export const useRegisterStore = defineStore('register', () => {
     const description = t(descriptionKey); // Holt die Übersetzung für den Schlüssel
     register.set(registerName, 0);
     registerOrder.push({ title: registerName, Value: 0, Description: description, isActive: false });
-    multiplexerStore.addRegisterToMux('B', {title: registerName, Value: 0, Description: description});
+    if(registerName != "MAR"){
+      multiplexerStore.addRegisterToMux('B', {title: registerName, Value: 0, Description: description});
+    }
   });
 
   /**

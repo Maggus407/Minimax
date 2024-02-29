@@ -86,7 +86,7 @@ export const useMemoryStore = defineStore('memory', () => {
         return rawMemory.slice(start, end+1).buffer;
     }
 
-    function setRawMemoryValue(value: number, index: number) {
+    function setRawMemoryValue(index: number, value: number) {
         rawMemory[index] = value;
     }
     

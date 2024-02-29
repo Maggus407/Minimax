@@ -54,7 +54,7 @@ function determineType(title:any) {
                 }
             ],
             registers: {
-                register: regOb.map((reg: any) => ({
+                register: regOb.filter((reg: any) => !register.BASE_REGISTERS.includes(reg.title)).map((reg: any) => ({
                     size: "BITS_32",
                     name: reg.title,
                     description: reg.Description || "" // Stellen Sie sicher, dass ein leerer String als Fallback vorhanden ist
@@ -113,10 +113,12 @@ function createData_For_signal() {
           }
       });
 
-      // AluCtrl Signal hinzufügen
-      if (row.AluCtrl) {
-          rowEntry.signal.push({ name: "ALU_CTRL", value: row.AluCtrl.toString() });
-      }
+        // AluCtrl Signal mit Index hinzufügen
+        if (row.AluCtrl) {
+            const aluCtrlIndex = alu.aluOperationsListAdded.findIndex((op: string) => op === row.AluCtrl);
+            rowEntry.signal.push({ name: "ALU_CTRL", value: aluCtrlIndex.toString() });
+        }
+
 
       // Sprunglogik hinzufügen
       if (row.jumpSet && row.jump === null) {

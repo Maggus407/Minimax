@@ -88,6 +88,15 @@ watch(() => importStore.isImportedError, (newValue) => {
   }
 });
 
+//Check if currentExport is empty if not set exportCheck to true  
+watch(() => currentExport.value, (newValue) => {
+  if (newValue !== '') {
+    exportCheck.value = true;
+  } else {
+    exportCheck.value = false;
+  }
+});
+
 
 //watch the changes for the selected language and change the language
 watch(selectedLanguage, (newValue) => {

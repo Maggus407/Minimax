@@ -215,7 +215,7 @@ function goToAddress() {
   const addressInt = parseInt(jumpAddress.value, 16); 
   console.log(addressInt);
   if (!isNaN(addressInt)) {
-    const targetPage = Math.ceil(addressInt / (memStore.getPageSize()-1));
+    const targetPage = Math.ceil((addressInt+1) / memStore.getPageSize());
     console.log("addressInt: " + addressInt);
     console.log("PAGESIZE: " + memStore.getPageSize());
     console.log(targetPage);

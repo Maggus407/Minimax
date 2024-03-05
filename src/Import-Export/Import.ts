@@ -41,36 +41,38 @@ export const useImport = defineStore('import', () => {
 }
 
     // Funktion zum Importieren der .zip-Datei
-  async function importZip(file:any) {
-    const zip = new JSZip();
-    try {
-      const content = await zip.loadAsync(file); // .zip-Datei laden
-      // machine.json extrahieren und verarbeiten
-      if (content.files['machine.json']) {
+    async function importZip(file:any) {
+      const zip = new JSZip();
+      try {
+        const content = await zip.loadAsync(file); // .zip-Datei laden
+        // Check if machine.json exists
+        if (!content.files['machine.json'] && !content.files['signal.json']) {
+          errorText.value = "Invalid .zip file: machine.json and signal.json are missing";
+          isImportedError.value = true;
+          return;
+        }
+        // machine.json extrahieren und verarbeiten
         const machineData = await content.files['machine.json'].async('string');
         if(isValidMachineJson(machineData)){
           machine = JSON.parse(machineData);
           setMachineData();  
         }
-      }
-      // signal.json extrahieren und verarbeiten
-      if (content.files['signal.json']) {
+        // signal.json extrahieren und verarbeiten
         const signalData = await content.files['signal.json'].async('string');
         if(isValidSignalJson(signalData)){
           signal = JSON.parse(signalData);
           setSignalData();
         }
+        console.log('Import erfolgreich!');
+        isImported.value = true;
+      } catch (error) {
+        isImportedError.value = true;
+        errorText.value = "Error while importing .zip file" + error;
+        console.error('Fehler beim Importieren der .zip-Datei:', error);
       }
-      console.log('Import erfolgreich!');
-      isImported.value = true;
-    } catch (error) {
-      isImportedError.value = true;
-      errorText.value = "Error while importing .zip file" + error;
-      console.error('Fehler beim Importieren der .zip-Datei:', error);
+      console.log(machine);
+      console.log(signal);
     }
-    console.log(machine);
-    console.log(signal);
-  }
 
   //Gets a file machine.json which is not a .zip file
   async function importMachineJson(file:any) {

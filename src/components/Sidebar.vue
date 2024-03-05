@@ -1,28 +1,38 @@
 <template>
-  <v-navigation-drawer app>
-      <v-list>
-        <v-list-group>
-          <v-list-item v-for="link in links" :key="link.path" :to="link.path">
-              <v-list-item-title>{{ link.label }}</v-list-item-title>
-          </v-list-item>
-        </v-list-group>
-      </v-list>
-      <v-btn @click="toggleTheme">
-        <v-icon size="x-large">mdi-theme-light-dark</v-icon>
-      </v-btn>
-      <v-btn>
-        Language
-        <v-menu activator="parent">
-          <v-list>
-            <v-list-item v-for="lang in languages" :key="lang">
-              <v-btn @click="changeLanguage(lang)">{{ lang }}</v-btn>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-btn>
-      <v-btn @click="exportData">Export</v-btn>
-      <v-file-input v-model="fileInput" label="Import"></v-file-input>
-      <v-btn @click="importData">Import</v-btn>
+<v-navigation-drawer app>
+  <!--HEADER-->
+        <v-container class="d-flex flex-row justify-space-between">
+          <div class="text-h4">MiniMax</div>
+          <!--<div @click="toggle" class="p-0 mt-1 pointer"><v-icon size="x-large">mdi-menu</v-icon></div>-->
+        </v-container>
+        <v-divider/>
+          <!--Routes-->
+          <v-container class="pl-0 pt-0 pb-0 pr-0">
+            <v-list>
+              <v-list-group>
+                <v-list-item v-for="link in links" :key="link.path" :to="link.path">
+                    <v-list-item-title>{{ link.label }}</v-list-item-title>
+                </v-list-item>
+              </v-list-group>
+            </v-list>
+          </v-container>
+          <v-divider></v-divider>
+            <!--Settings-->
+          <v-container>
+            <div width="100%" class="d-flex flex-col mt-5">
+              <v-select variant="outlined" :items="itemsExport" v-model="currentExport" label="Export as..."></v-select>
+              <v-btn :disabled="exportCheck == false || currentExport == '-'" class="ml-3 mt-1" @click="exportData" icon="mdi-export"/>
+            </div>
+            <div class="d-flex flex-row">
+              <v-file-input v-model="fileInput" variant="outlined" prepend-icon="" label="Import"></v-file-input>
+              <v-btn class="ml-3 mt-1" @click="importData" icon="mdi-import" :disabled="fileInput.length === 0"><v-icon>mdi-import</v-icon></v-btn>
+            </div>
+          </v-container>
+          <v-divider/>
+            <v-container class="d-flex flex-col">
+              <v-btn @click="toggleTheme" icon="mdi-theme-light-dark" class="mr-5"/>
+              <v-select v-model="selectedLanguage" :items="languages" label="Language"></v-select>
+            </v-container>
     </v-navigation-drawer>
 </template>
 
@@ -32,18 +42,37 @@ import { useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useExport } from '../Import-Export/Export';
 import { useImport } from '../Import-Export/Import';
+import { watch } from 'vue';
 
 const exportStore = useExport();
 const importStore = useImport();
 const fileInput = ref<File[]>([]);
+const exportCheck = ref(false);
+const currentExport = ref<string>('');
+const selectedLanguage = ref<string>('en');
+
+//watch for changes in the current export and set the exportCheck to true if the currentExport is not empty
+watch(currentExport, (newValue) => {
+  if (newValue !== '') {
+    exportCheck.value = true;
+  }
+});
+
+//watch the changes for the selected language and change the language
+watch(selectedLanguage, (newValue) => {
+  changeLanguage(newValue);
+});
 
 const theme = useTheme();
+
+const itemsExport = ['-','.zip', 'machine.json', 'signal.json'];
 
 function toggleTheme() {
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
 }
 
 const { locale } = useI18n();
+
 function changeLanguage(lang: string) {
     locale.value = lang;
 }
@@ -61,13 +90,25 @@ const links = [
 ];
 
 function exportData() {
-  exportStore.testOutput();
+  switch (currentExport.value) {
+    case '-':
+      break;
+    case '.zip':
+      exportStore.exportZip();
+      break;
+    case 'machine.json':
+      exportStore.exportMachine();
+      break;
+    case 'signal.json':
+      exportStore.exportSignal();
+      break;
+  }
 }
 
 function importData() {
   if (fileInput.value.length > 0) {
     const file = fileInput.value[0]; // Nehmen Sie die erste Datei aus dem Array
-    importStore.importZip(file).then(() => {
+    importStore.Import(file).then(() => {
       console.log("Import erfolgreich");
       // Hier können Sie zusätzliche Aktionen nach dem Import durchführen
       fileInput.value = []; // Reset fileInput nach erfolgreichem Import
@@ -77,3 +118,17 @@ function importData() {
   }
 }
 </script>
+
+<style scoped>
+  .pointer {
+    cursor: pointer;
+  }
+/* Klassen für die Sidebar-Transition */
+.sidebar-mini{
+  width: 5vw !important;/* Verkleinerte Breite */
+}
+.v-navigation-drawer {
+  width: 15vw; /* Ursprüngliche Breite */
+  transition: width 0.3s ease !important; /* Animiert die Breitenänderung */
+}
+</style>

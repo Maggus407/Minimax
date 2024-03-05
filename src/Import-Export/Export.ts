@@ -138,39 +138,72 @@ function createData_For_signal() {
   return {table};
 }
 
+async function exportZip(){
+// JSON ausgeben (zur Demonstration)
+const machineData = createData_For_machine();
+const signalData = createData_For_signal();
+console.log("machine.json", JSON.stringify(machineJson, null, 2));
+console.log("signal.json", JSON.stringify(table, null, 2));
 
-async function testOutput() {
-  // JSON ausgeben (zur Demonstration)
-  const machineData = createData_For_machine();
-  const signalData = createData_For_signal();
-  console.log("machine.json", JSON.stringify(machineJson, null, 2));
-  console.log("signal.json", JSON.stringify(table, null, 2));
+// Erstelle ein neues JSZip-Objekt
+const zip = new JSZip();
 
-  // Erstelle ein neues JSZip-Objekt
-  const zip = new JSZip();
+// Füge machine.json und signal.json zur ZIP-Datei hinzu
+zip.file("machine.json", JSON.stringify(machineData.machineJson, null, 2));
+zip.file("signal.json", JSON.stringify(signalData.table, null, 2));
 
-  // Füge machine.json und signal.json zur ZIP-Datei hinzu
-  zip.file("machine.json", JSON.stringify(machineData.machineJson, null, 2));
-  zip.file("signal.json", JSON.stringify(signalData.table, null, 2));
+// Generiere die ZIP-Datei und starte den Download
+zip.generateAsync({ type: "blob" })
+    .then(function(content) {
+        // Nutze FileSaver.js oder einen ähnlichen Mechanismus, um die Datei herunterzuladen
+        // Beispiel: saveAs(content, "export.zip");
+        const url = URL.createObjectURL(content);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "export.zip";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+}
 
-  // Generiere die ZIP-Datei und starte den Download
-  zip.generateAsync({ type: "blob" })
-      .then(function(content) {
-          // Nutze FileSaver.js oder einen ähnlichen Mechanismus, um die Datei herunterzuladen
-          // Beispiel: saveAs(content, "export.zip");
-          const url = URL.createObjectURL(content);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "export.zip";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-      });
+//only for the machine.json No zip file
+async function exportMachine(){
+    const machineData = createData_For_machine();
+    const machineJsonString = JSON.stringify(machineData.machineJson, null, 2);
+    
+    const blob = new Blob([machineJsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'machine.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+//only for the signal.json No zip file
+async function exportSignal(){
+    const signalData = createData_For_signal();
+    const signalJsonString = JSON.stringify(signalData.table, null, 2);
+    
+    const blob = new Blob([signalJsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'signal.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 return{
-    testOutput
+    exportZip,
+    exportMachine,
+    exportSignal
 }
 });
 

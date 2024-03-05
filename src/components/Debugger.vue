@@ -1,20 +1,9 @@
 <template>
     <v-row>
-        <v-col>
-            <MemoryList mode="debugger" denseVersion="compact"/>
-            <v-card variant="outlined" class="mt-2">
-                <v-card-title class="pb-0">
-                    Register
-                </v-card-title>
-                <!--Register-->
-                <v-col class="pt-0">
-                    <v-card-text v-for="register in registerStore.registerOrder" :key="register.name" class="pt-1 pb-1 pl-1">
-                        {{ register.title }}: {{ register.Value }}
-                    </v-card-text>
-                </v-col>
-            </v-card>
+        <v-col class="pb-0 pt-0">
+            <MemoryList mode="debugger" denseVersion="comfortable"/>
         </v-col>
-        <v-col>
+        <v-col class="pb-0 pt-0">
             <v-card title="ALU" variant="outlined">
                 <v-card-text>
                     RESULT: {{ debuggerStore.Alu_UI }}
@@ -35,6 +24,17 @@
                 <v-card-title>
                     <Simulation/>
                 </v-card-title>
+                <v-card variant="outlined" class="mt-2">
+                <v-card-title class="pb-0">
+                    Register
+                </v-card-title>
+                <!--Register-->
+                <v-col class="pt-0">
+                    <v-card-text v-for="register in registerStore.registerOrder" :key="register.name" class="pt-1 pb-1 pl-1">
+                        {{ register.title }}: {{ register.Value }}
+                    </v-card-text>
+                </v-col>
+            </v-card>
             </v-card>
         </v-col>
     </v-row>
@@ -46,7 +46,6 @@ import Simulation from './ReUsable/Simulation.vue';
 import {useRegisterStore} from '@/store/RegisterStore';
 import { useMemoryStore } from '@/store/MemoryStore';
 import MemoryList from './ReUsable/MemoryList.vue';
-import { ref } from 'vue';
 
 const debuggerStore = useDebugerStore();
 const registerStore = useRegisterStore();

@@ -72,7 +72,6 @@ export const useMemoryStore = defineStore('memory', () => {
         // Wenn alle Werte 0 sind, geben Sie true zurück
         return true;
     }
-    
 
     function exportMemoryRange(start: number, end: number): ArrayBuffer {
         if (isNaN(start) || start < 0) {
@@ -157,6 +156,9 @@ export const useMemoryStore = defineStore('memory', () => {
     function getPageSize(): number {
         return PAGE_SIZE.value
     }
+    function setPageSize(newSize: number){
+        PAGE_SIZE.value = newSize;
+    }
 
     function updateMemory(index: number, newValue: number) {
         if (index >= 0 && index < rawMemory.length) {
@@ -186,7 +188,8 @@ export const useMemoryStore = defineStore('memory', () => {
         updateDisplayedMemory,
         changePageSize_Memory,
         changePageSize_Debugger,
-        hexBinSwitch
+        hexBinSwitch,
+        setPageSize
      };
 
 });

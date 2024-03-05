@@ -45,6 +45,7 @@
         <th class="text-center" style="width: 20%">{{ $t('memory.address') }}</th>
         <th class="text-center" style="width: 20%">{{ $t('memory.decimal') }}</th>
         <th class="text-center" style="width: 60%" @click="memStore.hexBinSwitch = !memStore.hexBinSwitch">Hex/BIN</th>
+        <th class="text-center"></th>
       </tr>
     </thead>
     <tbody>
@@ -54,9 +55,10 @@
         :class="{ 'marked-row': isMarkedRow(getCurrentPage(index)) }"
         @dblclick="selectItem(item, index)"
       >
-        <td style="width: 20%; text-align: center;">{{ toHex(getCurrentPage(index)) }}</td>
-        <td style="width: 20%; text-align: center;">{{ item }}</td>
-        <td style="width: 60%; text-align: center;">{{ memStore.hexBinSwitch === false ? '0x' + toHex(item) : toBinary(item) }}</td>
+        <td style="width: 20%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? toHex(getCurrentPage(index)) : '' }}</td>
+        <td style="width: 20%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? item : '' }}</td>
+        <td style="width: 60%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? (memStore.hexBinSwitch === false ? '0x' + toHex(item) : toBinary(item)) : '' }}</td>
+        <td style="text-align: center;"><v-icon v-if="getCurrentPage(index) < 16777216" small @click="selectItem(item, index)">mdi-pencil</v-icon></td>
       </tr>
     </tbody>
 </v-table>
@@ -94,6 +96,32 @@
 import { useMemoryStore } from '@/store/MemoryStore';
 import { ref, computed } from 'vue';
 import Dec_Hex_Bin_Inputs from './Dec_Hex_Bin_Inputs.vue';
+import { onMounted, onUnmounted } from 'vue';
+
+function calculatePageSize() {
+  // Beispiel zur Berechnung der Seitengröße basierend auf der Fensterbreite
+  const windowHeight = window.innerHeight;
+
+  // Annahme: Jedes Memory-Element benötigt 100px Breite
+  const elementHeight = 53;
+
+  // Berechnung, wie viele Elemente basierend auf der aktuellen Fensterbreite angezeigt werden können
+  const elementsPerPage = Math.floor(windowHeight / elementHeight);
+
+  // Anpassung der Seitengröße
+  memStore.changePageSize_Memory(elementsPerPage);
+  memStore.changePageSize_Debugger(elementsPerPage);
+  console.log('Page size set to: ' + memStore.getPageSize());
+}
+
+onMounted(() => {
+  calculatePageSize(); // Initial aufrufen, um die Seitengröße beim Laden der Seite festzulegen
+  window.addEventListener('resize', calculatePageSize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', calculatePageSize);
+});
 
 const props = defineProps({
     mode: {
@@ -108,7 +136,6 @@ const props = defineProps({
 });
 
 const memStore = useMemoryStore();
-const PAGE_SIZE = memStore.getPageSize();
 const jumpAddress = ref("");
 
 const markedAddress = ref(-1); // -1 bedeutet, dass keine Adresse markiert ist
@@ -186,8 +213,12 @@ function isMarkedRow(addressIndex: number) {
 
 function goToAddress() {
   const addressInt = parseInt(jumpAddress.value, 16); 
+  console.log(addressInt);
   if (!isNaN(addressInt)) {
-    const targetPage = Math.ceil(addressInt / PAGE_SIZE);
+    const targetPage = Math.ceil(addressInt / (memStore.getPageSize()-1));
+    console.log("addressInt: " + addressInt);
+    console.log("PAGESIZE: " + memStore.getPageSize());
+    console.log(targetPage);
     if (targetPage > 0 && targetPage <= totalPages.value) {
       page.value = targetPage
       markedAddress.value = addressInt; // Markierung setzen
@@ -254,7 +285,7 @@ const validateHexInput = (event: KeyboardEvent) => {
 
 // Anzahl der Gesamtseiten berechnen
 const totalPages = computed(() => {
-  return Math.ceil(16777216 / PAGE_SIZE);
+  return Math.ceil(16777216 / memStore.getPageSize());
 });
 
 function handleWheel(event: WheelEvent) {

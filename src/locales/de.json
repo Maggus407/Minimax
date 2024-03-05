@@ -47,7 +47,8 @@
     "startAddress": "Von Adresse",
     "endAddress": "bis Adresse",
     "selectFile": "Datei auswählen",
-    "export": "Datei Exportieren"
+    "export": "Datei Exportieren",
+    "fileSize": "Dateigröße"
   },
   "register":{
     "baseRegister": "Basisregister",

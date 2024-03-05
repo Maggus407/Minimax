@@ -34,6 +34,24 @@
               <v-select v-model="selectedLanguage" :items="languages" label="Language"></v-select>
             </v-container>
     </v-navigation-drawer>
+
+      <!-- Alert Benachrichtigung -->
+  <v-alert
+    v-if="importStore.isImported"
+    type="success"
+    :value="true"
+    class="alert-import-success"
+    text="Import erfolgreich!"
+    width="20vw"
+  ></v-alert>
+  <v-alert
+    v-if="importStore.isImportedError"
+    type="error"
+    class="alert-import-success"
+    :text="importStore.errorText"
+    width="20vw"
+    closable
+  ></v-alert>
 </template>
 
 <script setup lang="ts">
@@ -51,12 +69,25 @@ const exportCheck = ref(false);
 const currentExport = ref<string>('');
 const selectedLanguage = ref<string>('en');
 
-//watch for changes in the current export and set the exportCheck to true if the currentExport is not empty
-watch(currentExport, (newValue) => {
-  if (newValue !== '') {
-    exportCheck.value = true;
+// Beobachten Sie die isImported ref und setzen Sie sie nach 2 Sekunden zurück
+watch(() => importStore.isImported, (newValue) => {
+  if (newValue) {
+    setTimeout(() => {
+      importStore.isImported = false;
+    }, 2000); // 2000 Millisekunden = 2 Sekunden
   }
 });
+
+// Beobachten Sie die isImportedError ref und setzen Sie sie nach 2 Sekunden zurück
+watch(() => importStore.isImportedError, (newValue) => {
+  if (newValue) {
+    setTimeout(() => {
+      importStore.isImportedError = false;
+      importStore.errorText = '';
+    }, 10000); // 2000 Millisekunden = 2 Sekunden
+  }
+});
+
 
 //watch the changes for the selected language and change the language
 watch(selectedLanguage, (newValue) => {
@@ -131,4 +162,13 @@ function importData() {
   width: 15vw; /* Ursprüngliche Breite */
   transition: width 0.3s ease !important; /* Animiert die Breitenänderung */
 }
+.alert-import-success {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
+    z-index: 100; /* Stellen Sie sicher, dass es über anderen Elementen ist */
+  }
 </style>

@@ -47,7 +47,8 @@
         "type": "Typ",
         "startAddress": "Start Address",
         "endAddress": "End Address",
-        "selectFile": "Select File"
+        "selectFile": "Select File",
+        "fileSize": "File Size"
       },
       "register":{
         "baseRegister": "Base Register",

@@ -11,35 +11,40 @@
   >
   <thead>
       <tr>
-        <th class="center">Breakpoint</th>
-        <th class="center">Label</th>
-        <th class="center">Adress</th>
-        <th class="center">AluSelA</th>
-        <th class="center">AluSelB</th>
-        <th class="center">MDRSel</th>
-        <th class="center">HsCs</th>
-        <th class="center">Hs_R_W</th>
-        <th class="center">AluCtrl</th>
-        <th v-for="r in registerStore.registerOrder" :key="r.title" class="center">
-          {{ r.title }}
+        <th class="center pr-0 pl-2">Br</th>
+        <th class="center pr-0 pl-1 text-center">Label</th>
+        <th class="center pr-0 pl-1 text-center">Adress</th>
+        <th class="center pr-0 pl-1 text-center">AluSelA</th>
+        <th class="center pr-0 pl-1 text-center">AluSelB</th>
+        <th class="center pr-0 pl-1 text-center">MDRSel</th>
+        <th class="center pr-0 pl-1 text-center">HsCs</th>
+        <th class="center pr-0 pl-1 text-center">Hs_R_W</th>
+        <th class="center pr-0 pl-1 text-center">AluCtrl</th>
+        <th v-for="r in registerStore.registerOrder" :key="r.title" class="pr-0 pl-1 text-center">
+            {{ r.title }}
         </th>
-        <th class="center">ALU == 0?</th>
-        <th class="center">next</th>
-        <th class="center">description</th>
-        <th class="center">Aktionen</th>
+        <th class="center pr-0 pl-1 text-center">ALU == 0?</th>
+        <th class="center pr-0 pl-1 text-center">Next</th>
+        <th class="center pr-0 pl-2">RT-Notation</th>
+        <th class="center pr-0 pl-1 text-center">Aktionen</th>
       </tr>
     </thead>
     <draggable :list="list" tag="tbody"  item-key="id" group="signalTable"  @change="controlTable.updateTable()">
       <template #item="{element, index}">
-        <tr :key="index">
-          <td @click.stop="element.breakpoint = !element.breakpoint">
+        <tr class="pr-0 pl-0" :key="index">
+          <!--Breakpoint-->
+          <td width="50vw" @click.stop="element.breakpoint = !element.breakpoint" class="pr-0 pl-2">
             <v-icon v-if="element.breakpoint" color="red">mdi-record</v-icon>
+            <p v-else>&nbsp;</p>
           </td>
-          <td>
+          <!--Label-->
+          <td class="pr-0 pl-0" width="130vw">
             <v-text-field @change="controlTable.updateTable()" v-model="element.label" dense solo-inverted hide-details></v-text-field>
           </td>
-          <td>{{ element.adress }}</td>
-          <td>
+          <!--Adress-->
+          <td class="text-center pr-0 pl-0">{{ element.adress }}</td>
+          <!--AluSelA-->
+          <td width="130vw">
             <v-select
               :hide-details="true"
               density="compact"
@@ -52,7 +57,8 @@
             >
             </v-select>
           </td>
-          <td>
+          <!--AluSelB-->
+          <td width="130vw">
             <v-select
               :hide-details="true"
               density="compact"
@@ -65,23 +71,28 @@
             >
             </v-select>
           </td>
-          <td @click.stop="update(element,null,null,'MDRSel')">{{ +element.MDRSel }}</td>
-          <td @click.stop="update(element,null,null,'HsCs')">{{ +element.HsCs }}</td>
-          <td @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
-          <td>
+          <!--MDRSel-->
+          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'MDRSel')">{{ +element.MDRSel }}</td>
+          <!--HsCs-->
+          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'HsCs')">{{ +element.HsCs }}</td>
+          <!--Hs_R_W-->
+          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
+          <!--AluCtrl-->
+          <td width="170vw">
             <v-select
               :hide-details="true"
               density="compact"
-              variant="outlined"
               menu-icon=""
+              variant="outlined"
               :items="['-', ...aluStore.aluOperationsListAdded]"
               v-model="element.AluCtrl"
               @update:modelValue="update(element, null)"
             >
             </v-select>
           </td>
-          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer" @click.stop="update(element, register)">
-              <p>{{ register.isActive ? 1 : 0 }}</p>
+          <!--Register-->
+          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer pr-0 pl-0 text-center" @click.stop="update(element, register)">
+                <p>{{ register.isActive ? 1 : 0 }}</p>
           </td>
           <!-- ALU == 0? -->
           <td @click.stop="openDialog(element)">
@@ -92,13 +103,14 @@
             </div>
           </td>
           <!-- next -->
-          <td>
+          <td class="pr-0 pl-0 text-center">
             <div class="flex flex-col">
               <p v-if="element.jump !== null">{{ element.jump.adress }}</p>
               <p v-if="true">{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</p>
             </div>
           </td>
-          <td>
+          <!-- description -->
+          <td class="pr-0 pl-2" width="200vw">
             <div v-if="element.description.length > 0">
               <p v-for="(d, index) in element.description" :key="index">{{ d }}</p>
             </div>
@@ -106,7 +118,18 @@
               <p>&nbsp;</p>
             </div>
           </td>
-          <td><v-btn @click.stop="controlTable.deleteRow(index)">Löschen</v-btn></td>
+          <!-- Aktionen -->
+          <td class="pr-0 pl-0">
+            <div class="d-flex flex-row justify-end">
+              <v-tooltip text="Write Comment">
+                <template v-slot:activator="{ props }">
+                  <v-icon v-bind="props" class="mr-5">mdi-text-box-edit</v-icon>
+                </template>
+              </v-tooltip>
+            
+              <v-icon @click.stop="controlTable.deleteRow(index)" color="red">mdi-delete</v-icon>
+            </div>
+          </td>
   <v-dialog v-model="dialog" persistent max-width="30vw">
     <v-card>
       <v-card-title>

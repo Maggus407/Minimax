@@ -11,7 +11,11 @@
   >
   <thead>
       <tr>
-        <th class="center pr-0 pl-2">Br</th>
+        <v-tooltip text="Breakpoint">
+                <template v-slot:activator="{ props }">
+                  <th v-bind="props" class="center pr-0 pl-1 text-center">Br</th>
+                </template>
+        </v-tooltip>
         <th class="center pr-0 pl-1 text-center">Label</th>
         <th class="center pr-0 pl-1 text-center">Adress</th>
         <th class="center pr-0 pl-1 text-center">AluSelA</th>
@@ -38,13 +42,13 @@
             <p v-else>&nbsp;</p>
           </td>
           <!--Label-->
-          <td class="pr-0 pl-0" width="130vw">
+          <td class="pr-0 pl-0" width="125vw">
             <v-text-field @change="controlTable.updateTable()" v-model="element.label" dense solo-inverted hide-details></v-text-field>
           </td>
           <!--Adress-->
           <td class="text-center pr-0 pl-0">{{ element.adress }}</td>
           <!--AluSelA-->
-          <td width="130vw">
+          <td width="125vw">
             <v-select
               :hide-details="true"
               density="compact"
@@ -58,7 +62,7 @@
             </v-select>
           </td>
           <!--AluSelB-->
-          <td width="130vw">
+          <td width="125vw">
             <v-select
               :hide-details="true"
               density="compact"
@@ -78,7 +82,7 @@
           <!--Hs_R_W-->
           <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
           <!--AluCtrl-->
-          <td width="170vw">
+          <td width="154vw">
             <v-select
               :hide-details="true"
               density="compact"
@@ -121,13 +125,14 @@
           <!-- Aktionen -->
           <td class="pr-0 pl-0">
             <div class="d-flex flex-row justify-end">
+            <!--Comment Row-->
               <v-tooltip text="Write Comment">
                 <template v-slot:activator="{ props }">
-                  <v-icon v-bind="props" class="mr-5">mdi-text-box-edit</v-icon>
+                  <v-icon v-bind="props" class="mr-3">mdi-text-box-edit</v-icon>
                 </template>
               </v-tooltip>
-            
-              <v-icon @click.stop="controlTable.deleteRow(index)" color="red">mdi-delete</v-icon>
+              <!--Delete Row-->
+              <v-icon @click.stop="controlTable.deleteRow(index)" color="red" class="mr-2">mdi-delete</v-icon>
             </div>
           </td>
   <v-dialog v-model="dialog" persistent max-width="30vw">

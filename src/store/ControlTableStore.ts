@@ -5,7 +5,6 @@ import { useRegisterStore } from '@/store/RegisterStore';
 import { useDebugerStore } from '@/store/DebugerStore';
 import { useMultiplexerStore } from './MultiplexerStore';
 import { v4 as uuidv4 } from 'uuid'
-import { parse } from 'path';
 
 // Interface for control table
 interface ControlTable {
@@ -24,6 +23,7 @@ interface ControlTable {
   jumpSet: boolean;
   next: any;
   description: [];
+  comment: string;
 }
 
 export const useControlTableStore = defineStore('controlTable', () => {
@@ -52,6 +52,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
       jumpSet: false,
       next: controlTable.length + 1,
       description: [],
+      comment: "",
     };
 
     newRow.registerWrite = registerStore.registerOrder.map((register: any) => {
@@ -167,9 +168,9 @@ export const useControlTableStore = defineStore('controlTable', () => {
   
     // Wenn kein Register aktiv ist, füge den Basis-RT-Notation-String hinzu
     if (row.description.length === 0) {
-      if(row.AluCtrl == "Transfer A" && AluSelA != "???"){
+      if(row.AluCtrl == "Transfer A" && AluSelA != "???" && row.jumpSet){
         row.description.push(AluSelA + " == 0?");
-      }else if(row.AluCtrl == "Transfer B" && AluSelB != "???"){
+      }else if(row.AluCtrl == "Transfer B" && AluSelB != "???" && row.jumpSet){
         row.description.push(AluSelB + " == 0?");
       }else{
         let RT_Notation = RT_Notation_Base.replace('{}', '???');
@@ -280,6 +281,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
         jumpSet: jumpSet,
         next: next != null ? next : controlTable.length + 1,
         description: [],
+        comment: "",
       };
       controlTable.push(newRow);
     });

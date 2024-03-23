@@ -25,6 +25,7 @@ export const useDebugerStore = defineStore('debugger', () => {
     const counter = ref(0);
     let currentStep = 0;
     const executing = ref(false);
+    const currentAdress = ref(0);
 
     const ringBuffer = new Map<number, StepBack>();
     const ringBufferSize = 200;
@@ -101,8 +102,9 @@ export const useDebugerStore = defineStore('debugger', () => {
             }
 
             debuggerCompiled.push({
-                predecessor: null,
+                predecessor: [],
                 breakpoint: row.breakpoint,
+                address: row.adress,
                 registerWrite: regNames,
                 aluA: convertIfNumeric(row.AluSelA),
                 aluB: convertIfNumeric(row.AluSelB),
@@ -130,6 +132,7 @@ export const useDebugerStore = defineStore('debugger', () => {
         };
 
         function calculateOperation(){
+            currentStep++;
             let ringbufferIndex = currentStep % ringBufferSize;
             let memorySave = {changed: false, index: 0, value: 0};
             let tmpAlu = aluResult;
@@ -182,14 +185,15 @@ export const useDebugerStore = defineStore('debugger', () => {
                 finished = true;
                 return;
             }
-            if(currentRow.jump !== null && result === 0){
-                let a = debuggerCompiled.indexOf(currentRow)
+
+            // Zur nächsten Zeile springen
+            let tmp = currentRow.address;
+            if (currentRow.jump !== null && result === 0) {
                 currentRow = debuggerCompiled[currentRow.jump];
-                currentRow.predecessor = a;
-            }else{
-                let a = debuggerCompiled.indexOf(currentRow);
+                currentRow.predecessor.push(tmp);
+            } else {
                 currentRow = debuggerCompiled[currentRow.next];
-                currentRow.predecessor = a;
+                currentRow.predecessor.push(tmp);
             }
         }
 
@@ -203,9 +207,11 @@ export const useDebugerStore = defineStore('debugger', () => {
             }else{
                 calculateOperation();
                 writeToRegister();
-                currentStep++;
                 counter.value = currentStep;
                 Alu_UI.value = aluResult;
+                currentAdress.value = currentRow.address;
+                console.log("CurrentRow" + currentRow.address);
+                console.log(currentAdress.value);
             }
             console.log(ringBuffer);
         }
@@ -219,13 +225,14 @@ function run() {
     if(debuggerCompiled.length === 0)return;
     if(finished){
         writeToRegister();
+        currentAdress.value = currentRow.address;
         return; 
     }
     // Prüfen, ob die Ausführung beim letzten Mal bei einem Breakpoint pausiert wurde
     if (isPausedAtBreakpoint) {
         // Wenn ja, versuche, mit dem nächsten Schritt fortzufahren, bevor die Schleife beginnt
         calculateOperation();
-        currentStep++;
+        currentAdress.value = currentRow.address;
         Alu_UI.value = aluResult;
         isPausedAtBreakpoint = false; // Setze das Flag zurück, da wir versuchen, fortzufahren
     }
@@ -233,19 +240,20 @@ function run() {
     // Laufe durch die Befehle, bis ein Breakpoint erreicht oder die Ausführung beendet ist
     while (!currentRow.breakpoint && !finished) {
         calculateOperation();
-        currentStep++;
     }
 
     if (currentRow.breakpoint) {
         // Wenn die Ausführung aufgrund eines Breakpoints pausiert wird, setze das Flag
         isPausedAtBreakpoint = true;
         Alu_UI.value = aluResult;
+        currentAdress.value = currentRow.address;
     }
     counter.value = currentStep;
     Alu_UI.value = aluResult;
     let page = memoryStore.getDebuggerPage();
     writeToRegister();
     memoryStore.setDebuggerPage(page);
+    currentAdress.value = currentRow.address;
 
     // Nachdem die Funktion ausgeführt wurde
     const endTime = performance.now();
@@ -265,18 +273,6 @@ function run() {
         });
     }
 
-    //Set the currentRow for the StepBack function
-    function setCurrentRow(){
-        if(currentRow === undefined)return;
-        if(finished){
-            finished = false;
-            currentRow = currentRow;
-            return;
-        }
-        currentRow = debuggerCompiled[currentRow.predecessor];
-        console.log(currentRow);
-    }
-
     function resetForStepBack(){
         registerStore.registerReset();
         //memoryStore.setInitialMemory();
@@ -285,23 +281,33 @@ function run() {
         counter.value = 0;
         Alu_UI.value = 0;
         aluResult = 0;
+        currentAdress.value = 0;
     }
 
-    function stepBack(){
-
-        if(currentStep <= 0){
+    function stepBack() {
+        console.log(ringBuffer);
+        if (currentStep <= 0) {
             currentRow = debuggerCompiled[0];
+            currentAdress.value = currentRow.address;
             resetForStepBack();
             return;
-        }else{
-            currentStep--;
-            setCurrentRow();
+        } else {
+            if(finished){
+                set_Data_Back();
+                return;
+            }
+            const tmp = currentRow.predecessor.pop();
+            if(tmp !== undefined){
+                currentRow = debuggerCompiled[tmp];
+            }
             set_Data_Back();
-            console.log(registerStore.register);    
+            currentAdress.value = currentRow.address;
+            console.log(registerStore.register);
         }
     }
 
     function set_Data_Back(){
+        finished = false;
         let ringbufferIndex = currentStep % ringBufferSize;
         let stepBack = ringBuffer.get(ringbufferIndex);
         if (stepBack === undefined) return;
@@ -319,6 +325,7 @@ function run() {
                 registerStore.register.set(value.value, value.title);
             });
         }
+        currentStep--;
         counter.value = currentStep;
         writeToRegister();
         console.log("StepBack");
@@ -341,16 +348,38 @@ function run() {
         counter.value = 0;
         Alu_UI.value = 0;
         aluResult = 0;
+        currentAdress.value = 0;
     }
 
+    /**
+     * Writes the value from the MDR (Memory Data Register) to the memory at the specified index.
+     */
     function writeToMemory(){
         const index = registerStore.register.get("MAR") as number;
         const value = registerStore.register.get("MDR") as number;
         memoryStore.setRawMemoryValue(index, value);
     }
 
+    /**
+     * Writes the value from the memory at the MAR (Memory Address Register) to the MDR (Memory Data Register).
+     * The value is retrieved from the memory store using the address stored in the MAR register.
+     */
     function writeMemoryToMDR(){
         registerStore.register.set("MDR", memoryStore.getValue_at_MAR_Address(registerStore.register.get("MAR") as number));
+    }
+
+    /**
+     * Changes the breakpoint status of the row at the specified index.
+     * Change in ControlTabel and debuggerCompiled
+     * @param index The index of the row to change the breakpoint status of.
+    */
+    function changeBreakpoint(index: number){
+        console.log(index);
+        if(executing.value){
+            debuggerCompiled[index].breakpoint = !debuggerCompiled[index].breakpoint;
+        }
+        controlTable.controlTable[index].breakpoint = !controlTable.controlTable[index].breakpoint;
+        console.log(debuggerCompiled[index]);
     }
 
     return{
@@ -362,7 +391,9 @@ function run() {
         counter,
         writeToRegister,
         Alu_UI,
-        executing
+        executing,
+        changeBreakpoint,
+        currentAdress
     }
 
 });

@@ -53,7 +53,6 @@
                   </v-tooltip>
                   <v-icon color="error" @click="registerStore.deleteRegister(regName)" class="mr-2">mdi-delete</v-icon>
                 </v-card-text>
-
                 <v-card-text v-if="currentEditing === regName.title">
                   <v-text-field v-model="editedName" label="Name"></v-text-field>
                   <v-text-field v-model="editedDescription" :label="$t('generell.description')"></v-text-field>

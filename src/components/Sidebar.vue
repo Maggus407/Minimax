@@ -84,7 +84,7 @@ const globalStore = useGlobalStore();
 const fileInput = ref<File[]>([]);
 const exportCheck = ref(false);
 const currentExport = ref<string>('');
-const selectedLanguage = ref<string>('en');
+const selectedLanguage = ref<string>('de');
 const name = ref<string>('');
 const snapshot = ref<any>('');
 

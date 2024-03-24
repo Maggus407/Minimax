@@ -16,21 +16,21 @@
                   <th v-bind="props" class="center pr-0 pl-1 text-center">Br</th>
                 </template>
         </v-tooltip>
-        <th class="center pr-0 pl-1 text-center">Label</th>
-        <th class="center pr-0 pl-1 text-center">Adress</th>
-        <th class="center pr-0 pl-1 text-center">AluSelA</th>
-        <th class="center pr-0 pl-1 text-center">AluSelB</th>
-        <th class="center pr-0 pl-1 text-center">MDRSel</th>
-        <th class="center pr-0 pl-1 text-center">HsCs</th>
-        <th class="center pr-0 pl-1 text-center">Hs_R_W</th>
-        <th class="center pr-0 pl-1 text-center">AluCtrl</th>
+        <th class="pr-0 pl-1 text-center">Label</th>
+        <th class=" pr-0 pl-1 text-center">Adress</th>
+        <th class=" pr-0 pl-1 text-center">AluSelA</th>
+        <th class=" pr-0 pl-1 text-center">AluSelB</th>
+        <th class=" pr-0 pl-1 text-center">MDRSel</th>
+        <th class=" pr-0 pl-1 text-center">HsCs</th>
+        <th class=" pr-0 pl-1 text-center">Hs_R_W</th>
+        <th class="pr-3 pl-0 text-center">AluCtrl</th>
         <th v-for="r in registerStore.registerOrder" :key="r.title" class="pr-0 pl-1 text-center">
             {{ r.title }}
         </th>
         <th class="center pr-0 pl-1 text-center">ALU == 0?</th>
         <th class="center pr-0 pl-1 text-center">Next</th>
         <th class="center pr-0 pl-2">RT-Notation</th>
-        <th class="center pr-0 pl-1 text-center">Aktionen</th>
+        <th class="center pr-0 pl-1 text-center">&nbsp;</th>
       </tr>
     </thead>
     <draggable :list="list" tag="tbody"  item-key="id" group="signalTable"  @change="controlTable.updateTable()">
@@ -48,7 +48,7 @@
           <!--Adress-->
           <td class="text-center pr-0 pl-0">{{ element.adress }}</td>
           <!--AluSelA-->
-          <td width="125vw">
+          <td width="100vw" class="pr-0">
             <v-select
               :hide-details="true"
               density="compact"
@@ -62,7 +62,7 @@
             </v-select>
           </td>
           <!--AluSelB-->
-          <td width="125vw">
+          <td width="100vw" class="pr-0">
             <v-select
               :hide-details="true"
               density="compact"
@@ -82,7 +82,7 @@
           <!--Hs_R_W-->
           <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
           <!--AluCtrl-->
-          <td width="154vw">
+          <td width="140vw" class=pl-0>
             <v-select
               :hide-details="true"
               density="compact"
@@ -100,7 +100,7 @@
           </td>
           <!-- ALU == 0? -->
           <td @click.stop="openDialog(element)">
-            <p v-if="element.jump === null">{{ element.jump !== null ?  element.jump.adress : "-"}}</p>
+            <p v-if="element.jump === null" class="text-center">{{ element.jump !== null ?  element.jump.adress : "-"}}</p>
             <div class="flex flex-col">
               <p v-if="element.jump !== null && element.jumpSet === true">1</p>
               <p v-if="element.jump !== null && element.jumpSet === true">0</p>
@@ -126,11 +126,7 @@
           <td class="pr-0 pl-0">
             <div class="d-flex flex-row justify-end">
             <!--Comment Row-->
-              <v-tooltip text="Write Comment">
-                <template v-slot:activator="{ props }">
-                  <v-icon v-bind="props" class="mr-3">mdi-text-box-edit</v-icon>
-                </template>
-              </v-tooltip>
+              <v-icon class="mr-3">mdi-text-box-edit</v-icon>
               <!--Delete Row-->
               <v-icon @click.stop="controlTable.deleteRow(index)" color="red" class="mr-2">mdi-delete</v-icon>
             </div>
@@ -186,12 +182,11 @@
           >
             OK
           </v-btn>
-
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
         </tr>
-    </template>
+      </template>
   </draggable>
 </v-table>
 </template>
@@ -218,6 +213,14 @@ const selectedJumpType = ref('next');
 const unconditionalJump = ref(null);
 const conditionalJumpIfZero = ref(null);
 const conditionalJumpIfNotZero = ref(null);
+
+const currentComment = ref('');
+const isCommentDialog = ref(false);
+
+function openCommentDialog(row: any) {
+  currentComment.value = row.comment;
+  isCommentDialog.value = true;
+}
 
 const requiredRule = (value: any) => !!value || 'Erforderlich';
 

@@ -11,10 +11,5 @@
 
 <script setup lang="ts">
 import Sidebar from './components/Sidebar.vue';
-import { useImport } from './Import-Export/Import';
-import { useExport } from './Import-Export/Export';
-
-const importStore = useImport();
-
 
 </script>

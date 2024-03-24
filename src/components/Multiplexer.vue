@@ -15,9 +15,7 @@
                 <div class="text-no-wrap">{{ formatBinary(index) }}</div>
                 <div class="mx-4">{{ element.title }}</div>
                 <div v-if="isNumber(element.title)">{{ formatHex(element.Value) }}</div>
-                <v-btn icon @click="removeFromMux('A', index)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
+                <v-icon @click="removeFromMux('A', index)" color="red">mdi-delete</v-icon>
               </div>
             </v-list-item>
             <v-divider/>
@@ -80,9 +78,7 @@
                 <div class="text-no-wrap">{{ formatBinary(index) }}</div>
                 <div class="mx-4">{{ element.title }}</div>
                 <div v-if="isNumber(element.title)">{{ formatHex(element.Value) }}</div>
-                <v-btn icon @click="removeFromMux('B', index)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
+                <v-icon @click="removeFromMux('B', index)" color="red">mdi-delete</v-icon>
               </div>
             </v-list-item>
             <v-divider/>

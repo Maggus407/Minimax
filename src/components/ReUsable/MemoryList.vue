@@ -58,7 +58,9 @@
         <td style="width: 20%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? toHex(getCurrentPage(index)) : '' }}</td>
         <td style="width: 20%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? item : '' }}</td>
         <td style="width: 60%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? (memStore.hexBinSwitch === false ? '0x' + toHex(item) : toBinary(item)) : '' }}</td>
-        <td style="text-align: center;"><v-icon v-if="getCurrentPage(index) < 16777216" small @click="selectItem(item, index)">mdi-pencil</v-icon></td>
+        <td style="text-align: center;">
+          <v-icon v-if="getCurrentPage(index) < 16777216" small @click="selectItem(item, index)">mdi-pencil</v-icon>
+        </td>
       </tr>
     </tbody>
 </v-table>

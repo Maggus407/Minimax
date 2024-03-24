@@ -17,18 +17,32 @@
             </v-list>
           </v-container>
           <v-divider></v-divider>
-            <!--Settings-->
-          <v-container>
+            <!--QuickSave-->
+            <v-container class="pt-0 pb-0">
+              <div width="100%" class="d-flex flex-col mt-5">
+                <v-text-field label="Quick Save" v-model="name" hint="Name required"></v-text-field>
+                <v-btn :disabled="name == ''" class="ml-3 mt-1" icon="mdi-content-save" @click="quickSave"></v-btn>
+              </div>
+              <div width="100%" class="d-flex flex-col">
+                <v-select variant="outlined" :items="['-', ...globalStore.quickSaves]" v-model="snapshot" return-object abel="Load QuickSave"></v-select>
+                <v-btn :disabled="snapshot == '-' || snapshot == ''" class="ml-3 mt-1" icon="mdi-upload" @click="loadQuickSave"></v-btn>
+              </div>
+            </v-container>
+            <v-divider></v-divider>
+            <!--Export-->
+          <v-container  class="pt-0 pb-0">
             <div width="100%" class="d-flex flex-col mt-5">
               <v-select variant="outlined" :items="itemsExport" v-model="currentExport" label="Export as..."></v-select>
               <v-btn :disabled="exportCheck == false || currentExport == '-'" class="ml-3 mt-1" @click="exportData" icon="mdi-export"/>
             </div>
+            <!--Import-->
             <div class="d-flex flex-row">
               <v-file-input v-model="fileInput" variant="outlined" prepend-icon="" label="Import"></v-file-input>
               <v-btn class="ml-3 mt-1" @click="importData" icon="mdi-import" :disabled="fileInput.length === 0"><v-icon>mdi-import</v-icon></v-btn>
             </div>
           </v-container>
           <v-divider/>
+            <!--Theme and Language-->
             <v-container class="d-flex flex-col">
               <v-btn @click="toggleTheme" icon="mdi-theme-light-dark" class="mr-5"/>
               <v-select v-model="selectedLanguage" :items="languages" label="Language"></v-select>
@@ -60,14 +74,19 @@ import { useTheme } from 'vuetify';
 import { useI18n } from 'vue-i18n';
 import { useExport } from '../Import-Export/Export';
 import { useImport } from '../Import-Export/Import';
+import {useGlobalStore } from '@/store/GlobalOperations';
 import { watch } from 'vue';
 
 const exportStore = useExport();
 const importStore = useImport();
+const globalStore = useGlobalStore();
+
 const fileInput = ref<File[]>([]);
 const exportCheck = ref(false);
 const currentExport = ref<string>('');
 const selectedLanguage = ref<string>('en');
+const name = ref<string>('');
+const snapshot = ref<any>('');
 
 // Beobachten Sie die isImported ref und setzen Sie sie nach 2 Sekunden zurück
 watch(() => importStore.isImported, (newValue) => {
@@ -128,6 +147,18 @@ const links = [
   { path: "/multiplexer", label: "MUX" },
   { path: "/memory", label: "Memory" },
 ];
+
+function quickSave() {
+  let json = exportStore.quickSave();
+  console.log(json);
+  globalStore.quickSave(name.value, json);
+  name.value = '';
+}
+
+function loadQuickSave() {
+  //find the snapshot in the quicksaves
+  importStore.loadQuickSave(snapshot.value.value);
+}
 
 function exportData() {
   switch (currentExport.value) {

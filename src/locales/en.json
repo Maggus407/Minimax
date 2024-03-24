@@ -103,5 +103,13 @@
         "B_RR": "Rotate right: Rotates all bits of B one position to the right. The MSB receives the previous value of the LSB.",
         "A_RR_B": "Rotate right: Rotates all bits of A by B positions to the right. The MSB receives the previous value of the LSB in each step.",
         "B_RR_A": "Rotate right: Rotates all bits of B by A positions to the right. The MSB receives the previous value of the LSB in each step."
+      },
+      "tooltip": {
+        "add": "Add a new Row",
+        "start": "Starts the machine",
+        "stop": "Stop",
+        "step": "Executes the next microinstruction",
+        "run": "Executes the machine until it reaches the end or a breakpoint",
+        "reset": "Resets the machine"
       }
 }

@@ -103,5 +103,13 @@
     "B_RR": "Rotate right: Rotiert alle Bits von B um eine Stelle nach rechts. Das MSB erhält den vorherigen Wert des LSB.",
     "A_RR_B": "Rotate right: Rotiert alle Bits von A um B Stellen nach rechts. Das MSB erhält in jedem Schritt den vorherigen Wert des LSB.",
     "B_RR_A": "Rotate right: Rotiert alle Bits von B um A Stellen nach rechts. Das MSB erhält in jedem Schritt den vorherigen Wert des LSB."
+  },
+  "tooltip": {
+    "add": "Fügt eine neue Zeile hinzu",
+    "start": "Startet die Maschine",
+    "stop": "Stop",
+    "step": "Führt einen Mikrobefehl aus",
+    "run": "Führt die Maschine solange aus, bis sie stoppt oder ein Breakpoint erreicht wird",
+    "reset": "Setzt die Maschine auf den Anfangszustand zurück"
   }
 }

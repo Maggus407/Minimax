@@ -1,13 +1,18 @@
 <template>
-  <v-card variant="outlined">
-    <v-btn :disabled="debuggerStore.executing" @click="start">Start</v-btn>
-    <v-btn :disabled="!debuggerStore.executing" @click="stop">Stop</v-btn>
-    <v-btn :disabled="!debuggerStore.executing" @click="step">Step</v-btn>
-    <v-btn :disabled="!debuggerStore.executing" @click="stepBack">Step Back</v-btn>
-    <v-btn :disabled="!debuggerStore.executing" @click="run">RUN BOY</v-btn>
-    <v-card-text>
-                    Step: {{ debuggerStore.counter}}
-                </v-card-text>
+  <v-card variant="outlined" >
+    <v-card-text class="d-flex flex-col justify-space-evenly">
+    <div>
+      <v-btn :disabled="debuggerStore.executing" :color="!debuggerStore.executing ? 'light-blue' : 'grey'" @click="start" class="mr-5">Start</v-btn>
+      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'green' : 'grey'" @click="stepBack" size="36" class="mr-3">mdi-step-backward</v-icon>
+      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'red' : 'grey'" @click="stop" size="36" class="mr-3">mdi-stop</v-icon>
+      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'green' : 'grey'" @click="step" size="36" class="mr-3">mdi-step-forward</v-icon>
+      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'blue' : 'grey'" @click="run" size="36" class="mr-3">mdi-step-forward-2</v-icon>
+    </div>
+    <div class="d-flex flex-col">
+      <h3 class="mr-15">Step: {{ debuggerStore.counter}}</h3>
+      <h3 class="flex-grow-1">ALU: {{ debuggerStore.Alu_UI }}</h3>
+    </div>
+    </v-card-text>
     <v-table
     fixed-header
     density="compact"

@@ -200,10 +200,29 @@ async function exportSignal(){
     URL.revokeObjectURL(url);
 }
 
+//QuickSave
+async function quickSave() {
+    const machineData = createData_For_machine();
+    const signalData = createData_For_signal();
+
+    // Erstelle ein neues JSZip-Objekt
+    const zip = new JSZip();
+
+    // Füge machine.json und signal.json zur ZIP-Datei hinzu
+    zip.file("machine.json", JSON.stringify(machineData.machineJson, null, 2));
+    zip.file("signal.json", JSON.stringify(signalData.table, null, 2));
+
+    // Generiere die ZIP-Datei als Blob
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+
+    return zipBlob;
+}
+
 return{
     exportZip,
     exportMachine,
-    exportSignal
+    exportSignal,
+    quickSave,
 }
 });
 

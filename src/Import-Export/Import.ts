@@ -5,7 +5,6 @@ import { useAluStore } from "@/store/AluStore";
 import { defineStore } from 'pinia';
 import JSZip from 'jszip';
 import { ref } from 'vue';
-import { is } from "@babel/types";
 
 export const useImport = defineStore('import', () => {
     const register = useRegisterStore();
@@ -265,9 +264,15 @@ export const useImport = defineStore('import', () => {
       return false;
     }
   }
+
+  function loadQuickSave(data: any) {
+    importZip(data);
+  }
+
   
   return {
     Import,
+    loadQuickSave,
     isImported,
     isImportedError,
     errorText,

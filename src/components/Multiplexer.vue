@@ -37,11 +37,11 @@
             :disabled="selectType === 'number'"
             :items="registers"
             :item-value="item => item"
-            label="Register auswählen"
+            :label="$t('mux.register_choose')"
             v-model="selectedRegister"
             clearable
           ></v-select>
-          <v-radio label="Zahl" value="number"></v-radio>
+          <v-radio :label="$t('generell.number')" value="number"></v-radio>
           <!-- Eingabefeld für Zahlen, wenn 'number' ausgewählt ist -->
           <Dec_Hex_Bin_Inputs
             :disabled="selectType === 'register'"
@@ -51,14 +51,17 @@
           />
           </v-radio-group>
           <!-- Buttons zum Hinzufügen zum Multiplexer A oder B -->
-          <v-btn @click="addToMux('A')">Zu MuxA hinzufügen</v-btn>
-          <v-btn @click="addToMux('B')">Zu MuxB hinzufügen</v-btn>
-          <v-btn 
-            v-if="isEditedElementNumber && editedElement"
-            @click="saveChanges"
-          >
-            Speichern
-          </v-btn>
+          <div class="d-flex flex-row justify-space-between">
+            <v-btn class="button-large" @click="addToMux('A')" prepend-icon="mdi-arrow-left">MUX A</v-btn>
+            <v-btn 
+              v-if="isEditedElementNumber && editedElement"
+              class="button-large"
+              @click="saveChanges"
+            >
+              {{ $t('button.save') }}
+            </v-btn>
+            <v-btn class="button-large" @click="addToMux('B')" append-icon="mdi-arrow-right">MUX B</v-btn>
+          </div>
         </v-container>
       </v-card>
     </v-col>

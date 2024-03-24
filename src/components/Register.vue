@@ -37,7 +37,7 @@
         height="95vh" 
         style="overflow-y: auto;" 
         variant="outlined"
-        title="User Register"
+        :title="$t('register.extendedRegister')"
         >
         <v-expansion-panels>
             <v-expansion-panel
@@ -46,16 +46,16 @@
               :title="regName.title"
               :text="regName.Description"
             >
-                <v-card-text>
-                  <v-btn color="secondary" @click="openEditForm(regName.title)">Edit</v-btn>
-                  <v-btn color="error" @click="registerStore.deleteRegister(regName)">Delete</v-btn>
+                <v-card-text class="d-flex flex-row justify-end pt-0 pb-3">
+                  <v-icon @click="openEditForm(regName.title)" class="mr-8" size="24">mdi-pencil</v-icon>
+                  <v-icon color="error" @click="registerStore.deleteRegister(regName)" class="mr-2">mdi-delete</v-icon>
                 </v-card-text>
                 <!-- Edit Form -->
                 <v-card-text v-if="currentEditing === regName.title">
                   <v-text-field v-model="editedName" label="Name"></v-text-field>
                   <v-text-field v-model="editedDescription" label="Description"></v-text-field>
-                  <v-btn color="success" :disabled="correctSaving == false" @click="saveChanges(regName.title)">Save</v-btn>
-                  <v-btn color="grey" @click="cancelEdit(regName.title)">Cancel</v-btn>
+                  <v-btn color="success" :disabled="correctSaving == false" @click="saveChanges(regName.title)">{{ $t('button.save') }}</v-btn>
+                  <v-btn @click="cancelEdit(regName.title)" style="background-color: rgba(211, 211, 211, 0.7); opacity: 0.8" class="ml-8">Cancel</v-btn>
                 </v-card-text>
             </v-expansion-panel>
           </v-expansion-panels>

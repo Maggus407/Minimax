@@ -19,7 +19,8 @@
     "next": "Next"
   },
   "generell": {
-    "changeValue": "Change Value"
+    "changeValue": "Change Value",
+    "number": "Number"
   },
     "nav": {
         "overview": "Overview",
@@ -30,6 +31,9 @@
         "machineConfig": "Machine Configuration",
         "aluConfig": "ALU Configuration",
         "muxConfig": "Multiplexer Configuration"
+      },  
+      "mux":{
+        "register_choose": "Choose Register"
       },
       "memory":{
         "import": "Import File",

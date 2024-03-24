@@ -20,7 +20,8 @@
   },
   "generell": {
     "changeValue": "Wert Ändern",
-    "number": "Zahl"
+    "number": "Zahl",
+    "description": "Beschreibung"
   },
   "nav": {
     "overview": "Overview",

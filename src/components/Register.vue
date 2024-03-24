@@ -15,7 +15,6 @@
             clearable
           ></v-text-field>
           <v-btn color="primary" @click="addReg" :disabled="name == '' || name == null">Add Register</v-btn>
-          <v-btn @click="testing">TEST</v-btn>
         </v-card>
 
       <!-- Base Registers Card -->
@@ -46,14 +45,18 @@
               :title="regName.title"
               :text="regName.Description"
             >
-                <v-card-text class="d-flex flex-row justify-end pt-0 pb-3">
-                  <v-icon @click="openEditForm(regName.title)" class="mr-8" size="24">mdi-pencil</v-icon>
+                <v-card-text class="d-flex flex-row justify-end pt-2 pb-2">
+                  <v-tooltip text="Edit Register">
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" @click="openEditForm(regName.title)" class="mr-8" size="24">mdi-pencil</v-icon>
+                    </template>
+                  </v-tooltip>
                   <v-icon color="error" @click="registerStore.deleteRegister(regName)" class="mr-2">mdi-delete</v-icon>
                 </v-card-text>
-                <!-- Edit Form -->
+
                 <v-card-text v-if="currentEditing === regName.title">
                   <v-text-field v-model="editedName" label="Name"></v-text-field>
-                  <v-text-field v-model="editedDescription" label="Description"></v-text-field>
+                  <v-text-field v-model="editedDescription" :label="$t('generell.description')"></v-text-field>
                   <v-btn color="success" :disabled="correctSaving == false" @click="saveChanges(regName.title)">{{ $t('button.save') }}</v-btn>
                   <v-btn @click="cancelEdit(regName.title)" style="background-color: rgba(211, 211, 211, 0.7); opacity: 0.8" class="ml-8">Cancel</v-btn>
                 </v-card-text>
@@ -96,10 +99,6 @@
   
   const addReg = () => {
     registerStore.addRegister(name.value, description.value);
-  };
-
-  const testing = () => {
-    console.log(registerStore.registerOrder);
   };
 
 const cancelEdit = (registerName: string) => {

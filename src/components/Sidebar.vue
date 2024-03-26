@@ -24,7 +24,7 @@
                 <v-btn :disabled="name == ''" class="ml-3 mt-1" icon="mdi-content-save" @click="quickSave"></v-btn>
               </div>
               <div width="100%" class="d-flex flex-col">
-                <v-select variant="outlined" :items="['-', ...globalStore.quickSaves]" v-model="snapshot" return-object @update:modelValue="loadQuickSave">
+                <v-select variant="outlined" :items="['-', ...globalStore.quickSaves]" v-model="snapshot" return-object placeholder="Load QuickSaves" @update:modelValue="loadQuickSave">
                   <!--TODO: Delete Option-->
                   <template v-slot:item="{ item, index }">
                       <v-list-item @click="selectItem(item)">

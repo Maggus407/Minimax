@@ -40,7 +40,7 @@ export const useImport = defineStore('import', () => {
 }
 
     // Funktion zum Importieren der .zip-Datei
-    async function importZip(file:any) {
+    async function importZip(file:any, isQuickSave = false) {
       const zip = new JSZip();
       try {
         const content = await zip.loadAsync(file); // .zip-Datei laden
@@ -54,16 +54,16 @@ export const useImport = defineStore('import', () => {
         const machineData = await content.files['machine.json'].async('string');
         if(isValidMachineJson(machineData)){
           machine = JSON.parse(machineData);
-          setMachineData();  
+          setMachineData(isQuickSave);  
         }
         // signal.json extrahieren und verarbeiten
         const signalData = await content.files['signal.json'].async('string');
         if(isValidSignalJson(signalData)){
           signal = JSON.parse(signalData);
-          setSignalData();
+          setSignalData(isQuickSave);
         }
         console.log('Import erfolgreich!');
-        isImported.value = true;
+        isImported.value = !isQuickSave;
       } catch (error) {
         isImportedError.value = true;
         errorText.value = "Error while importing .zip file" + error;
@@ -113,16 +113,16 @@ export const useImport = defineStore('import', () => {
     reader.readAsText(file);
   }
 
-  function setMachineData() {
+  function setMachineData(isQuickSave = false) {
     alu.setOperation_Import(machine.machine.alu.operation);
     register.setRegisterFromImport(machine.machine.registers.register);
     multiplexer.setMuxFromImport(machine.machine.muxInputs);
-    isImported.value = true;
+    isImported.value = !isQuickSave;
   }
 
-  function setSignalData() {
+  function setSignalData(isQuickSave = false) {
     controlTable.setControlTableFromImport(signal.signaltable.row);
-    isImported.value = true;
+    isImported.value = !isQuickSave;
   }
 
   function isValidSignalJson(jsonData:any) {
@@ -266,7 +266,7 @@ export const useImport = defineStore('import', () => {
   }
 
   function loadQuickSave(data: any) {
-    importZip(data);
+    importZip(data, true);
   }
 
   

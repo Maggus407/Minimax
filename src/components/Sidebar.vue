@@ -24,8 +24,23 @@
                 <v-btn :disabled="name == ''" class="ml-3 mt-1" icon="mdi-content-save" @click="quickSave"></v-btn>
               </div>
               <div width="100%" class="d-flex flex-col">
-                <v-select variant="outlined" :items="['-', ...globalStore.quickSaves]" v-model="snapshot" return-object abel="Load QuickSave"></v-select>
-                <v-btn :disabled="snapshot == '-' || snapshot == ''" class="ml-3 mt-1" icon="mdi-upload" @click="loadQuickSave"></v-btn>
+                <v-select variant="outlined" :items="['-', ...globalStore.quickSaves]" v-model="snapshot" return-object @update:modelValue="loadQuickSave">
+                  <!--TODO: Delete Option-->
+                  <template v-slot:item="{ item, index }">
+                      <v-list-item @click="selectItem(item)">
+                        <div class="d-flex flex-col justify-space-between align-center">
+                          <p>{{ item.title }}</p>
+                          <v-icon
+                            v-if="item.title != '-'"
+                            color="red"
+                            @click.stop="deleteQuickSave(index)"
+                            >mdi-delete</v-icon
+                          >
+                        </div>
+                      </v-list-item>
+                      <v-divider></v-divider>
+                    </template>
+                </v-select>
               </div>
             </v-container>
             <v-divider></v-divider>
@@ -87,6 +102,8 @@ const currentExport = ref<string>('');
 const selectedLanguage = ref<string>('de');
 const name = ref<string>('');
 const snapshot = ref<any>('');
+
+
 
 // Beobachten Sie die isImported ref und setzen Sie sie nach 2 Sekunden zurück
 watch(() => importStore.isImported, (newValue) => {
@@ -187,6 +204,19 @@ function importData() {
       console.error("Fehler beim Importieren:", error);
     });
   }
+}
+
+// Funktion zum Löschen eines QuickSaves
+function deleteQuickSave(index:any) {
+  // Hinweis: Die erste Option ist "-", daher ist der echte Index im Array um eins verschoben
+  if (index > 0) {
+    globalStore.quickSaves.splice(index - 1, 1);
+  }
+}
+
+function selectItem(item:any) {
+  snapshot.value = item;
+  if(item.title != '-')loadQuickSave();
 }
 </script>
 

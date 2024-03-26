@@ -4,6 +4,8 @@ import { useRegisterStore } from './RegisterStore';
 import { useMemoryStore } from './MemoryStore';
 import { useAluStore } from './AluStore';
 import { ref, watch } from 'vue';
+import { set } from '@vueuse/core';
+import { is } from '@babel/types';
 
 interface StepBack{
     Register: any;
@@ -26,6 +28,7 @@ export const useDebugerStore = defineStore('debugger', () => {
     let currentStep = 0;
     const executing = ref(false);
     const currentAdress = ref(0);
+    const stopping = ref(false);
 
     const ringBuffer = new Map<number, StepBack>();
     const ringBufferSize = 200;
@@ -220,15 +223,21 @@ export const useDebugerStore = defineStore('debugger', () => {
 // Füge eine neue Zustandsvariable hinzu, um zu verfolgen, ob die Ausführung bei einem Breakpoint pausiert wurde
 let isPausedAtBreakpoint = false;
 
+let intervalId:any = null; // Globale Variable, um den Interval zu speichern
+const stepsPerInterval = 10000; // Anzahl der Schritte, die pro Interval durchgeführt werden sollen
+let stopped = ref(false)
+let running = ref(false)
 function run() {
-    const startTime = performance.now();
-    if(debuggerCompiled.length === 0)return;
-    if(finished){
-        writeToRegister();
-        currentAdress.value = currentRow.address;
-        return; 
+    running.value = true;
+    if (debuggerCompiled.length === 0 || finished) {
+        finishOperation();
+        return;
     }
-    // Prüfen, ob die Ausführung beim letzten Mal bei einem Breakpoint pausiert wurde
+
+    if (intervalId !== null) {
+        // Bereits laufende Simulation stoppen, falls bereits eine läuft
+        clearInterval(intervalId);
+    }
     if (isPausedAtBreakpoint) {
         // Wenn ja, versuche, mit dem nächsten Schritt fortzufahren, bevor die Schleife beginnt
         calculateOperation();
@@ -236,29 +245,53 @@ function run() {
         Alu_UI.value = aluResult;
         isPausedAtBreakpoint = false; // Setze das Flag zurück, da wir versuchen, fortzufahren
     }
-    
-    // Laufe durch die Befehle, bis ein Breakpoint erreicht oder die Ausführung beendet ist
-    while (!currentRow.breakpoint && !finished) {
-        calculateOperation();
-    }
 
+    const startTime = performance.now(); // Startzeit messen
+
+    intervalId = setInterval(() => {
+        for (let i = 0; i < stepsPerInterval; i++) {
+            if(stopped.value === true){
+                console.log("Stopped");
+                currentAdress.value = currentRow.address;
+                Alu_UI.value = aluResult;
+                writeToRegister();
+                stopped.value = false;
+                counter.value = currentStep;
+                running.value = false;
+                clearInterval(intervalId);
+                break;
+            }
+            if (!currentRow.breakpoint && !finished && stopped.value == false) {
+                calculateOperation();
+            } else {
+                // Bedingungen, um die Ausführung zu stoppen
+                clearInterval(intervalId);
+                intervalId = null;
+                finishOperation();
+                running.value = false;
+
+                const endTime = performance.now(); // Endzeit messen
+                console.log(`Ausführungszeit: ${endTime - startTime} Millisekunden`); // Ausführungszeit berechnen und ausgeben
+
+                return;
+            }
+        }
+    }, 0); // 10 Millisekunden Pause zwischen den Intervallen
+}
+
+function finishOperation() {
     if (currentRow.breakpoint) {
-        // Wenn die Ausführung aufgrund eines Breakpoints pausiert wird, setze das Flag
         isPausedAtBreakpoint = true;
-        Alu_UI.value = aluResult;
-        currentAdress.value = currentRow.address;
     }
-    counter.value = currentStep;
-    Alu_UI.value = aluResult;
-    let page = memoryStore.getDebuggerPage();
     writeToRegister();
+    currentAdress.value = currentRow.address;
+    Alu_UI.value = aluResult;
+    counter.value = currentStep;
+    let page = memoryStore.getDebuggerPage();
     memoryStore.setDebuggerPage(page);
     currentAdress.value = currentRow.address;
-
-    // Nachdem die Funktion ausgeführt wurde
     const endTime = performance.now();
-    const executionTime = endTime - startTime;
-    console.log(`Ausführungszeit: ${executionTime} Millisekunden`);
+    console.log(`Ausführungszeit: ${endTime - performance.now()} Millisekunden`);
 }
 
 
@@ -339,7 +372,14 @@ function run() {
     });
 
     function stop(){
+        if (intervalId !== null) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
         //clear the debuggerCompiled
+        executing.value = false;
+        stopped.value = false;
+        running.value = false;
         debuggerCompiled.splice(0, debuggerCompiled.length);
         registerStore.registerReset();
         memoryStore.setInitialMemory();
@@ -393,7 +433,10 @@ function run() {
         Alu_UI,
         executing,
         changeBreakpoint,
-        currentAdress
+        currentAdress,
+        stopped,
+        running,
+        finished
     }
 
 });

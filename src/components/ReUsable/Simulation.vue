@@ -1,18 +1,31 @@
 <template>
   <v-card variant="outlined" >
-    <v-card-text class="d-flex flex-col justify-space-evenly">
+    <v-card-text class="d-flex flex-col ">
     <div>
       <v-btn :disabled="debuggerStore.executing" :color="!debuggerStore.executing ? 'light-blue' : 'grey'" @click="start" class="mr-5">Start</v-btn>
-      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'green' : 'grey'" @click="stepBack" size="36" class="mr-3">mdi-step-backward</v-icon>
+      <v-icon
+        :disabled="!debuggerStore.executing"
+        :color="debuggerStore.executing && debuggerStore.running == false ? 'green' : 'grey'"
+        @click="stepBack"
+        size="36"
+        class="mr-3"
+      >
+        mdi-step-backward
+      </v-icon>
+      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing && debuggerStore.running == false ? 'red' : 'grey'" @click="refresh" size="36" class="mr-3">mdi-refresh</v-icon>
       <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'red' : 'grey'" @click="stop" size="36" class="mr-3">mdi-stop</v-icon>
-      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'green' : 'grey'" @click="step" size="36" class="mr-3">mdi-step-forward</v-icon>
-      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'blue' : 'grey'" @click="run" size="36" class="mr-3">mdi-step-forward-2</v-icon>
+      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing && debuggerStore.running == false ? 'green' : 'grey'" @click="step" size="36" class="mr-3">mdi-step-forward</v-icon>
+      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing && debuggerStore.running == false ? 'blue' : 'grey'" @click="run" size="36" class="mr-3">mdi-step-forward-2</v-icon>
     </div>
-    <div class="d-flex flex-col">
+    <div class="d-flex flex-col pt-2 ml-10">
       <h3 class="mr-15">Step: {{ debuggerStore.counter}}</h3>
       <h3 class="flex-grow-1">ALU: {{ debuggerStore.Alu_UI }}</h3>
     </div>
     </v-card-text>
+    <v-progress-linear
+      color="green"
+      :indeterminate="debuggerStore.running"
+    ></v-progress-linear>
     <v-table
     fixed-header
     density="compact"
@@ -85,7 +98,6 @@
 import { useControlTableStore } from '@/store/ControlTableStore';
 import { useDebugerStore } from '@/store/DebugerStore';
 
-import {useRegisterStore} from '@/store/RegisterStore';
 import { useMemoryStore } from '@/store/MemoryStore';
 
 
@@ -93,7 +105,6 @@ const controlTableStore = useControlTableStore();
 const debugerStore = useDebugerStore();
 
 const debuggerStore = useDebugerStore();
-const registerStore = useRegisterStore();
 const memoryStore = useMemoryStore();
 
 memoryStore.changePageSize_Debugger(10);
@@ -104,25 +115,40 @@ function start() {
 }
 
 function stop() {
+  if(!debuggerStore.stopped && debuggerStore.running == true && debuggerStore.finished == false) {
+    debuggerStore.stopped = true;
+  }else if(!debuggerStore.stopped && debuggerStore.running == false || debuggerStore.finished){
     debuggerStore.executing = false;
     debuggerStore.stop();
     memoryStore.setInitialMemory();
-    updateMemory();
+  }
+}
+
+function refresh() {
+  if(debuggerStore.running)return;
+  debuggerStore.stop();
+  debuggerStore.executing = true;
+  debuggerStore.start();
 }
 
 function step() {
+  if(debuggerStore.running)return;
     debuggerStore.step();
     updateMemory();
-    console.log(registerStore.register);
 }
 
 function stepBack() {
+  if(debuggerStore.running)return;
     debuggerStore.stepBack();
     updateMemory();
 }
 
 function run() {
-    debuggerStore.run();
+  if(debugerStore.executing){
+    setTimeout(() => {
+      debuggerStore.run();
+    },0)
+  }
 }
 
 function updateMemory() {

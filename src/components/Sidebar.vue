@@ -211,6 +211,7 @@ function deleteQuickSave(index:any) {
   // Hinweis: Die erste Option ist "-", daher ist der echte Index im Array um eins verschoben
   if (index > 0) {
     globalStore.quickSaves.splice(index - 1, 1);
+    snapshot.value = '-';
   }
 }
 

@@ -1,7 +1,11 @@
 #!/usr/bin/env node
+import { createPinia, setActivePinia } from 'pinia';
 import { Command } from 'commander';
-import { useMemoryStore } from '../store/MemoryStore'; // Use the path alias
+import { useMemoryStore } from '../store/MemoryStore.js'; 
+import { ref } from 'vue';
 
+const pinia = createPinia();
+setActivePinia(pinia);
 const program = new Command();
 
 program
@@ -9,8 +13,10 @@ program
 .description('CLI für die Steuerung der Minimax-Simulation')
 .option('-t, --test', 'Teste die Simulation')
 .action(() => {
-    const memoryStore = useMemoryStore();
+  
+  const memoryStore = useMemoryStore();
     console.log('Hello World');
+    console.log(memoryStore.getDebuggerPage());
   });
 
 // Add commands and options here

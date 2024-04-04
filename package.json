@@ -1,17 +1,21 @@
 {
   "name": "MiniMax",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "eslint . --fix --ignore-path .gitignore"
+    "lint": "eslint . --fix --ignore-path .gitignore",
+    "minimax-cli": "tsc --project . && node src/CLI/cli.js"
   },
   "dependencies": {
     "@mdi/font": "7.0.96",
     "@vue/cli-shared-utils": "^5.0.8",
     "@vueuse/core": "^10.8.0",
+    "chmod": "^0.2.1",
+    "commander": "^12.0.0",
     "core-js": "^3.29.0",
     "jszip": "^3.10.1",
     "pinia": "^2.0.0",
@@ -25,6 +29,7 @@
   },
   "devDependencies": {
     "@babel/types": "^7.21.4",
+    "@types/commander": "^2.12.2",
     "@types/node": "^18.15.0",
     "@types/uuid": "^9.0.7",
     "@vitejs/plugin-vue": "^4.0.0",
@@ -32,11 +37,15 @@
     "eslint": "^8.37.0",
     "eslint-plugin-vue": "^9.3.0",
     "sass": "^1.60.0",
-    "typescript": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3",
     "unplugin-fonts": "^1.0.3",
     "vite": "^4.2.0",
     "vite-plugin-vuetify": "^1.0.0",
     "vue-cli-plugin-i18n": "~2.3.2",
     "vue-tsc": "^1.2.0"
+  },
+  "bin": {
+    "minimax-cli": "src/CLI/cli.js"
   }
 }

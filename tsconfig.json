@@ -8,6 +8,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,
+    "skipLibCheck": true,
     "jsx": "preserve",
     "allowJs": true,
     "sourceMap": false,

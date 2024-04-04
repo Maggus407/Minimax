@@ -1,7 +1,35 @@
 <template>
   <!-- Schaltfläche zum Hinzufügen einer neuen Reihe -->
-  <v-btn @click="controlTable.addRow">Neue Reihe hinzufügen</v-btn>
-  <v-btn @click="controlTable.showTableConsole">Show Table</v-btn>
+  <div class="d-flex flex-row align-center">
+    <v-tooltip open-delay="500" text="Add Row">
+    <template v-slot:activator="{ props }">
+      <v-icon v-bind="props" @click="controlTable.addRow" color="green" size="42" class="pt-0 mr-10">mdi-plus-box</v-icon>
+    </template>
+    </v-tooltip>
+    <!-- Input field for numbers -->
+      <v-text-field
+        v-model="inputAdresse"
+        dense
+        label="Add Row after givern Adress: Standard is 0"
+        solo-inverted
+        hide-details
+        clearable
+        class="mr-10"
+        @keydown="(event: KeyboardEvent) => validateNumber(event, 'inputAdresse')"
+      ></v-text-field>
+      <v-text-field
+        v-model="numberOfRows"
+        dense
+        label="Number of rows: Standard is 1"
+        solo-inverted
+        hide-details
+        clearable
+        class="mr-10"
+        @keydown="(event: KeyboardEvent) => validateNumber(event, 'numberOfRows')"
+      ></v-text-field>
+      <!-- Button next to the input field -->
+  </div>
+
   <v-divider></v-divider>
   <v-table
     :items="controlTable.controlTable"
@@ -11,7 +39,7 @@
   >
   <thead>
       <tr>
-        <v-tooltip text="Breakpoint">
+        <v-tooltip open-delay="500" text="Breakpoint">
                 <template v-slot:activator="{ props }">
                   <th v-bind="props" class="center pr-0 pl-1 text-center">Br</th>
                 </template>
@@ -213,9 +241,41 @@ const selectedJumpType = ref('next');
 const unconditionalJump = ref(null);
 const conditionalJumpIfZero = ref(null);
 const conditionalJumpIfNotZero = ref(null);
+const inputAdresse = ref<string>('');
+const numberOfRows = ref<string>('');
+
 
 const currentComment = ref('');
 const isCommentDialog = ref(false);
+
+const validateNumber = (event: KeyboardEvent, field: 'inputAdresse' | 'numberOfRows') => {
+  const validKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', "Backspace", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown",
+    "Delete", "End", "Home", "Tab"];
+  const maxValue = computed(() => controlTable.controlTable.length);
+
+  if (!validKeys.includes(event.key)) {
+    event.preventDefault();
+    return;
+  }
+
+  if (field === 'inputAdresse') {
+    console.log(Number(inputAdresse.value + event.key));
+    if (Number(inputAdresse.value + event.key) >= maxValue.value) {
+      if ((Number(inputAdresse.value + event.key) > maxValue.value && event.key !== 'Backspace' && event.key !== 'Delete') || (Number(inputAdresse.value + event.key) === maxValue.value && event.key !== 'Backspace' && event.key !== 'Delete')) {
+        event.preventDefault();
+        return;
+      }else{
+        inputAdresse.value = inputAdresse.value?.replace(/[^0-9]/g, '') || '';
+      }
+    }else{
+      return;
+    }
+  } else if (field === 'numberOfRows') {
+    numberOfRows.value = numberOfRows.value?.replace(/[^0-9]/g, '') || '';
+  }
+};
+
+
 
 function openCommentDialog(row: any) {
   currentComment.value = row.comment;
@@ -276,6 +336,10 @@ function applyJumpSettings() {
 // Hilfsfunktion, um eine Reihe anhand ihrer ID zu finden
 function findRowById(adress: any) {
   return controlTable.getNextRowById(adress);
+}
+
+function addRowBetween() {
+
 }
 
 </script>

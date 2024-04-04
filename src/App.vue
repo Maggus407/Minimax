@@ -3,7 +3,7 @@
         <!-- Sidebar-Bereich -->
           <Sidebar/>
         <!-- Hauptinhalt-Bereich -->
-        <v-main class="ma-5">
+        <v-main class="ma-2">
           <router-view />
         </v-main>
   </v-app>

@@ -1,7 +1,7 @@
 <template>
     <v-row>
-      <v-col class="pb-0 pt-0"  sm="12" md="7" lg="7"><MemoryList mode="memory"/></v-col>
-      <v-col sm="12" md="5" lg="5" class="pt-0">
+      <v-col class="pb-0 "  sm="12" md="7" lg="7"><MemoryList mode="memory"/></v-col>
+      <v-col sm="12" md="5" lg="5" class="">
         <v-card variant="outlined" class="pa-5 mb-5" title="Import">
           <!--Import-->
             <v-file-input persistent-clear  label="File input" variant="outlined" v-model="selectedFile" @change="updateFileSize" show-size></v-file-input>

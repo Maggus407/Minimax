@@ -198,7 +198,6 @@ function importData() {
     const file = fileInput.value[0]; // Nehmen Sie die erste Datei aus dem Array
     importStore.Import(file).then(() => {
       console.log("Import erfolgreich");
-      // Hier können Sie zusätzliche Aktionen nach dem Import durchführen
       fileInput.value = []; // Reset fileInput nach erfolgreichem Import
     }).catch((error) => {
       console.error("Fehler beim Importieren:", error);

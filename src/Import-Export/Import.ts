@@ -1,7 +1,7 @@
-import { useRegisterStore } from "@/store/RegisterStore";
-import { useMultiplexerStore } from "@/store/MultiplexerStore";
-import { useControlTableStore } from "@/store/ControlTableStore";
-import { useAluStore } from "@/store/AluStore";
+import { useRegisterStore } from "../store/RegisterStore.ts";
+import { useMultiplexerStore } from "../store/MultiplexerStore.ts";
+import { useControlTableStore } from "../store/ControlTableStore.ts";
+import { useAluStore } from "../store/AluStore.ts";
 import { defineStore } from 'pinia';
 import JSZip from 'jszip';
 import { ref } from 'vue';
@@ -19,23 +19,40 @@ export const useImport = defineStore('import', () => {
     let machine:any;
     let signal:any;
 
-  //Checks if the file is a .zip file or a .json file
-  async function Import(file: any) {
-    console.log(file);
-    const zipPattern = /\.zip$/; // Endet auf .zip
-    const machinePattern = /machine.*\.json$/; // Enthält 'machine' und endet auf .json
-    const signalPattern = /signal.*\.json$/; // Enthält 'signal' und endet auf .json
+    async function Import(file: any) {
+      console.log(file);
+      const zipPattern = /\.zip$/; // Endet auf .zip
+      const machinePattern = /machine.*\.json$/; // Enthält 'machine' und endet auf .json
+      const signalPattern = /signal.*\.json$/; // Enthält 'signal' und endet auf .json
+  
+      if (zipPattern.test(file.name)) {
+          await importZip(file);
+      } else if (machinePattern.test(file.name)) {
+          await importMachineJson(file);
+      } else if (signalPattern.test(file.name)) {
+          await importSignalJson(file);
+      } else {
+          console.error('Dateityp wird nicht unterstützt!');
+          isImportedError.value = true;
+          errorText.value = "File type is not supported!\n Please upload a .zip file or a .json file.";
+      }
+  }
 
-    if (zipPattern.test(file.name)) {
-        await importZip(file);
-    } else if (machinePattern.test(file.name)) {
-        await importMachineJson(file);
-    } else if (signalPattern.test(file.name)) {
-        await importSignalJson(file);
+  //Checks if the file is a .zip file or a .json file
+  async function Import_CLI(fileObject:any) {
+    console.log(fileObject.name); // Sollte den Dateinamen loggen
+    const zipPattern = /\.zip$/;
+    const machinePattern = /machine.*\.json$/;
+    const signalPattern = /signal.*\.json$/;
+
+    if (zipPattern.test(fileObject.name)) {
+        await importZip(fileObject.data); // Verarbeite den Buffer direkt
+    } else if (machinePattern.test(fileObject.name)) {
+        await importMachineJson(fileObject.data);
+    } else if (signalPattern.test(fileObject.name)) {
+        await importSignalJson(fileObject.data);
     } else {
         console.error('Dateityp wird nicht unterstützt!');
-        isImportedError.value = true;
-        errorText.value = "File type is not supported!\n Please upload a .zip file or a .json file.";
     }
 }
 
@@ -69,8 +86,8 @@ export const useImport = defineStore('import', () => {
         errorText.value = "Error while importing .zip file" + error;
         console.error('Fehler beim Importieren der .zip-Datei:', error);
       }
-      console.log(machine);
-      console.log(signal);
+      //console.log(machine);
+      //console.log(signal);
     }
 
   //Gets a file machine.json which is not a .zip file
@@ -272,6 +289,7 @@ export const useImport = defineStore('import', () => {
   
   return {
     Import,
+    Import_CLI,
     loadQuickSave,
     isImported,
     isImportedError,

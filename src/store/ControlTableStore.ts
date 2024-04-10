@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
-import { useAluStore } from '@/store/AluStore';
-import { useRegisterStore } from '@/store/RegisterStore';
-import { useDebugerStore } from '@/store/DebugerStore';
-import { useMultiplexerStore } from './MultiplexerStore';
+import { useAluStore } from '../store/AluStore.ts';
+import { useRegisterStore } from '../store/RegisterStore.ts';
+import { useDebugerStore } from '../store/DebugerStore.ts';
+import { useMultiplexerStore } from './MultiplexerStore.ts';
 import { v4 as uuidv4 } from 'uuid'
 
 // Interface for control table
@@ -65,7 +65,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
   //given a number, return the next row with that id
   function getNextRowById(adress: number) {
     let row = controlTable.find((row) => row.adress == adress);
-    console.log("ROW: "+ row);
+    //console.log("ROW: "+ row);
     return row;
   }
 
@@ -112,7 +112,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
       create_RT_Notation(row);
     });
     debuggerStore.executing = false;
-    console.log(controlTable);
+    //console.log(controlTable);
   }
 
   function aluRemoved(alu: string){
@@ -205,7 +205,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
    */
   function setControlTableFromImport(rows: Array<any>): void {
     //Clear the current control table
-    console.log("Set Control Table from Import: " + rows);
+    //console.log("Set Control Table from Import: " + rows);
     controlTable.splice(0, controlTable.length);
     //Set the new rows
     rows.forEach((row: any) => {
@@ -222,7 +222,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
       let registerWrite: any;
       let description:any;
 
-      console.log(row);
+      //console.log(row);
       if(row.label){
         label = row.label;
       }
@@ -285,7 +285,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
       };
       controlTable.push(newRow);
     });
-    console.log(controlTable);
+    //console.log(controlTable);
     updateTable();
     setJumps();
   }
@@ -327,7 +327,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
   
 
   function findAluSel(index:number):string{
-    console.log("Find Alu Sel: " + aluStore.aluOperationsListAdded[index]);
+    //console.log("Find Alu Sel: " + aluStore.aluOperationsListAdded[index]);
     return aluStore.aluOperationsListAdded[index]
   }
 

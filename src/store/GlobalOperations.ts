@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import { useControlTableStore } from './ControlTableStore';
-import { useRegisterStore } from './RegisterStore';
-import { useMemoryStore } from './MemoryStore';
-import { useAluStore } from './AluStore';
-import { useDebugerStore } from './DebugerStore';
+import { useControlTableStore } from './ControlTableStore.ts';
+import { useRegisterStore } from './RegisterStore.ts';
+import { useMemoryStore } from './MemoryStore.ts';
+import { useAluStore } from './AluStore.ts';
+import { useDebugerStore } from './DebugerStore.ts';
 import { ref, computed } from 'vue';
 import { useExport } from '@/Import-Export/Export';
 import { useImport } from '@/Import-Export/Import';

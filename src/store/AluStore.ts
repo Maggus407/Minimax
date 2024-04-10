@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import { ref, watch, reactive } from 'vue';
-import { useControlTableStore } from './ControlTableStore';
+import { ref, reactive } from 'vue';
+import { useControlTableStore } from './ControlTableStore.ts';
 
 // Definieren des Typs für die ALU-Operationen
 type AluOperation = (a: number, b: number) => number;
@@ -550,7 +550,6 @@ function checkNumber(input: number | null | undefined): void {
          * @input Array of the export names
          */
         function setOperation_Import(exportString: any){
-            console.log("setOperation_Import: ", exportString);
             // Leere aluOperationsListAdded
             aluOperationsListAdded.splice(0, aluOperationsListAdded.length);
             
@@ -565,7 +564,6 @@ function checkNumber(input: number | null | undefined): void {
             
             // Entferne die hinzugefügten Operationen aus der verfügbaren Liste
             aluOperationsListAvailable.value = Array.from(aluOperations.keys()).filter((opKey) => !aluOperationsListAdded.includes(opKey));
-            console.log("aluOperationsListAdded: ", aluOperationsListAdded);
         }
         
 

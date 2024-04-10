@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import {reactive } from 'vue';
-import { useControlTableStore } from './ControlTableStore';
-import { useRegisterStore } from './RegisterStore';
+import { useControlTableStore } from './ControlTableStore.ts';
+import { useRegisterStore } from './RegisterStore.ts';
 
 export const useMultiplexerStore = defineStore('multiplexer', () => {
   // Import stores
@@ -48,7 +48,7 @@ export const useMultiplexerStore = defineStore('multiplexer', () => {
    * @param values Array of Mux Values
    */
   function setMuxFromImport(values: any) {
-    console.log(values)
+    //console.log(values)
     //Clear muxA and muxB
       muxA.splice(0, muxA.length);
       muxB.splice(0, muxB.length);
@@ -73,7 +73,7 @@ export const useMultiplexerStore = defineStore('multiplexer', () => {
       if(element.type === "register"){
         //find the register in the registerStore
         let reg = registerStore.getRegister(element.value);
-        console.log(reg);
+        //console.log(reg);
         addRegisterToMux("B", reg);
       }
     })

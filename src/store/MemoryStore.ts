@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { reactive, ref, watch } from 'vue';
+import fs from 'fs';
 
 export const useMemoryStore = defineStore('memory', () => {
     //Page Settings
@@ -10,6 +11,7 @@ export const useMemoryStore = defineStore('memory', () => {
 
     const rawMemory = new Int32Array(16777216).fill(0);
     let initialMemory = new Int32Array(16777216).fill(0)
+    let int32Array: Int32Array = new Int32Array(0);
     
     const displayedMemory = reactive(new Array(PAGE_SIZE.value).fill(0))
     const fileName = ref<string>("memory.bin"); // Default-Wert
@@ -80,8 +82,7 @@ export const useMemoryStore = defineStore('memory', () => {
         if (isNaN(end) || end < 0) {
             end = 16777215;
         }
-        console.log("start: " + start);  
-        console.log("end: " + end);
+        
         return rawMemory.slice(start, end+1).buffer;
     }
 
@@ -166,6 +167,85 @@ export const useMemoryStore = defineStore('memory', () => {
           updateDisplayedMemory(memoryPage.value); // Aktualisieren der Anzeige
         }
       }
+
+      function exportMemoryToFile(path:any, startAddress = "0", endAddress = "FFFFFF") {
+        // Konvertiere die Start- und Endadressen von Hexadezimal zu Dezimal
+        const startIdx = parseInt(startAddress, 16);
+        const endIdx = parseInt(endAddress, 16);
+      
+        // Prüfe die Gültigkeit der Adressbereiche
+        if (startIdx > endIdx || startIdx < 0 || endIdx >= rawMemory.length) {
+          console.error("Ungültige Adressbereiche.");
+          return;
+        }
+      
+        // Hole den zu exportierenden Speicherbereich als ArrayBuffer
+        const dataToExport = exportMemoryRange(startIdx, endIdx);
+        // Konvertiere den ArrayBuffer in einen Node.js Buffer
+        const buffer = Buffer.from(dataToExport);
+        console.log(buffer)
+        // Schreibe den Buffer in die angegebene Datei
+        fs.writeFile(path, buffer, (err) => {
+          if (err) {
+            console.error(`Fehler beim Schreiben der Datei: ${err}`);
+          } else {
+            console.log(`Die Datei wurde erfolgreich unter ${path} gespeichert.`);
+          }
+        });
+      }
+      
+      function FileImport(fileObject:any, bytes = 0, startadresse = "0") {
+        const maxBytes = 16777216 * 4; // 16MB
+        const allowedBytes = fileObject.data.byteLength;
+    
+        // Überprüfe, ob die Datei leer ist
+        if (allowedBytes === 0) {
+            console.error("Empty file.");
+            return;
+        }
+    
+        let finalBytesToRead = Math.min(allowedBytes, maxBytes);
+    
+        // Überprüfe, ob eine Begrenzung der Bytes zum Lesen angegeben wurde
+        if (bytes > 0 && finalBytesToRead > bytes) {
+            finalBytesToRead = bytes;
+        } else if (bytes > 0 && finalBytesToRead <= bytes) {
+            console.error("All Data removed from file due to the byte limit.");
+            return;
+        }
+    
+        // Konvertiere Buffer zu Int32Array
+        const buffer = fileObject.data;
+        const intArrayLength = Math.ceil(finalBytesToRead / 4);
+        let int32Array = new Int32Array(intArrayLength);
+    
+        const dataView = new DataView(buffer);
+    
+        // Fülle das Int32Array
+        for (let i = 0; i < intArrayLength; i++) {
+            const byteOffset = i * 4;
+    
+            // Wenn es mindestens 4 verbleibende Bytes gibt, lese sie als Int32
+            if (byteOffset + 3 < finalBytesToRead) {
+                int32Array[i] = dataView.getInt32(byteOffset, true);
+            } else {
+                // Behandle den Fall, wenn weniger als 4 Bytes am Ende bleiben
+                let value = 0;
+                for (let j = 0; j < 4; j++) {
+                    if (byteOffset + j < finalBytesToRead) {
+                        value |= (dataView.getUint8(byteOffset + j) << (j * 8));
+                    }
+                }
+                int32Array[i] = value;
+            }
+        }
+    
+        // Übergebe das erstellte Int32Array und die Startadresse an die Funktion, die die Daten im Speicher setzt
+        setMemoryFromFileInput(int32Array, startadresse);
+        //print the first 10 values from rawMemory
+        console.log(rawMemory.slice(0,20))
+    }
+    
       
 
     return { setMemoryFromFileInput, 
@@ -189,7 +269,10 @@ export const useMemoryStore = defineStore('memory', () => {
         changePageSize_Memory,
         changePageSize_Debugger,
         hexBinSwitch,
-        setPageSize
+        setPageSize,
+        exportMemoryToFile,
+        FileImport,
+        rawMemory
      };
 
 });

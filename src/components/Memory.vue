@@ -44,7 +44,7 @@
               clearable
             ></v-text-field>
 
-            <v-btn :disabled="fileName === '' || fileName === null || fileName === undefined" @click="exportMemoryToFile">Export Memory</v-btn>
+            <v-btn :disabled="fileName === '' || fileName === null || fileName === undefined" @click="exportMemoryToFile()">Export Memory</v-btn>
 
           </v-card>
   
@@ -173,7 +173,7 @@ const validateFileSize = () => {
 const handleFileChange = () => {
   const file = selectedFile.value[0];
   if (file) {
-    const maxBytes = 16777216 * 4; // 16MB
+    const maxBytes = 16777216 * 4; // 64MB
 
     // Überprüfen Sie, ob die tatsächliche Dateigröße maxBytes übersteigt
     if (file.size > maxBytes) {
@@ -252,29 +252,27 @@ const overWriteMemory = () =>{
 }
 
 const exportMemoryToFile = () => {
-  const startIdx = parseInt(startAddress.value, 16);
-  const endIdx = parseInt(endAddress.value, 16);
-
-  if (startIdx > endIdx || startIdx < 0 || endIdx >= memStore.getRawMemory().byteLength) {
-    console.error("Ungültige Adressbereiche.");
-    return;
-  }
-
-  const dataToExport = memStore.exportMemoryRange(startIdx, endIdx);
-  const blob = new Blob([dataToExport], { type: "application/octet-stream" });
-  const url = window.URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.style.display = "none";
-  a.href = url;
-  a.download = memStore.getFileName();
-  memStore.setFileName("")
-
-  document.body.appendChild(a);
-  a.click();
-
-  window.URL.revokeObjectURL(url);
-};
-
-
+        const startIdx = parseInt(startAddress.value, 16);
+        const endIdx = parseInt(endAddress.value, 16);
+      
+        if (startIdx > endIdx || startIdx < 0 || endIdx >= memStore.getRawMemory().byteLength) {
+          console.error("Ungültige Adressbereiche.");
+          return;
+        }
+      
+        const dataToExport = memStore.exportMemoryRange(startIdx, endIdx);
+        const blob = new Blob([dataToExport], { type: "application/octet-stream" });
+        const url = window.URL.createObjectURL(blob);
+      
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = memStore.getFileName();
+        memStore.setFileName("")
+      
+        document.body.appendChild(a);
+        a.click();
+      
+        window.URL.revokeObjectURL(url);
+      };
 </script>

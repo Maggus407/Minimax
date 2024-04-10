@@ -1,11 +1,9 @@
 import { defineStore } from 'pinia';
-import { useControlTableStore } from './ControlTableStore';
-import { useRegisterStore } from './RegisterStore';
-import { useMemoryStore } from './MemoryStore';
-import { useAluStore } from './AluStore';
+import { useControlTableStore } from './ControlTableStore.ts';
+import { useRegisterStore } from './RegisterStore.ts';
+import { useMemoryStore } from './MemoryStore.ts';
+import { useAluStore } from './AluStore.ts';
 import { ref, watch } from 'vue';
-import { set } from '@vueuse/core';
-import { is } from '@babel/types';
 
 interface StepBack{
     Register: any;
@@ -29,6 +27,9 @@ export const useDebugerStore = defineStore('debugger', () => {
     const executing = ref(false);
     const currentAdress = ref(0);
     const stopping = ref(false);
+    let path = ref("");
+    let exportFrom = ref("0");
+    let exportTo = ref("FFFFFF");
 
     const ringBuffer = new Map<number, StepBack>();
     const ringBufferSize = 200;
@@ -118,7 +119,7 @@ export const useDebugerStore = defineStore('debugger', () => {
             });
             
         });
-        console.log(debuggerCompiled);
+        //console.log(debuggerCompiled);
         currentRow = debuggerCompiled[0];
     }
 
@@ -186,6 +187,12 @@ export const useDebugerStore = defineStore('debugger', () => {
             //Jump to next row
             if(currentRow.next === -1){
                 finished = true;
+                console.log(memoryStore.rawMemory.slice(0, 10));
+                if(path.value != ""){
+                    memoryStore.exportMemoryToFile(path.value, exportFrom.value, exportTo.value);
+                    console.log(path.value);
+                    console.log("Test");
+                }
                 return;
             }
 
@@ -247,7 +254,7 @@ function run() {
     }
 
     const startTime = performance.now(); // Startzeit messen
-
+    console.log("Start")
     intervalId = setInterval(() => {
         for (let i = 0; i < stepsPerInterval; i++) {
             if(stopped.value === true){
@@ -436,7 +443,11 @@ function finishOperation() {
         currentAdress,
         stopped,
         running,
-        finished
+        finished,
+        debuggerCompiled,
+        path,
+        exportFrom,
+        exportTo,
     }
 
 });

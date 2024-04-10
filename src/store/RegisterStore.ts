@@ -1,15 +1,25 @@
 // Utilities
+import { createI18n } from 'vue-i18n';
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useMultiplexerStore } from './MultiplexerStore';
-import { useControlTableStore } from './ControlTableStore';
+import { useMultiplexerStore } from './MultiplexerStore.ts';
+import { useControlTableStore } from './ControlTableStore.ts';
+
+let i18n:any;
+if (process.env.NODE_ENV === 'cli') {
+  i18n = createI18n({
+    legacy: false,
+    locale: 'en', // Set the locale to English for CLI environment
+    fallbackLocale: 'en',
+    // Include your locale messages here
+  });
+}
 
 export const useRegisterStore = defineStore('register', () => {
   const multiplexerStore = useMultiplexerStore();
   const controlTableStore = useControlTableStore();
+  const t = i18n ? i18n.global.t : (key:any) => key;
 
-  const { t } = useI18n({ useScope: 'global' });
   //Base Register
   const BASE_REGISTERS = ['PC', 'IR', 'MDR', 'MAR', 'ACCU'];
   //store for calculation. Stores all the register.

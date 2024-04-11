@@ -22,7 +22,9 @@
     "changeValue": "Change Value",
     "number": "Number",
     "description": "Description",
-    "currentValue": "Current Value"
+    "currentValue": "Current Value",
+    "read": "Read",
+    "write": "Write"
   },
     "nav": {
         "overview": "Overview",

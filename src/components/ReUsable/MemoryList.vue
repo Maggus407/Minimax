@@ -42,10 +42,13 @@
   <v-table fixed-header :density="denseVersion as any" @wheel="handleWheel">
     <thead>
       <tr>
-        <th class="text-center" style="width: 20%">{{ $t('memory.address') }}</th>
-        <th class="text-center" style="width: 20%">{{ $t('memory.decimal') }}</th>
-        <th class="text-center" style="width: 60%" @click="memStore.hexBinSwitch = !memStore.hexBinSwitch">Hex/BIN</th>
-        <th class="text-center"></th>
+        <th class="text-center pl-0" style="width: 20%">{{ $t('memory.address') }}</th>
+        <th class="text-center pl-0" style="width: 10%">{{ $t('memory.decimal') }}</th>
+        <th class="text-center pl-0" style="width: 20% ">
+            <span>Hexadecimal</span>
+        </th>
+        <th class="text-center pl-0" style="width: 40%">Binary</th>
+        <th class="text-center pl-0"></th>
       </tr>
     </thead>
     <tbody>
@@ -55,10 +58,11 @@
         :class="{ 'marked-row': isMarkedRow(getCurrentPage(index)) }"
         @dblclick="selectItem(item, index)"
       >
-        <td style="width: 20%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? toHex(getCurrentPage(index)) : '' }}</td>
-        <td style="width: 20%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? item : '' }}</td>
-        <td style="width: 60%; text-align: center;">{{ getCurrentPage(index) < 16777216 ? (memStore.hexBinSwitch === false ? '0x' + toHex(item) : toBinary(item)) : '' }}</td>
-        <td style="text-align: center;">
+        <td style="width: 20%; text-align: center;" class="pl-0">{{ getCurrentPage(index) < 16777216 ? toHex(getCurrentPage(index)) : '' }}</td>
+        <td style="width: 10%; text-align: center;" class="pl-0">{{ getCurrentPage(index) < 16777216 ? item : '' }}</td>
+        <td style="width: 25%; text-align: center;" class="pl-0">{{ getCurrentPage(index) < 16777216 ? toHex(item) : '' }}</td>
+        <td style="width: 45%; text-align: center;" class="pl-0">{{ getCurrentPage(index) < 16777216 ? toBinary(item) : '' }}</td>
+        <td style="text-align: center;" class="pl-0">
           <v-icon v-if="getCurrentPage(index) < 16777216" small @click="selectItem(item, index)">mdi-pencil</v-icon>
         </td>
       </tr>
@@ -99,6 +103,8 @@ import { useMemoryStore } from '@/store/MemoryStore';
 import { ref, computed } from 'vue';
 import Dec_Hex_Bin_Inputs from './Dec_Hex_Bin_Inputs.vue';
 import { onMounted, onUnmounted } from 'vue';
+
+const model = ref(false);
 
 function calculatePageSize() {
   // Beispiel zur Berechnung der Seitengröße basierend auf der Fensterbreite
@@ -171,7 +177,6 @@ const updateItem = () => {
     detailViewVisible.value = false;
   }
 };
-
 
 let page = ref(1); // Hier definieren wir die lokale Referenz 'page'
 if (props.mode === "memory") {

@@ -21,7 +21,8 @@
   "generell": {
     "changeValue": "Wert Ändern",
     "number": "Zahl",
-    "description": "Beschreibung"
+    "description": "Beschreibung",
+    "currentValue": "Aktueller Wert"
   },
   "nav": {
     "overview": "Overview",

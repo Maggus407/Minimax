@@ -21,7 +21,8 @@
   "generell": {
     "changeValue": "Change Value",
     "number": "Number",
-    "description": "Description"
+    "description": "Description",
+    "currentValue": "Current Value"
   },
     "nav": {
         "overview": "Overview",

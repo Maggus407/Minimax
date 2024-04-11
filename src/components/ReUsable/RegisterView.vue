@@ -47,7 +47,7 @@
             Register: {{ currentRegister }}
             </v-card-title>
             <v-card-text>
-                <div>{{  }}: {{ currentRegisterValue }}</div>
+                <div class="pt-3 pb-3">{{ $t('generell.currentValue') }}: {{ currentRegisterValue }}</div>
                 <Dec_Hex_Bin_Inputs
                     :numberInput="Number(numberInput)"
                     @update:dec="numberInput = $event"

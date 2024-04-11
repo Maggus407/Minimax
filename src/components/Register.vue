@@ -122,7 +122,7 @@ const cancelEdit = (registerName: string) => {
   
   const saveChanges = (registerName: string) => {
   const newName = editedName.value;
-  const newDescription = editedDescription.value;
+  const newDescription = editedDescription.value === null || editedDescription.value === undefined ? '' : editedDescription.value;
 
   // Wenn sich der Name geändert hat, benennen Sie das Register um
   if(description.value !== newDescription){

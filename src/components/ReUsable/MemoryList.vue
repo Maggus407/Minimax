@@ -78,8 +78,8 @@
     <v-card>
       <v-card-title class="headline">Details</v-card-title>
       <v-card-text>
-        <div>Aktueller Wert: {{ selectedItem.value }}</div>
-        <div class="mb-3">Aktuelle Adresse: {{ toHex(getCurrentPage(selectedItem.index))}}</div>
+        <div>{{$t('generell.currentValue')}}: {{ selectedItem.value }}</div>
+        <div class="mb-3">{{$t('generell.currentValue')}}: {{ toHex(getCurrentPage(selectedItem.index))}}</div>
         <Dec_Hex_Bin_Inputs
         :newItemValueDec="newItemValueDec"
         :newItemValueHex="newItemValueHex"
@@ -109,8 +109,6 @@ const model = ref(false);
 function calculatePageSize() {
   // Beispiel zur Berechnung der Seitengröße basierend auf der Fensterbreite
   const windowHeight = window.innerHeight;
-
-  // Annahme: Jedes Memory-Element benötigt 100px Breite
   const elementHeight = 53;
 
   // Berechnung, wie viele Elemente basierend auf der aktuellen Fensterbreite angezeigt werden können

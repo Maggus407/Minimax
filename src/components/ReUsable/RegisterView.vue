@@ -30,6 +30,7 @@
                 <tr
                     v-for="(data,index) in registerStore.registerOrder"
                     :key="data.id"
+                    @dblclick="changeValue(data.title, data.Value)"
                 >
                     <td class=" pl-0 text-center pr-0">{{ data.title }}</td>
                     <td class=" pl-0 text-center pr-0">{{ data.Value }}</td>

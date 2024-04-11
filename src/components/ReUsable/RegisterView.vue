@@ -44,9 +44,10 @@
     <v-dialog v-model="detailViewVisible" persistent max-width="23vw" min-width="500px">
        <v-card>
             <v-card-title>
-            Register
+            Register: {{ currentRegister }}
             </v-card-title>
             <v-card-text>
+                <div>{{  }}: {{ currentRegisterValue }}</div>
                 <Dec_Hex_Bin_Inputs
                     :numberInput="Number(numberInput)"
                     @update:dec="numberInput = $event"
@@ -54,10 +55,9 @@
                 />
             </v-card-text>
             <v-card-actions>
-                <v-spacer>
+                <v-spacer></v-spacer>
                     <v-btn color="primary" @click="cancel">{{ $t('button.cancel') }}</v-btn>
                     <v-btn color="primary" @click="updateItem">{{ $t('button.save') }}</v-btn>
-                </v-spacer>
             </v-card-actions>
         </v-card>
     </v-dialog>

@@ -21,7 +21,7 @@ export const useDebugerStore = defineStore('debugger', () => {
     let aluResult = 0;
     let Alu_UI = ref(0);
     let currentRow: any;
-    let finished = false;
+    let finished = ref(false);
     const counter = ref(0);
     let currentStep = 0;
     const executing = ref(false);
@@ -186,7 +186,7 @@ export const useDebugerStore = defineStore('debugger', () => {
             }
             //Jump to next row
             if(currentRow.next === -1){
-                finished = true;
+                finished.value = true;
                 console.log(memoryStore.rawMemory.slice(0, 10));
                 if(path.value != ""){
                     memoryStore.exportMemoryToFile(path.value, exportFrom.value, exportTo.value);
@@ -211,7 +211,7 @@ export const useDebugerStore = defineStore('debugger', () => {
             console.log(debuggerCompiled);  
             console.log(currentRow);
             if(debuggerCompiled.length === 0)return;
-            if(finished){
+            if(finished.value){
                 writeToRegister();
                 return; 
             }else{
@@ -236,7 +236,7 @@ let stopped = ref(false)
 let running = ref(false)
 function run() {
     running.value = true;
-    if (debuggerCompiled.length === 0 || finished) {
+    if (debuggerCompiled.length === 0 || finished.value) {
         finishOperation();
         return;
     }
@@ -268,7 +268,7 @@ function run() {
                 clearInterval(intervalId);
                 break;
             }
-            if (!currentRow.breakpoint && !finished && stopped.value == false) {
+            if (!currentRow.breakpoint && !finished.value && stopped.value == false) {
                 calculateOperation();
             } else {
                 // Bedingungen, um die Ausführung zu stoppen
@@ -316,7 +316,7 @@ function finishOperation() {
     function resetForStepBack(){
         registerStore.registerReset();
         //memoryStore.setInitialMemory();
-        finished = false;
+        finished.value = false;
         currentStep = 0;
         counter.value = 0;
         Alu_UI.value = 0;
@@ -332,7 +332,7 @@ function finishOperation() {
             resetForStepBack();
             return;
         } else {
-            if(finished){
+            if(finished.value){
                 set_Data_Back();
                 return;
             }
@@ -347,7 +347,7 @@ function finishOperation() {
     }
 
     function set_Data_Back(){
-        finished = false;
+        finished.value = false;
         let ringbufferIndex = currentStep % ringBufferSize;
         let stepBack = ringBuffer.get(ringbufferIndex);
         if (stepBack === undefined) return;
@@ -390,7 +390,7 @@ function finishOperation() {
         debuggerCompiled.splice(0, debuggerCompiled.length);
         registerStore.registerReset();
         memoryStore.setInitialMemory();
-        finished = false;
+        finished.value = false;
         currentStep = 0;
         counter.value = 0;
         Alu_UI.value = 0;

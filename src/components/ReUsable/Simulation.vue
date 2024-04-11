@@ -14,8 +14,8 @@
       </v-icon>
       <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing && debuggerStore.running == false ? 'red' : 'grey'" @click="refresh" size="36" class="mr-3">mdi-refresh</v-icon>
       <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing ? 'red' : 'grey'" @click="stop" size="36" class="mr-3">mdi-stop</v-icon>
-      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing && debuggerStore.running == false ? 'green' : 'grey'" @click="step" size="36" class="mr-3">mdi-step-forward</v-icon>
-      <v-icon :disabled="!debuggerStore.executing" :color="debuggerStore.executing && debuggerStore.running == false ? 'blue' : 'grey'" @click="run" size="36" class="mr-3">mdi-step-forward-2</v-icon>
+      <v-icon :disabled="!debuggerStore.executing || debuggerStore.finished" :color="debuggerStore.executing && debuggerStore.running == false ? 'green' : 'grey'" @click="step" size="36" class="mr-3">mdi-step-forward</v-icon>
+      <v-icon :disabled="!debuggerStore.executing || debuggerStore.finished" :color="debuggerStore.executing && debuggerStore.running == false ? 'blue' : 'grey'" @click="run" size="36" class="mr-3">mdi-step-forward-2</v-icon>
     </div>
     <div class="d-flex flex-col pt-2 ml-10">
       <h3 class="mr-15">Step: {{ debuggerStore.counter}}</h3>

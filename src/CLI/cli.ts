@@ -50,7 +50,6 @@ program
               const buffer = Buffer.from(data);
               memoryStore.FileImport(buffer, buffer.length, startAddress);
             });
-            console.log(memoryStore.rawMemory.slice(0, 10) + '...');
           })
                   // Specify the path to the ZIP file
         const debug = useDebugerStore();

@@ -1,5 +1,5 @@
 <template>
-    <v-card variant="outlined" class="mt-2 pl-0 pr-0">
+    <v-card variant="outlined" class="mt-1 pl-0 pr-0">
         <v-card-title>
             Register
         </v-card-title>
@@ -7,7 +7,7 @@
             <v-table 
                 fixed-header
                 density="compact"
-                height="30vh"
+                height="30.3vh"
                 class="pl-0 pr-0"
             >
             <thead>

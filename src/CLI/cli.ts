@@ -17,18 +17,18 @@ program
   .option('-e, --exportFile <path>', 'Path to the file the machine memory should be exported to.')
   .option('-ef, --exportFrom <address>', 'First address of the memory to be included in the dump.')
   .option('-et, --exportTo <address>', 'Last memory address to be included in the dump.')
-  .option('-i, --importFiles <items...>', 'Files to be imported', (val, prev) => prev.concat(val as any), [])
+  .option('-i, --importFile <items...>', 'File to be imported', (val, prev) => prev.concat(val as any), [])
   .option('-if, --importFrom <addresses...>', 'Start addresses for the imported files', (val, prev) => prev.concat(val as any), [])
   .option('-ib, --importBytes <bytes>', 'Number of bytes to import.')
   .arguments('<file>')
   .action((file:any, options:any) => {
     const memoryStore = useMemoryStore();
-    const importFiles = options.importFiles;
+    const importFiles = options.importFile;
     const importFrom = options.importFrom;
     console.log('Importing files:', importFiles);
     console.log('Start addresses:', importFrom);
-    if (options.importFiles) {
-      const filePath = options.importFiles;
+    if (options.importFile) {
+      const filePath = options.importFile;
       console.log(`Importiere Datei: ${filePath}`);
 
         if (importFiles.length > 0 && importFrom.length > 0) {

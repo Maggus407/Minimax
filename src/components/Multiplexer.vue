@@ -2,7 +2,7 @@
   <v-row>
   <!-- Multiplexer A -->
   <v-col cols="12" md="4" class="order-md-1 order-sm-2">
-    <v-card title="Multiplexer A" height="95vh" style="overflow-y: auto;" variant="outlined">
+    <v-card title="Multiplexer A" height="98vh" style="overflow-y: auto;" variant="outlined">
       <draggable style="height: 85vh;" :list="listMuxA" tag="div" item-key="div" group="items" @change="controlTableStore.updateTable()">
         <template #item="{element, index}">
           <div>
@@ -27,7 +27,7 @@
 
     <!-- Configuration -->
     <v-col cols="12" md="4" class="order-md-2 order-sm-1">
-      <v-card title="Configuration" height="95vh" variant="outlined">
+      <v-card title="Configuration" height="98vh" variant="outlined">
         <v-container>
           <!-- Auswahl zwischen Register und Zahlen -->
           <v-radio-group v-model="selectType" row>
@@ -68,7 +68,7 @@
 
   <!-- Multiplexer B -->
   <v-col cols="12" md="4" class="order-md-3 order-sm-2">
-    <v-card title="Multiplexer B" height="95vh" style="overflow-y: auto;" variant="outlined">
+    <v-card title="Multiplexer B" height="98vh" style="overflow-y: auto;" variant="outlined">
       <draggable style="height: 85vh;" :list="listMuxB" tag="div" item-key="div" group="items" @change="controlTableStore.updateTable()">
         <template #item="{element, index}">
           <div>

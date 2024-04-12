@@ -33,7 +33,7 @@
       <!-- Register List Card -->
       <v-col xs="12" sm="12" md="6" lg="6">
         <v-card class="pa-3" 
-        height="95vh" 
+        height="98vh"
         style="overflow-y: auto;" 
         variant="outlined"
         :title="$t('register.extendedRegister')"

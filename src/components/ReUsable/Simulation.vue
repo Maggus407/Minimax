@@ -1,5 +1,5 @@
 <template>
-  <v-card variant="outlined" >
+  <v-card variant="outlined" height="60vh">
     <v-card-text class="d-flex flex-col ">
     <div>
       <v-btn :disabled="debuggerStore.executing" :color="!debuggerStore.executing ? 'light-blue' : 'grey'" @click="start" class="mr-5">Start</v-btn>
@@ -29,7 +29,6 @@
     <v-table
     fixed-header
     density="compact"
-    height="50vh"
     >
     <thead>
         <tr>

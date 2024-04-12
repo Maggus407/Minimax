@@ -1,5 +1,5 @@
 <template>
-  <v-card variant="outlined">
+  <v-card variant="outlined" >
     <v-container class="pt-1 pb-0">
     <v-row align="center">
       <!--Left Buttons-->
@@ -109,7 +109,7 @@ const model = ref(false);
 function calculatePageSize() {
   // Beispiel zur Berechnung der Seitengröße basierend auf der Fensterbreite
   const windowHeight = window.innerHeight;
-  const elementHeight = 53;
+  const elementHeight = 51.5;
 
   // Berechnung, wie viele Elemente basierend auf der aktuellen Fensterbreite angezeigt werden können
   const elementsPerPage = Math.floor(windowHeight / elementHeight);

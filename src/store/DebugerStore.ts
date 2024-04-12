@@ -50,12 +50,12 @@ export const useDebugerStore = defineStore('debugger', () => {
         a.forEach((value) => {
             registerStore.register.set(value[0], value[1]);
         });
-        console.log(registerStore.register);
+        //console.log(registerStore.register);
         if(controlTable.controlTable.length === 0){
             return;
         }
         controlTable.controlTable.forEach((row: any) => {
-            console.log(row);
+            //console.log(row);
             const regNames: string[] = [];
             let next = null;
             let jump = null;
@@ -130,7 +130,7 @@ export const useDebugerStore = defineStore('debugger', () => {
             }
             // Versuche, den Wert in eine Zahl umzuwandeln
             const num = Number(value.title);
-            console.log(num);
+            //console.log(num);
             // Prüfe, ob die Umwandlung gültig ist (nicht NaN)
             return isNaN(num) ? value.title : num;
         };

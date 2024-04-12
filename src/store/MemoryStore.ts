@@ -194,59 +194,46 @@ export const useMemoryStore = defineStore('memory', () => {
         });
       }
       
-      function FileImport(fileObject:any, bytes = 0, startadresse = "0") {
+      function FileImport(fileObject: Buffer, bytes = 0, startadresse = "0") {
         const maxBytes = 16777216 * 4; // 16MB
-        const allowedBytes = fileObject.data.byteLength;
-    
+
         // Überprüfe, ob die Datei leer ist
-        if (allowedBytes === 0) {
+        if (fileObject.byteLength === 0) {
             console.error("Empty file.");
             return;
         }
     
-        let finalBytesToRead = Math.min(allowedBytes, maxBytes);
-    
-        // Überprüfe, ob eine Begrenzung der Bytes zum Lesen angegeben wurde
-        if (bytes > 0 && finalBytesToRead > bytes) {
-            finalBytesToRead = bytes;
-        } else if (bytes > 0 && finalBytesToRead <= bytes) {
-            console.error("All Data removed from file due to the byte limit.");
-            return;
+        // Beschränke den Buffer auf die angegebene Byteanzahl, falls angegeben
+        let buffer = fileObject;
+        if (bytes > 0) {
+            buffer = fileObject.slice(0, bytes);
         }
     
-        // Konvertiere Buffer zu Int32Array
-        const buffer = fileObject.data;
-        const intArrayLength = Math.ceil(finalBytesToRead / 4);
+        // Konvertiere den beschränkten Buffer zu einem Int32Array
+        const intArrayLength = Math.ceil(buffer.byteLength / 4);
         let int32Array = new Int32Array(intArrayLength);
-    
-        const dataView = new DataView(buffer);
+        const dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     
         // Fülle das Int32Array
         for (let i = 0; i < intArrayLength; i++) {
             const byteOffset = i * 4;
-    
             // Wenn es mindestens 4 verbleibende Bytes gibt, lese sie als Int32
-            if (byteOffset + 3 < finalBytesToRead) {
+            if (byteOffset + 3 < buffer.byteLength) {
                 int32Array[i] = dataView.getInt32(byteOffset, true);
             } else {
                 // Behandle den Fall, wenn weniger als 4 Bytes am Ende bleiben
                 let value = 0;
                 for (let j = 0; j < 4; j++) {
-                    if (byteOffset + j < finalBytesToRead) {
+                    if (byteOffset + j < buffer.byteLength) {
                         value |= (dataView.getUint8(byteOffset + j) << (j * 8));
                     }
                 }
                 int32Array[i] = value;
             }
         }
-    
-        // Übergebe das erstellte Int32Array und die Startadresse an die Funktion, die die Daten im Speicher setzt
         setMemoryFromFileInput(int32Array, startadresse);
-        //print the first 10 values from rawMemory
-        console.log(rawMemory.slice(0,20))
-    }
-    
-      
+        console.log(rawMemory.slice(0, 20));
+      }
 
     return { setMemoryFromFileInput, 
         checkIsMemoryAreaEmpty,

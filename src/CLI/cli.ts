@@ -17,36 +17,42 @@ program
   .option('-e, --exportFile <path>', 'Path to the file the machine memory should be exported to.')
   .option('-ef, --exportFrom <address>', 'First address of the memory to be included in the dump.')
   .option('-et, --exportTo <address>', 'Last memory address to be included in the dump.')
-  .option('-i, --importFile <path>', 'Path to the file that will be imported into the machine memory.')
-  .option('-if, --importFrom <address>', 'First address in the machine memory to which the file will be imported (Standard is 0).')
+  .option('-i, --importFiles <items...>', 'Files to be imported', (val, prev) => prev.concat(val as any), [])
+  .option('-if, --importFrom <addresses...>', 'Start addresses for the imported files', (val, prev) => prev.concat(val as any), [])
   .option('-ib, --importBytes <bytes>', 'Number of bytes to import.')
   .arguments('<file>')
-  .action((file, options) => {
+  .action((file:any, options:any) => {
     const memoryStore = useMemoryStore();
-    if (options.importFile) {
-      const filePath = options.importFile;
+    const importFiles = options.importFiles;
+    const importFrom = options.importFrom;
+    console.log('Importing files:', importFiles);
+    console.log('Start addresses:', importFrom);
+    if (options.importFiles) {
+      const filePath = options.importFiles;
       console.log(`Importiere Datei: ${filePath}`);
-      const importFrom = options.importFrom || "0";
-      const importBytes = options.importBytes ? parseInt(options.importBytes) : 0;
-      
-          // Lies die Datei als Buffer
-          fs.readFile(filePath, (err, data) => {
+
+        if (importFiles.length > 0 && importFrom.length > 0) {
+          if (importFiles.length !== importFrom.length) {
+            console.error('Number of import files and start addresses must match.');
+            return;
+          }
+
+          importFiles.forEach((filePath: any, index: any) => {
+            const startAddress = importFrom[index];
+            console.log(`Importing file: ${filePath} to address ${startAddress}`);
+
+            fs.readFile(filePath, (err, data) => {
               if (err) {
-                  console.error(`Fehler beim Lesen der Datei: ${err.message}`);
-                  return;
+                console.error(`Error reading file: ${err.message}`);
+                return;
               }
-              // Da wir nicht FileReader verwenden, passen wir den Buffer direkt an
-              // Konvertiere den Buffer in ein Array, das von deiner Importfunktion verarbeitet werden kann
-              const buffer = new ArrayBuffer(data.length);
-              const view = new Uint8Array(buffer);
-              for (let i = 0; i < data.length; ++i) {
-                  view[i] = data[i];
-              }
-              // Rufe die angepasste Importfunktion auf
-              memoryStore.FileImport({name: path.basename(filePath), data: buffer}, importBytes, importFrom);
-          });
-      }
-        // Specify the path to the ZIP file
+
+              const buffer = Buffer.from(data);
+              memoryStore.FileImport(buffer, buffer.length, startAddress);
+            });
+            console.log(memoryStore.rawMemory.slice(0, 10) + '...');
+          })
+                  // Specify the path to the ZIP file
         const debug = useDebugerStore();
         fs.readFile(file, async (err, data) => {
           if (err) {
@@ -77,6 +83,8 @@ program
             debug.run();
           },0)
         });
+        }
+    }
   });
 
 program.parse(process.argv);

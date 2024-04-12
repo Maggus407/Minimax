@@ -87,14 +87,14 @@ export const useAluStore = defineStore('Alu', () => {
     });
 
     aluOperations.set('A MOD B', {
-        operation: Modulo,
+        operation: ModuloA,
         description: 'A_mod_B',
         rt: 'ALU.result ← A % B',
         export: "A_MOD_B",
     });
 
     aluOperations.set('B MOD A', {
-        operation: Modulo,
+        operation: ModuloB,
         description: 'B_mod_A',
         rt: 'ALU.result ← B % A',
         export: "B_MOD_A",
@@ -128,28 +128,28 @@ export const useAluStore = defineStore('Alu', () => {
         export: "A_MUL_B",
     });
     aluOperations.set('A DIV B', {
-        operation: Division,
+        operation: DivisionA,
         description: 'A_div_B',
         rt: 'ALU.result ← A / B',
         export: "A_DIV_B",
     });
 
     aluOperations.set('B DIV A', {
-        operation: Division,
+        operation: DivisionB,
         description: 'B_div_A',
         rt: 'ALU.result ← B / A',
         export: "B_DIV_A",
     });
 
     aluOperations.set('Invert A', {
-        operation: Invert,
+        operation: InvertA,
         description: 'INV_A',
         rt: 'ALU.result ← ~A',
         export: "A_INV",
     });
 
     aluOperations.set('Invert B', {
-        operation: Invert,
+        operation: InvertB,
         description: 'INV_B',
         rt: 'ALU.result ← ~B',
         export: "B_INV",
@@ -182,14 +182,14 @@ export const useAluStore = defineStore('Alu', () => {
     });
 
     aluOperations.set('A S.L. B', {
-        operation: ShiftLeft_by_X,
+        operation: ShiftLeft_by_B,
         description: 'A_SL_B',
         rt: 'ALU.result ← A[31-B..0]@0^B',
         export: "A_SL_B",
     });
 
     aluOperations.set('B S.L. A', {
-        operation: ShiftLeft_by_X,
+        operation: ShiftLeft_by_A,
         description: 'B_SL_A',
         rt: 'ALU.result ← B[31-A..0]@0^A',
         export: "B_SL_A",
@@ -197,7 +197,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     aluOperations.set('B S.R. A', 
     {
-        operation: ShiftRight_by_X,
+        operation: ShiftRight_by_A,
         description: 'B_SR_A',
         rt: 'ALU.result ← B[31]^A@B[31..A]',
         export: "B_SR_A",
@@ -205,7 +205,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     aluOperations.set('A S.R. B', 
     {
-        operation: ShiftRight_by_X,
+        operation: ShiftRight_by_B,
         description: 'A_SR_B',
         rt: 'ALU.result ← A[31]^B@A[31..B]',
         export: "A_SR_B",
@@ -229,7 +229,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     aluOperations.set('B S.R.U. A', 
     {
-        operation: ShiftRightUnsignedByX,
+        operation: ShiftRightUnsignedByA,
         description: 'B_SRU_A',
         rt: 'ALU.result ← 0^A@B[31..A]',
         export: "B_SRU_A",
@@ -237,7 +237,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     aluOperations.set('A S.R.U. B', 
     {
-        operation: ShiftRightUnsignedByX,
+        operation: ShiftRightUnsignedByB,
         description: 'A_SRU_B',
         rt: 'ALU.result ← 0^B@A[31..B]',
         export: "A_SRU_B",
@@ -261,7 +261,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     aluOperations.set('B R.L. A', 
     {
-        operation: RotateLeftByX,
+        operation: RotateLeftByA,
         description: 'B_RL_A',
         rt: 'ALU.result ← B[31-A..0]@B[31..32-A]',
         export: "B_ROTL_A",
@@ -269,7 +269,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     aluOperations.set('A R.L. B', 
     {
-        operation: RotateLeftByX,
+        operation: RotateLeftByB,
         description: 'A_RL_B',
         rt: 'ALU.result ← A[31-B..0]@A[31..32-B]',
         export: "A_ROTL_B",
@@ -293,7 +293,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     aluOperations.set('A R.R. B', 
     {
-        operation: RotateRightByX,
+        operation: RotateRightByB,
         description: 'A_RR_B',
         rt: 'ALU.result ← A[B-1..0]@A[31..B]',
         export: "A_ROTR_B",
@@ -301,7 +301,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     aluOperations.set('B R.R. A', 
     {
-        operation: RotateRightByX,
+        operation: RotateRightByA,
         description: 'B_RR_A',
         rt: 'ALU.result ← B[A-1..0]@B[31..A]',
         export: "B_ROTR_A",
@@ -310,7 +310,7 @@ export const useAluStore = defineStore('Alu', () => {
 
     // Überprüft, ob die Eingabezahl gültig ist.
 function checkNumber(input: number | null | undefined): void {
-    if (input === null || input === undefined) {
+    if (input === undefined) {
         throw new Error("Input cannot be null or undefined");
     }
 }
@@ -380,25 +380,52 @@ function checkNumber(input: number | null | undefined): void {
         return (arrayA[0] * arrayB[0]);
     }
     
-     function Division(a: number, b: number): number {
+     function DivisionA(a: number, b: number): number {
         checkNumber(a);
         if (b === 0) {
             return 0;
         }
         const arrayA = new Int32Array([a]);
         const arrayB = new Int32Array([b]);
-        return (arrayA[0] / arrayB[0]);
+        return Math.floor(arrayA[0] / arrayB[0]);
+    }
+
+     function DivisionB(a: number, b: number): number {
+        checkNumber(a);
+        if (a === 0) {
+            return 0;
+        }
+        const arrayA = new Int32Array([a]);
+        const arrayB = new Int32Array([b]);
+        return Math.floor(arrayB[0] / arrayA[0]);
     }
     
-     function Modulo(a: number, b: number): number {
+     function ModuloA(a: number, b: number): number {
         checkNumber(a);
         checkNumber(b);
-        if (b === 0) {
-            throw new Error("Modulo by zero is not allowed");
+        if(a === 0) {
+            return 0;
+        }
+        if(b === 0) {
+            throw Error("Division by zero");
         }
         const arrayA = new Int32Array([a]);
         const arrayB = new Int32Array([b]);
         return (arrayA[0] % arrayB[0]);
+    }
+
+     function ModuloB(a: number, b: number): number {
+        checkNumber(a);
+        checkNumber(b);
+        if(b === 0) {
+            return 0;
+        }
+        if(a === 0) {
+            throw Error("Division by zero");
+        }
+        const arrayA = new Int32Array([a]);
+        const arrayB = new Int32Array([b]);
+        return (arrayB[0] % arrayA[0]);
     }
     
      function And(a: number, b: number): number {
@@ -425,10 +452,20 @@ function checkNumber(input: number | null | undefined): void {
         return (arrayA[0] ^ arrayB[0]);
     }
 
-    function Invert(a: number, b:any): number {
+    function InvertA(a: number, b:any): number {
         checkNumber(a);
-        const arrayA = new Int32Array([a]);
-        return ~arrayA[0];
+        const int32Array = new Int32Array(1);
+        int32Array[0] = a;
+        const invertedValue = ~int32Array[0];
+        return invertedValue;
+    }
+
+    function InvertB(a: any, b:number): number {
+        checkNumber(b);
+        const int32Array = new Int32Array(1);
+        int32Array[0] = b;
+        const invertedValue = ~int32Array[0];
+        return invertedValue;
     }
     
     function ShiftLeft(a: number, b:any): number {
@@ -443,15 +480,31 @@ function checkNumber(input: number | null | undefined): void {
         return arrayA[0] >> 1;
     }
     
-    function ShiftLeft_by_X(a: number, b: number): number {
+    function ShiftLeft_by_B(a: number, b: number): number {
         checkNumber(a);
         checkNumber(b);
         const arrayA = new Int32Array([a]);
         const arrayB = new Int32Array([b]);
         return arrayA[0] << arrayB[0];
     }
+
+    function ShiftLeft_by_A(a: number, b: number): number {
+        checkNumber(a);
+        checkNumber(b);
+        const arrayA = new Int32Array([a]);
+        const arrayB = new Int32Array([b]);
+        return arrayB[0] << arrayA[0];
+    }
     
-    function ShiftRight_by_X(a: number, b: number): number {
+    function ShiftRight_by_A(a: number, b: number): number {
+        checkNumber(a);
+        checkNumber(b);
+        const arrayA = new Int32Array([a]);
+        const arrayB = new Int32Array([b]);
+        return arrayB[0] >> arrayA[0];
+    }
+
+    function ShiftRight_by_B(a: number, b: number): number {
         checkNumber(a);
         checkNumber(b);
         const arrayA = new Int32Array([a]);
@@ -465,12 +518,16 @@ function checkNumber(input: number | null | undefined): void {
         return arrayA[0] >>> 1;
     }
     
-    function ShiftRightUnsignedByX(a: number, b: number): number {
+    function ShiftRightUnsignedByA(a: number, b: number): number {
         checkNumber(a);
         checkNumber(b);
-        const arrayA = new Int32Array([a]);
-        const arrayB = new Int32Array([b]);
-        return arrayA[0] >>> arrayB[0];
+        return b >>> a;
+    }
+
+    function ShiftRightUnsignedByB(a: number, b: number): number {
+        checkNumber(a);
+        checkNumber(b);
+        return a >>> b;
     }
     
     function RotateLeft(a: number, b:any): number {
@@ -482,21 +539,35 @@ function checkNumber(input: number | null | undefined): void {
         let carry = arrayA[0] & MSB;
         return (arrayA[0] << 1) | (carry ? LSB : 0);
     }
-    
-    function RotateLeftByX(a: number, b: number): number {
+
+    function RotateLeftByA(a: number, b: number): number {
         checkNumber(a);
         checkNumber(b);
         const MSB = 0x80000000;
         const LSB = 0x00000001;
-        const arrayA = new Int32Array([a]);
+        const arrayA = new Int32Array([b]);
         let result = arrayA[0];
     
-        for (let j = 0; j < b; j++) {
+        for (let j = 0; j < a; j++) {
             let carry = result & MSB;
             result = ((result << 1) | (carry ? LSB : 0)) >>> 0;
         }
         return result;
     }
+    
+    function RotateLeftByB(b: number, a: number): number {
+        checkNumber(a);
+        checkNumber(b);
+        const MSB = 0x80000000;
+        const LSB = 0x00000001;
+        const arrayB = new Int32Array([a]);
+        let result = arrayB[0];
+        for (let j = 0; j < b; j++) {
+          let carry = result & MSB;
+          result = ((result << 1) | (carry ? LSB : 0)) >>> 0;
+        }
+        return result;
+      }
     
     function RotateRight(a: number, b:any): number {
         checkNumber(a);
@@ -507,8 +578,23 @@ function checkNumber(input: number | null | undefined): void {
         let carry = arrayA[0] & LSB;
         return (arrayA[0] >>> 1) | (carry ? MSB : 0);
     }
+
+    function RotateRightByA(a: number, b: number): number {
+        checkNumber(a);
+        checkNumber(b);
+        const MSB = 0x80000000;
+        const LSB = 0x00000001;
+        const arrayA = new Int32Array([b]);
+        let result = arrayA[0];
     
-    function RotateRightByX(a: number, b: number): number {
+        for (let j = 0; j < a; j++) {
+            let carry = result & LSB;
+            result = ((result >>> 1) | (carry ? MSB : 0)) >>> 0;
+        }
+        return result;
+    }
+    
+    function RotateRightByB(a: number, b: number): number {
         checkNumber(a);
         checkNumber(b);
         const MSB = 0x80000000;

@@ -1,13 +1,10 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { Command } from 'commander';
-import {watch} from 'vue';
 import fs from 'fs';
 import path from 'path';
 import { useMemoryStore } from '../store/MemoryStore.ts';
 import { useImport } from '../Import-Export/Import.ts';
 import { useDebugerStore } from '../store/DebugerStore.ts';
-import { useControlTableStore } from '../store/ControlTableStore.ts';
-import exp from 'constants';
 
 const pinia = createPinia(); 
 setActivePinia(pinia);

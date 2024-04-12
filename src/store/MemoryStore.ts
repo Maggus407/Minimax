@@ -11,7 +11,6 @@ export const useMemoryStore = defineStore('memory', () => {
 
     const rawMemory = new Int32Array(16777216).fill(0);
     let initialMemory = new Int32Array(16777216).fill(0)
-    let int32Array: Int32Array = new Int32Array(0);
     
     const displayedMemory = reactive(new Array(PAGE_SIZE.value).fill(0))
     const fileName = ref<string>("memory.bin"); // Default-Wert
@@ -46,10 +45,11 @@ export const useMemoryStore = defineStore('memory', () => {
 
         if (startIdx >= 0 && startIdx + fileInput.length <= rawMemory.length) {
             rawMemory.set(fileInput, startIdx);
+            initialMemory.set(fileInput, startIdx);
         } else {
             console.error("Startadresse und/oder Dateilänge überschreiten die Speichergrenzen.");
         }
-        initialMemory = rawMemory;
+        //initialMemory = rawMemory;
         updateDisplayedMemory(memoryPage.value)
     }
 

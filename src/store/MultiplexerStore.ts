@@ -61,7 +61,11 @@ export const useMultiplexerStore = defineStore('multiplexer', () => {
       if(element.type === "register"){
         //find the register in the registerStore
         let reg = registerStore.getRegister(element.value);
+        //console.log(reg);
         addRegisterToMux("A", reg);
+      }
+      if(element.type === "null"){
+        addRegisterToMux("A", {title: "", Value: 0});
       }
     })
    }
@@ -73,8 +77,11 @@ export const useMultiplexerStore = defineStore('multiplexer', () => {
       if(element.type === "register"){
         //find the register in the registerStore
         let reg = registerStore.getRegister(element.value);
-        //console.log(reg);
+        console.log(reg);
         addRegisterToMux("B", reg);
+      }
+      if(element.type === "null"){
+        addRegisterToMux("B", {title: "", Value: 0});
       }
     })
    }

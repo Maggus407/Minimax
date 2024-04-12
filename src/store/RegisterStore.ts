@@ -196,6 +196,7 @@ function setRegisterFromImport(reg: any){
   });
   //add all Registers from the import
   reg.forEach((r: any) => {
+    console.log(r);
     addRegister(r.name, r.description);
   });
 

@@ -275,8 +275,6 @@ const validateNumber = (event: KeyboardEvent, field: 'inputAdresse' | 'numberOfR
   }
 };
 
-
-
 function openCommentDialog(row: any) {
   currentComment.value = row.comment;
   isCommentDialog.value = true;

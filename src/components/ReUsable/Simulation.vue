@@ -129,6 +129,7 @@ function refresh() {
   debuggerStore.stop();
   debuggerStore.executing = true;
   debuggerStore.start();
+  memoryStore.setInitialMemory();
 }
 
 function step() {

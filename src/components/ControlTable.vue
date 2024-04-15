@@ -20,7 +20,7 @@
       <v-text-field
         v-model="numberOfRows"
         dense
-        label="Number of rows: Standard is 1"
+        label="Number of rows: Standard is 1 - Limit is 10"
         solo-inverted
         hide-details
         clearable
@@ -28,195 +28,32 @@
         @keydown="(event: KeyboardEvent) => validateNumber(event, 'numberOfRows')"
       ></v-text-field>
       <!-- Button next to the input field -->
+      <v-icon @click="setRows"> mdi-plus-box </v-icon>
   </div>
 
   <v-divider></v-divider>
-  <v-table
-    :items="controlTable.controlTable"
-    density="compact"
-    height="91vh"
-    fixed-header
-  >
-  <thead>
-      <tr>
-        <v-tooltip open-delay="500" text="Breakpoint">
-                <template v-slot:activator="{ props }">
-                  <th v-bind="props" class="center pr-0 pl-1 text-center">Br</th>
-                </template>
-        </v-tooltip>
-        <th class="pr-0 pl-1 text-center">Label</th>
-        <th class=" pr-0 pl-1 text-center">Adress</th>
-        <th class=" pr-0 pl-1 text-center">AluSelA</th>
-        <th class=" pr-0 pl-1 text-center">AluSelB</th>
-        <th class=" pr-0 pl-1 text-center">MDRSel</th>
-        <th class=" pr-0 pl-1 text-center">HsCs</th>
-        <th class=" pr-0 pl-1 text-center">Hs_R_W</th>
-        <th class="pr-3 pl-0 text-center">AluCtrl</th>
-        <th v-for="r in registerStore.registerOrder" :key="r.title" class="pr-0 pl-1 text-center">
-            {{ r.title }}
-        </th>
-        <th class="center pr-0 pl-1 text-center">ALU == 0?</th>
-        <th class="center pr-0 pl-1 text-center">Next</th>
-        <th class="center pr-0 pl-2">RT-Notation</th>
-        <th class="center pr-0 pl-1 text-center">&nbsp;</th>
-      </tr>
-    </thead>
-    <draggable :list="list" tag="tbody"  item-key="id" group="signalTable"  @change="controlTable.updateTable()">
-      <template #item="{element, index}">
-        <tr class="pr-0 pl-0" :key="index">
-          <!--Breakpoint-->
-          <td width="50vw" @click.stop="element.breakpoint = !element.breakpoint" class="pr-0 pl-2">
-            <v-icon v-if="element.breakpoint" color="red">mdi-record</v-icon>
-            <p v-else>&nbsp;</p>
-          </td>
-          <!--Label-->
-          <td class="pr-0 pl-0" width="125vw">
-            <v-text-field @change="controlTable.updateTable()" v-model="element.label" dense solo-inverted hide-details></v-text-field>
-          </td>
-          <!--Adress-->
-          <td class="text-center pr-0 pl-0">{{ element.adress }}</td>
-          <!--AluSelA-->
-          <td width="100vw" class="pr-0">
-            <v-select
-              :hide-details="true"
-              density="compact"
-              variant="outlined"
-              menu-icon=""
-              :items="['-', ...multiplexerStore.muxA]"
-              v-model="element.AluSelA"
-              return-object
-              @update:modelValue="update(element, null)"
-            >
-            </v-select>
-          </td>
-          <!--AluSelB-->
-          <td width="100vw" class="pr-0">
-            <v-select
-              :hide-details="true"
-              density="compact"
-              variant="outlined"
-              menu-icon=""
-              :items="['-', ...multiplexerStore.muxB]"
-              v-model="element.AluSelB"
-              return-object
-              @update:modelValue="update(element, null)"
-            >
-            </v-select>
-          </td>
-          <!--MDRSel-->
-          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'MDRSel')">{{ +element.MDRSel }}</td>
-          <!--HsCs-->
-          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'HsCs')">{{ +element.HsCs }}</td>
-          <!--Hs_R_W-->
-          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
-          <!--AluCtrl-->
-          <td width="140vw" class=pl-0>
-            <v-select
-              :hide-details="true"
-              density="compact"
-              menu-icon=""
-              variant="outlined"
-              :items="['-', ...aluStore.aluOperationsListAdded]"
-              v-model="element.AluCtrl"
-              @update:modelValue="update(element, null)"
-            >
-            </v-select>
-          </td>
-          <!--Register-->
-          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer pr-0 pl-0 text-center" @click.stop="update(element, register)">
-                <p>{{ register.isActive ? 1 : 0 }}</p>
-          </td>
-          <!-- ALU == 0? -->
-          <td @click.stop="openDialog(element)">
-            <p v-if="element.jump === null" class="text-center">{{ element.jump !== null ?  element.jump.adress : "-"}}</p>
-            <div class="flex flex-col">
-              <p v-if="element.jump !== null && element.jumpSet === true">1</p>
-              <p v-if="element.jump !== null && element.jumpSet === true">0</p>
-            </div>
-          </td>
-          <!-- next -->
-          <td class="pr-0 pl-0 text-center">
-            <div class="flex flex-col">
-              <p v-if="element.jump !== null">{{ element.jump.adress }}</p>
-              <p v-if="true">{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</p>
-            </div>
-          </td>
-          <!-- description -->
-          <td class="pr-0 pl-2" width="200vw">
-            <div v-if="element.description.length > 0">
-              <p v-for="(d, index) in element.description" :key="index">{{ d }}</p>
-            </div>
-            <div v-else>
-              <p>&nbsp;</p>
-            </div>
-          </td>
-          <!-- Aktionen -->
-          <td class="pr-0 pl-0">
-            <div class="d-flex flex-row justify-end">
-            <!--Comment Row-->
-              <v-icon class="mr-3">mdi-text-box-edit</v-icon>
-              <!--Delete Row-->
-              <v-icon @click.stop="controlTable.deleteRow(index)" color="red" class="mr-2">mdi-delete</v-icon>
-            </div>
-          </td>
-  <v-dialog v-model="dialog" persistent max-width="30vw">
-    <v-card>
-      <v-card-title>
-        Sprung-Einstellungen
-      </v-card-title>
-      <v-card-text>
-        <v-radio-group v-model="selectedJumpType">
-          <v-radio label="Nächster Befehl" value="next"></v-radio>
-          <v-radio label="Unbedingter Sprung" value="unconditional"></v-radio>
-          <v-radio label="Bedingter Sprung" value="conditional"></v-radio>
-        </v-radio-group>
-
-        <div v-if="selectedJumpType === 'next'" ></div>
-          <div v-if="selectedJumpType === 'unconditional'">
-            <v-text-field
-              label="Unbedingter Sprung"
-              type="number"
-              v-model="unconditionalJump"
-              :max="controlTable.controlTable.length - 1"
-              :min="0"
-            ></v-text-field>
-        </div>
-        <div v-if="selectedJumpType === 'conditional'">
-          <v-text-field
-            label="ALU != 0?"
-            type="number"
-            v-model="conditionalJumpIfNotZero"
-            :max="controlTable.controlTable.length - 1"
-            :min="0"
-            :rules="[requiredRule]"
-          ></v-text-field>
-          <v-text-field
-            label="ALU == 0?"
-            type="number"
-            v-model="conditionalJumpIfZero"
-            :max="controlTable.controlTable.length - 1"
-            :min="0"
-            :rules="[requiredRule]"
-          ></v-text-field>
-        </div>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" @click="closeDialog">Abbrechen</v-btn>
-        <v-btn
-            color="green darken-1"
-            @click="applyJumpSettings"
-            :disabled="isOkButtonDisabled"
-          >
-            OK
-          </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        </tr>
+    <VirtualList
+      v-model="table"
+      :dataKey="'id'"
+      :handle="'#drag'"
+      style="height: 92vh;"
+      @drop="handleDrop"
+    >
+      <template #item="{ record, index, dataKey }">
+        <p>{{ record }}</p>
+        <v-icon id="drag" class="drag">mdi-drag-horizontal-variant</v-icon>
+        <p @click.stop="record.breakpoint = !record.breakpoint">
+          <v-icon v-if="record.breakpoint" color="red">mdi-record</v-icon>
+          <p v-else>&nbsp;</p>
+        </p>
+        <p>{{ record.adress = index }}</p>
       </template>
-  </draggable>
-</v-table>
+      <template v-slot:header>
+        <div class="d-flex flex-row">
+          <p class="pa-3" v-for="header in fullHeaders">{{ header }}</p>
+        </div>
+      </template>
+    </VirtualList>
 </template>
 
 <script setup lang="ts">
@@ -224,7 +61,7 @@ import { useControlTableStore } from '@/store/ControlTableStore';
 import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
-import draggable from 'vuedraggable';
+import VirtualList from 'vue-virtual-draglist';
 import { ref, computed } from 'vue';
 import { useDebugerStore } from '@/store/DebugerStore';
 
@@ -234,7 +71,7 @@ const multiplexerStore = useMultiplexerStore();
 const deb = useDebugerStore();
 const aluStore = useAluStore();
 
-const list = controlTable.controlTable;
+const table = ref(controlTable.controlTable);
 const dialog = ref(false);
 const selectedRow = ref<any | null>(null);
 const selectedJumpType = ref('next');
@@ -244,9 +81,43 @@ const conditionalJumpIfNotZero = ref(null);
 const inputAdresse = ref<string>('');
 const numberOfRows = ref<string>('');
 
-
 const currentComment = ref('');
 const isCommentDialog = ref(false);
+
+// Definiere den Anfang des Headers bis zu "AluCtrl"
+const headers = [
+    "Breakpoint",
+    "Label",
+    "Adress",
+    "AluSelA",
+    "AluSelB",
+    "MDRSel",
+    "HsCs",
+    "Hs_R_W",
+    "AluCtrl"
+];
+
+// Definiere den Rest der Header nach den dynamischen Registern
+const trailingHeaders = [
+    "ALU == 0?",
+    "Next",
+    "RT-Notation"
+];
+
+// Hole die Titel der Register aus dem 'registerStore'
+const registerTitles = registerStore.registerOrder.map((r:any) => r.title);
+
+// Füge die Register-Titel zwischen den festen Header-Teilen ein
+const fullHeaders = headers.concat(registerTitles).concat(trailingHeaders);
+
+console.log(fullHeaders);
+
+const handleDrop = (event: any) => {
+  console.log(event);
+  console.log('change');
+  controlTable.updateAdressesAndNext();
+  console.log(controlTable.controlTable);
+};
 
 const validateNumber = (event: KeyboardEvent, field: 'inputAdresse' | 'numberOfRows') => {
   const validKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', "Backspace", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown",
@@ -278,6 +149,12 @@ const validateNumber = (event: KeyboardEvent, field: 'inputAdresse' | 'numberOfR
 function openCommentDialog(row: any) {
   currentComment.value = row.comment;
   isCommentDialog.value = true;
+}
+
+function setRows(){
+  for(let i = 0; i < Number(numberOfRows.value); i++){
+    controlTable.placeRowBetween(Number(inputAdresse.value)+1);
+  }
 }
 
 const requiredRule = (value: any) => !!value || 'Erforderlich';

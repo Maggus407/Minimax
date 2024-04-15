@@ -79,7 +79,7 @@
       <v-card-title class="headline">Details</v-card-title>
       <v-card-text>
         <div>{{$t('generell.currentValue')}}: {{ selectedItem.value }}</div>
-        <div class="mb-3">{{$t('generell.currentValue')}}: {{ toHex(getCurrentPage(selectedItem.index))}}</div>
+        <div class="mb-3">{{$t('generell.currentIndex')}}: {{ toHex(getCurrentPage(selectedItem.index))}}</div>
         <Dec_Hex_Bin_Inputs
         :newItemValueDec="newItemValueDec"
         :newItemValueHex="newItemValueHex"

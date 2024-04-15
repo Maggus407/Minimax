@@ -22,7 +22,7 @@
     ],
     "paths": {
       "@/*": ["src/*"]
-    },
+    }
   },
   "include": [
     "src/**/*.ts",
@@ -31,6 +31,8 @@
     "*.js",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "vite.config.ts", "public/worker/DebuggerWorker.ts",
-  ]
+    "vite.config.ts",
+    "public/worker/DebuggerWorker.ts",
+    "src/types/**/*.d.ts"  // Ensure this line covers your custom types directory
+  ]  
 }

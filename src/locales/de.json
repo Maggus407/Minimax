@@ -23,6 +23,7 @@
     "number": "Zahl",
     "description": "Beschreibung",
     "currentValue": "Aktueller Wert",
+    "currentIndex": "Aktueller Index",
     "read": "Lesen",
     "write": "Schreiben"
   },

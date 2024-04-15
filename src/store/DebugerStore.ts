@@ -187,11 +187,10 @@ export const useDebugerStore = defineStore('debugger', () => {
             //Jump to next row
             if(currentRow.next === -1){
                 finished.value = true;
-                console.log(memoryStore.rawMemory.slice(0, 10));
+                //console.log(memoryStore.rawMemory.slice(0, 10));
                 if(path.value != ""){
                     memoryStore.exportMemoryToFile(path.value, exportFrom.value, exportTo.value);
-                    console.log(path.value);
-                    console.log("Test");
+                    //console.log(path.value);
                 }
                 return;
             }

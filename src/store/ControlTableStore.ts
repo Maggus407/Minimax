@@ -85,6 +85,34 @@ export const useControlTableStore = defineStore('controlTable', () => {
     });
   }
 
+  //Function to place Rows between the rows 
+  function placeRowBetween(index: number){
+    const newRow: ControlTable = {
+      id: uuidv4(),
+      breakpoint: false,
+      label: "",
+      adress: controlTable.length,
+      AluSelA: null,
+      AluSelB: null,
+      MDRSel: false,
+      HsCs: false,
+      Hs_R_W: false,
+      AluCtrl: null,
+      registerWrite: [],
+      jump: null,
+      jumpSet: false,
+      next: controlTable.length + 1,
+      description: [],
+      comment: "",
+    };
+
+    newRow.registerWrite = registerStore.registerOrder.map((register: any) => {
+      return { title: register.title, isActive: false};
+    });
+    controlTable.splice(index, 0, newRow);
+    updateAdressesAndNext();
+  }
+
   // Berechnete Eigenschaft für Zeilen mit gesetztem Label
   function rowsForSelection() {
     return controlTable.find((row, index) => row.label !== '')
@@ -353,6 +381,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateCTAddedRegister,
     create_RT_Notation,
     aluRemoved,
-    setControlTableFromImport
+    setControlTableFromImport,
+    placeRowBetween
   };
 });

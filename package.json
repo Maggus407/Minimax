@@ -50,6 +50,6 @@
     "vue-tsc": "^1.2.0"
   },
   "bin": {
-    "minimax": "src/CLI/cli"
+    "minimax": "src/CLI/cli.ts"
   }
 }

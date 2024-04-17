@@ -47,7 +47,8 @@
     "vite": "^4.2.0",
     "vite-plugin-vuetify": "^1.0.0",
     "vue-cli-plugin-i18n": "~2.3.2",
-    "vue-tsc": "^1.2.0"
+    "vue-tsc": "^1.2.0",
+    "vue-virtual-draglist": "^3.2.3"
   },
   "bin": {
     "minimax": "src/CLI/cli.ts"

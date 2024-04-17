@@ -32,28 +32,192 @@
   </div>
 
   <v-divider></v-divider>
-    <VirtualList
-      v-model="table"
-      :dataKey="'id'"
-      :handle="'#drag'"
-      style="height: 92vh;"
-      @drop="handleDrop"
-    >
-      <template #item="{ record, index, dataKey }">
-        <p>{{ record }}</p>
-        <v-icon id="drag" class="drag">mdi-drag-horizontal-variant</v-icon>
-        <p @click.stop="record.breakpoint = !record.breakpoint">
-          <v-icon v-if="record.breakpoint" color="red">mdi-record</v-icon>
-          <p v-else>&nbsp;</p>
-        </p>
-        <p>{{ record.adress = index }}</p>
-      </template>
-      <template v-slot:header>
-        <div class="d-flex flex-row">
-          <p class="pa-3" v-for="header in fullHeaders">{{ header }}</p>
+  <v-table
+    :items="controlTable.controlTable"
+    density="compact"
+    height="91vh"
+    fixed-header
+  >
+  <thead>
+      <tr>
+        <th class="center pr-0 pl-2">Br</th>
+        <th class="center pr-0 pl-1 text-center">Label</th>
+        <th class="center pr-0 pl-1 text-center">Adress</th>
+        <th class="center pr-0 pl-1 text-center">AluSelA</th>
+        <th class="center pr-0 pl-1 text-center">AluSelB</th>
+        <th class="center pr-0 pl-1 text-center">MDRSel</th>
+        <th class="center pr-0 pl-1 text-center">HsCs</th>
+        <th class="center pr-0 pl-1 text-center">Hs_R_W</th>
+        <th class="center pr-0 pl-1 text-center">AluCtrl</th>
+        <th v-for="r in registerStore.registerOrder" :key="r.title" class="pr-0 pl-1 text-center">
+            {{ r.title }}
+        </th>
+        <th class="center pr-0 pl-1 text-center">ALU == 0?</th>
+        <th class="center pr-0 pl-1 text-center">Next</th>
+        <th class="center pr-0 pl-2">RT-Notation</th>
+        <th class="center pr-0 pl-1 text-center">Aktionen</th>
+      </tr>
+    </thead>
+    <draggable :list="table" tag="tbody"  item-key="id" group="signalTable"  @change="controlTable.updateTable()">
+      <template #item="{element, index}">
+        <tr class="pr-0 pl-0" :key="index">
+          <!--Breakpoint-->
+          <td width="50vw" @click.stop="element.breakpoint = !element.breakpoint" class="pr-0 pl-2">
+            <v-icon v-if="element.breakpoint" color="red">mdi-record</v-icon>
+            <p v-else>&nbsp;</p>
+          </td>
+          <!--Label-->
+          <td class="pr-0 pl-0" width="130vw">
+            <v-text-field @change="controlTable.updateTable()" v-model="element.label" dense solo-inverted hide-details></v-text-field>
+          </td>
+          <!--Adress-->
+          <td class="text-center pr-0 pl-0">{{ element.adress }}</td>
+          <!--AluSelA-->
+          <td width="130vw">
+            <v-select
+              :hide-details="true"
+              density="compact"
+              variant="outlined"
+              menu-icon=""
+              :items="['-', ...multiplexerStore.muxA]"
+              v-model="element.AluSelA"
+              return-object
+              @update:modelValue="update(element, null)"
+            >
+            </v-select>
+          </td>
+          <!--AluSelB-->
+          <td width="130vw">
+            <v-select
+              :hide-details="true"
+              density="compact"
+              variant="outlined"
+              menu-icon=""
+              :items="['-', ...multiplexerStore.muxB]"
+              v-model="element.AluSelB"
+              return-object
+              @update:modelValue="update(element, null)"
+            >
+            </v-select>
+          </td>
+          <!--MDRSel-->
+          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'MDRSel')">{{ +element.MDRSel }}</td>
+          <!--HsCs-->
+          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'HsCs')">{{ +element.HsCs }}</td>
+          <!--Hs_R_W-->
+          <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
+          <!--AluCtrl-->
+          <td width="170vw">
+            <v-select
+              :hide-details="true"
+              density="compact"
+              menu-icon=""
+              variant="outlined"
+              :items="['-', ...aluStore.aluOperationsListAdded]"
+              v-model="element.AluCtrl"
+              @update:modelValue="update(element, null)"
+            >
+            </v-select>
+          </td>
+          <!--Register-->
+          <td v-for="register in element.registerWrite" :key="register.title" class="center pointer pr-0 pl-0 text-center" @click.stop="update(element, register)">
+                <p>{{ register.isActive ? 1 : 0 }}</p>
+          </td>
+          <!-- ALU == 0? -->
+          <td @click.stop="openDialog(element)">
+            <p v-if="element.jump === null">{{ element.jump !== null ?  element.jump.adress : "-"}}</p>
+            <div class="flex flex-col">
+              <p v-if="element.jump !== null && element.jumpSet === true">1</p>
+              <p v-if="element.jump !== null && element.jumpSet === true">0</p>
+            </div>
+          </td>
+          <!-- next -->
+          <td class="pr-0 pl-0 text-center">
+            <div class="flex flex-col">
+              <p v-if="element.jump !== null">{{ element.jump.adress }}</p>
+              <p v-if="true">{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</p>
+            </div>
+          </td>
+          <!-- description -->
+          <td class="pr-0 pl-2" width="200vw">
+            <div v-if="element.description.length > 0">
+              <p v-for="(d, index) in element.description" :key="index">{{ d }}</p>
+            </div>
+            <div v-else>
+              <p>&nbsp;</p>
+            </div>
+          </td>
+          <!-- Aktionen -->
+          <td class="pr-0 pl-0">
+            <div class="d-flex flex-row justify-end">
+              <v-tooltip text="Write Comment">
+                <template v-slot:activator="{ props }">
+                  <v-icon v-bind="props" class="mr-5">mdi-text-box-edit</v-icon>
+                </template>
+              </v-tooltip>
+            
+              <v-icon @click.stop="controlTable.deleteRow(index)" color="red">mdi-delete</v-icon>
+            </div>
+          </td>
+  <v-dialog v-model="dialog" persistent max-width="30vw">
+    <v-card>
+      <v-card-title>
+        Sprung-Einstellungen
+      </v-card-title>
+      <v-card-text>
+        <v-radio-group v-model="selectedJumpType">
+          <v-radio label="Nächster Befehl" value="next"></v-radio>
+          <v-radio label="Unbedingter Sprung" value="unconditional"></v-radio>
+          <v-radio label="Bedingter Sprung" value="conditional"></v-radio>
+        </v-radio-group>
+
+        <div v-if="selectedJumpType === 'next'" ></div>
+          <div v-if="selectedJumpType === 'unconditional'">
+            <v-text-field
+              label="Unbedingter Sprung"
+              type="number"
+              v-model="unconditionalJump"
+              :max="controlTable.controlTable.length - 1"
+              :min="0"
+            ></v-text-field>
         </div>
-      </template>
-    </VirtualList>
+        <div v-if="selectedJumpType === 'conditional'">
+          <v-text-field
+            label="ALU != 0?"
+            type="number"
+            v-model="conditionalJumpIfNotZero"
+            :max="controlTable.controlTable.length - 1"
+            :min="0"
+            :rules="[requiredRule]"
+          ></v-text-field>
+          <v-text-field
+            label="ALU == 0?"
+            type="number"
+            v-model="conditionalJumpIfZero"
+            :max="controlTable.controlTable.length - 1"
+            :min="0"
+            :rules="[requiredRule]"
+          ></v-text-field>
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" @click="closeDialog">Abbrechen</v-btn>
+        <v-btn
+            color="green darken-1"
+            @click="applyJumpSettings"
+            :disabled="isOkButtonDisabled"
+          >
+            OK
+          </v-btn>
+
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+        </tr>
+    </template>
+  </draggable>
+</v-table>
 </template>
 
 <script setup lang="ts">
@@ -62,6 +226,7 @@ import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
 import VirtualList from 'vue-virtual-draglist';
+import draggable from 'vuedraggable';
 import { ref, computed } from 'vue';
 import { useDebugerStore } from '@/store/DebugerStore';
 

@@ -29,6 +29,8 @@
     <v-table
     fixed-header
     density="compact"
+    class="overflow-y-auto"
+    height="52vh"
     >
     <thead>
         <tr>

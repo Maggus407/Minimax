@@ -3,7 +3,7 @@
   <div class="d-flex flex-row align-center mb-2">
     <v-tooltip open-delay="500" text="Add Row">
     <template v-slot:activator="{ props }">
-      <v-icon v-bind="props" @click="addRow()" color="green" size="42" class="pt-0 mr-10">mdi-plus-box</v-icon>
+      <v-icon v-bind="props" @click="controlTable.addRow()" color="green" size="42" class="pt-0 mr-10">mdi-plus-box</v-icon>
     </template>
     </v-tooltip>
     <!-- Input field for numbers -->
@@ -30,7 +30,7 @@
       <!-- Button next to the input field -->
       <v-icon @click="setRows"> mdi-plus-box </v-icon>
   </div>
-  <div ref="table"></div>
+  <Table></Table>
   <v-dialog v-model="dialog" persistent max-width="30vw">
     <v-card>
       <v-card-title>
@@ -94,28 +94,7 @@ import { useAluStore } from '@/store/AluStore';
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import { ref, computed, onMounted, onBeforeUnmount,watch,reactive  } from 'vue';
 import { useDebugerStore } from '@/store/DebugerStore';
-import { onBeforeMount } from 'vue';
-import { v4 as uuidv4 } from 'uuid'
-
-// Interface for control table
-interface ControlTable {
-  id: string;
-  breakpoint: boolean;
-  label: string;
-  adress: number;
-  AluSelA: any;
-  AluSelB: any;
-  MDRSel: boolean;
-  HsCs: boolean;
-  Hs_R_W: boolean;
-  AluCtrl: any;
-  registerWrite: any;
-  jump: any;
-  jumpSet: boolean;
-  next: any;
-  description: [];
-  comment: string;
-}
+import Table from './ReUsable/Table.vue'
 
 const registerStore = useRegisterStore();
 const controlTable = useControlTableStore();
@@ -133,82 +112,9 @@ const conditionalJumpIfNotZero = ref(null);
 const inputAdresse = ref<string>('');
 const numberOfRows = ref<string>('');
 
-
 const currentComment = ref('');
 const isCommentDialog = ref(false);
 
-const table = ref('table'); //reference to your table element
-const data = controlTable.controlTable;
-let tabulatorInstance:any = null;
-const tableData:any = reactive([]); //data for table to display
-
-onBeforeMount(() => {
-  tableData.push(...controlTable.controlTable);
-});
-
-onMounted(() => {
-    tabulatorInstance = new Tabulator(table.value, {
-        data: tableData, //link data to table
-        height:"90vh",
-        movableRows:true,
-        reactiveData:true, //enable data reactivity
-        columns:[
-          {title:"Adresse", field:"id"},
-          {title:"Befehl", field:"command"},
-          {title:"ALU", field:"ALU"},
-          {title:"MDR", field:"MDR"},
-          {title:"MAR", field:"MAR"},
-          {title:"IR", field:"IR"},
-          {title:"PC", field:"PC"},
-          {title:"A", field:"A"},
-          {title:"B", field:"B"},
-        ],
-      });
-});
-watch(tableData, (newData:any) => {
-  controlTable.saveTableData(newData);
-}, { deep: true });
-    
-onBeforeUnmount(() => {
-  controlTable.saveTableData(tabulatorInstance.getData());
-});
-
-function addRow(){
-    const newRow: ControlTable = {
-      id: uuidv4(),
-      breakpoint: false,
-      label: "",
-      adress: tableData.length,
-      AluSelA: null,
-      AluSelB: null,
-      MDRSel: false,
-      HsCs: false,
-      Hs_R_W: false,
-      AluCtrl: null,
-      registerWrite: [],
-      jump: null,
-      jumpSet: false,
-      next: tableData.length + 1,
-      description: [],
-      comment: "",
-    };
-
-    newRow.registerWrite = registerStore.registerOrder.map((register: any) => {
-      return { title: register.title, isActive: false};
-    });
-    tableData.push(newRow);
-    updateAdressesAndNext();
-    console.log(controlTable);
-  }
-
-  function updateAdressesAndNext() {
-    tableData.forEach((row:any, index:any) => {
-      if(!row.jumpSet){
-        row.adress = index; // Setze die Adresse auf den aktuellen Index
-        row.next = index + 1 < tableData.length ? index + 1 : -1; // Setze 'next' auf den nächsten Index oder -1, wenn es das letzte Element ist
-      }
-    });
-  }
 
 const validateNumber = (event: KeyboardEvent, field: 'inputAdresse' | 'numberOfRows') => {
   const validKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', "Backspace", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown",

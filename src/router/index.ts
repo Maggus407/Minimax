@@ -38,7 +38,6 @@ const router = createRouter({
             name: 'Alu',
             component: () => import('../components/Alu.vue'),
         }
-        
             
     ]
     })

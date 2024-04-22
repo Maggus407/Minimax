@@ -32,6 +32,7 @@
     "src/CLI/cli.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "src/**/**/*.vue",
     "vite.config.ts",
     "src/types/**/*.d.ts"  // Ensure this line covers your custom types directory
   ]

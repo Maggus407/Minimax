@@ -29,6 +29,7 @@
     <v-table
     fixed-header
     density="compact"
+    height="52vh"
     >
     <thead>
         <tr>

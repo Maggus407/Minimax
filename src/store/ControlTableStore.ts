@@ -33,6 +33,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
   const aluStore = useAluStore();
   const debuggerStore = useDebugerStore();
   const multiplexerStore = useMultiplexerStore();
+  const tabulator = ref<any>();
 
   const controlTable = reactive<ControlTable[]>([]);
 
@@ -389,6 +390,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
     aluRemoved,
     setControlTableFromImport,
     placeRowBetween,
-    saveTableData
+    saveTableData,
+    tabulator
   };
 });

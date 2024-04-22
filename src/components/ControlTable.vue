@@ -1,9 +1,9 @@
 <template>
   <!-- Schaltfläche zum Hinzufügen einer neuen Reihe -->
-  <div class="d-flex flex-row align-center">
+  <div class="d-flex flex-row align-center mb-2">
     <v-tooltip open-delay="500" text="Add Row">
     <template v-slot:activator="{ props }">
-      <v-icon v-bind="props" @click="controlTable.addRow" color="green" size="42" class="pt-0 mr-10">mdi-plus-box</v-icon>
+      <v-icon v-bind="props" @click="addRow()" color="green" size="42" class="pt-0 mr-10">mdi-plus-box</v-icon>
     </template>
     </v-tooltip>
     <!-- Input field for numbers -->
@@ -30,130 +30,7 @@
       <!-- Button next to the input field -->
       <v-icon @click="setRows"> mdi-plus-box </v-icon>
   </div>
-
-  <v-divider></v-divider>
-  <VirtualList
-    v-model="table"
-    :dataKey="'id'"
-    :handle="'#drag'"
-    style="height: 92vh;"
-    @drop="handleDrop"
-    rootTag="div" 
-    wrapTag="div" 
-    itemTag="div"  
-    class="virtual-table"
-  >
-    <template #header>
-      <div class="virtual-table-header">
-        <div v-for="header in fullHeaders" :key="header.key" class="virtual-table-header-cell">
-          {{ header.label }}
-        </div>
-      </div>
-    </template>
-    <template #item="{ record, index, dataKey }">
-      <div class="virtual-table-row">
-        <!--Breakpoint-->
-        <div class="virtual-table-cell" width="100vw" @click.stop="record.breakpoint = !record.breakpoint">
-          <v-icon v-if="record.breakpoint" color="red">mdi-record</v-icon>
-          <p v-else>&nbsp;</p>
-        </div>
-        <!--Label-->
-        <div class="virtual-table-cell">
-          <v-text-field @change="controlTable.updateTable()" v-model="record.label" dense solo-inverted hide-details></v-text-field>
-        </div>
-        <!--Adress-->
-        <div class="virtual-table-cell">
-          {{ record.adress = index }}
-        </div>
-        <div class="virtual-table-cell" @click="update(record, record.registerA)">
-          <v-select
-              :hide-details="true"
-              density="compact"
-              variant="outlined"
-              menu-icon=""
-              :items="['-', ...multiplexerStore.muxA]"
-              v-model="record.AluSelA"
-              return-object
-              @update:modelValue="update(record, null)"
-            >
-          </v-select>
-        </div>
-        <div class="virtual-table-cell" @click="update(record, record.registerB)">
-          <v-select
-              :hide-details="true"
-              density="compact"
-              variant="outlined"
-              menu-icon=""
-              :items="['-', ...multiplexerStore.muxB]"
-              v-model="record.AluSelB"
-              return-object
-              @update:modelValue="update(record, null)"
-            >
-          </v-select>
-        </div>
-        <!--MDRSel-->
-        <div class="virtual-table-cell cursor-pointer" @click.stop="update(record,null,null,'MDRSel')">{{ +record.MDRSel }}</div>
-        <!--HsCs-->
-        <div class="virtual-table-cell cursor-pointer" @click.stop="update(record,null,null,'HsCs')">{{ +record.HsCs }}</div>
-        <!--Hs_R_W-->
-        <div class="virtual-table-cell cursor-pointer" @click.stop="update(record,null,null,'Hs_R_W')">{{ +record.Hs_R_W }}</div>
-        <!--ALU-->
-        <div class="virtual-table-cell">
-          <v-select
-              :hide-details="true"
-              density="compact"
-              menu-icon=""
-              variant="outlined"
-              :items="['-', ...aluStore.aluOperationsListAdded]"
-              v-model="record.AluCtrl"
-              @update:modelValue="update(record, null)"
-            >
-            </v-select>
-        </div>
-        <!--Register-->
-        <div v-for="register in record.registerWrite" :key="register.title" class=" virtual-table-cell center pointer pr-0 pl-0 text-center" @click.stop="update(record, register)">
-                <p>{{ register.isActive ? 1 : 0 }}</p>
-        </div>
-        <!--ALU == 0?-->
-        <div class="virtual-table-cell" @click.stop="openDialog(record)">
-            <p v-if="record.jump === null">{{ record.jump !== null ?  record.jump.adress : "-"}}</p>
-            <div class="flex flex-col">
-              <p v-if="record.jump !== null && record.jumpSet === true">1</p>
-              <p v-if="record.jump !== null && record.jumpSet === true">0</p>
-            </div>
-          </div>
-          <!--Next-->
-          <div class="virtual-table-cell pr-0 pl-0 text-center">
-            <div class="flex flex-col">
-              <p v-if="record.jump !== null">{{ record.jump.adress }}</p>
-              <p v-if="true">{{ typeof record.next === 'object' && record.next !== null ? record.next.adress : record.next }}</p>
-            </div>
-          </div>
-           <!-- description -->
-           <div class="virtual-table-cell pr-0 pl-2">
-            <div v-if="record.description.length > 0">
-              <p v-for="(d, index) in record.description" :key="index">{{ d }}</p>
-            </div>
-            <div v-else>
-              <p>&nbsp;</p>
-            </div>
-          </div>
-          <!-- Aktionen -->
-          <div class=" virtual-table-cell pr-0 pl-0">
-            <div class="d-flex flex-row justify-end">
-              <v-tooltip text="Write Comment">
-                <template v-slot:activator="{ props }">
-                  <v-icon v-bind="props" class="mr-5">mdi-text-box-edit</v-icon>
-                </template>
-              </v-tooltip>
-
-              <v-icon @click.stop="controlTable.deleteRow(index)" color="red">mdi-delete</v-icon>
-            </div>
-          </div>
-          <i id="drag" class="drag">drag me</i>
-      </div>
-    </template>
-  </VirtualList>
+  <div ref="table"></div>
   <v-dialog v-model="dialog" persistent max-width="30vw">
     <v-card>
       <v-card-title>
@@ -214,9 +91,31 @@ import { useControlTableStore } from '@/store/ControlTableStore';
 import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
-import VirtualList from 'vue-virtual-draglist';
-import { ref, computed } from 'vue';
+import {TabulatorFull as Tabulator} from 'tabulator-tables';
+import { ref, computed, onMounted, onBeforeUnmount,watch,reactive  } from 'vue';
 import { useDebugerStore } from '@/store/DebugerStore';
+import { onBeforeMount } from 'vue';
+import { v4 as uuidv4 } from 'uuid'
+
+// Interface for control table
+interface ControlTable {
+  id: string;
+  breakpoint: boolean;
+  label: string;
+  adress: number;
+  AluSelA: any;
+  AluSelB: any;
+  MDRSel: boolean;
+  HsCs: boolean;
+  Hs_R_W: boolean;
+  AluCtrl: any;
+  registerWrite: any;
+  jump: any;
+  jumpSet: boolean;
+  next: any;
+  description: [];
+  comment: string;
+}
 
 const registerStore = useRegisterStore();
 const controlTable = useControlTableStore();
@@ -224,7 +123,7 @@ const multiplexerStore = useMultiplexerStore();
 const deb = useDebugerStore();
 const aluStore = useAluStore();
 
-const table = ref(controlTable.controlTable);
+//const tableData = controlTable.controlTable;
 const dialog = ref(false);
 const selectedRow = ref<any | null>(null);
 const selectedJumpType = ref('next');
@@ -234,48 +133,82 @@ const conditionalJumpIfNotZero = ref(null);
 const inputAdresse = ref<string>('');
 const numberOfRows = ref<string>('');
 
+
 const currentComment = ref('');
 const isCommentDialog = ref(false);
 
-// Definiere den Anfang des Headers bis zu "AluCtrl"
-const headers = [
-    "Br",
-    "Label",
-    "Adress",
-    "AluSelA",
-    "AluSelB",
-    "MDRSel",
-    "HsCs",
-    "Hs_R_W",
-    "AluCtrl"
-];
+const table = ref('table'); //reference to your table element
+const data = controlTable.controlTable;
+let tabulatorInstance:any = null;
+const tableData:any = reactive([]); //data for table to display
 
-// Definiere den Rest der Header nach den dynamischen Registern
-const trailingHeaders = [
-    "ALU == 0?",
-    "Next",
-    "RT-Notation",
-    "Action"
-];
+onBeforeMount(() => {
+  tableData.push(...controlTable.controlTable);
+});
 
-// Hole die Titel der Register aus dem 'registerStore'
-const registerTitles = registerStore.registerOrder.map((r:any) => r.title);
+onMounted(() => {
+    tabulatorInstance = new Tabulator(table.value, {
+        data: tableData, //link data to table
+        height:"90vh",
+        movableRows:true,
+        reactiveData:true, //enable data reactivity
+        columns:[
+          {title:"Adresse", field:"id"},
+          {title:"Befehl", field:"command"},
+          {title:"ALU", field:"ALU"},
+          {title:"MDR", field:"MDR"},
+          {title:"MAR", field:"MAR"},
+          {title:"IR", field:"IR"},
+          {title:"PC", field:"PC"},
+          {title:"A", field:"A"},
+          {title:"B", field:"B"},
+        ],
+      });
+});
+watch(tableData, (newData:any) => {
+  controlTable.saveTableData(newData);
+}, { deep: true });
+    
+onBeforeUnmount(() => {
+  controlTable.saveTableData(tabulatorInstance.getData());
+});
 
-// Füge die Register-Titel zwischen den festen Header-Teilen ein
-const fullH = headers.concat(registerTitles).concat(trailingHeaders);
-const fullHeaders = fullH.map(header => ({
-    key: header,  // Use the header as the key
-    label: header  // Use the header as the label, too
-}));
+function addRow(){
+    const newRow: ControlTable = {
+      id: uuidv4(),
+      breakpoint: false,
+      label: "",
+      adress: tableData.length,
+      AluSelA: null,
+      AluSelB: null,
+      MDRSel: false,
+      HsCs: false,
+      Hs_R_W: false,
+      AluCtrl: null,
+      registerWrite: [],
+      jump: null,
+      jumpSet: false,
+      next: tableData.length + 1,
+      description: [],
+      comment: "",
+    };
 
-console.log(fullHeaders);
+    newRow.registerWrite = registerStore.registerOrder.map((register: any) => {
+      return { title: register.title, isActive: false};
+    });
+    tableData.push(newRow);
+    updateAdressesAndNext();
+    console.log(controlTable);
+  }
 
-const handleDrop = (event: any) => {
-  console.log(event);
-  console.log('change');
-  controlTable.updateTable();
-  console.log(controlTable.controlTable);
-};
+  function updateAdressesAndNext() {
+    tableData.forEach((row:any, index:any) => {
+      if(!row.jumpSet){
+        row.adress = index; // Setze die Adresse auf den aktuellen Index
+        row.next = index + 1 < tableData.length ? index + 1 : -1; // Setze 'next' auf den nächsten Index oder -1, wenn es das letzte Element ist
+      }
+    });
+  }
 
 const validateNumber = (event: KeyboardEvent, field: 'inputAdresse' | 'numberOfRows') => {
   const validKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', "Backspace", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown",
@@ -377,15 +310,5 @@ function findRowById(adress: any) {
 .pointer{
   cursor: pointer;
 }
-.virtual-table-header, .virtual-table-row {
-  display: flex;
-}
-.virtual-table-header-cell, .virtual-table-cell {
-  
-  padding: 10px;
-  border: 1px solid #ccc;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 </style>

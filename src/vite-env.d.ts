@@ -7,5 +7,9 @@ declare module '*.vue' {
 }
 
 declare module 'vue-virtual-draglist' {
-  export const VirtualList: any; // You can replace `any` with more specific types if you know the API
+  export const VirtualList: any; 
+}
+
+declare module 'tabulator-tables'{
+  export const TabulatorFull: any;
 }

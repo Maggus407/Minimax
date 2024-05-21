@@ -33,7 +33,6 @@ export const useControlTableStore = defineStore('controlTable', () => {
   const aluStore = useAluStore();
   const debuggerStore = useDebugerStore();
   const multiplexerStore = useMultiplexerStore();
-  const tabulator = ref<any>();
 
   const controlTable = reactive<ControlTable[]>([]);
 
@@ -60,9 +59,10 @@ export const useControlTableStore = defineStore('controlTable', () => {
     newRow.registerWrite = registerStore.registerOrder.map((register: any) => {
       return { title: register.title, isActive: false};
     });
+    console.log(newRow);
     controlTable.push(newRow);
-    updateAdressesAndNext();
     console.log(controlTable);
+    updateAdressesAndNext();
   }
 
   //given a number, return the next row with that id
@@ -391,6 +391,5 @@ export const useControlTableStore = defineStore('controlTable', () => {
     setControlTableFromImport,
     placeRowBetween,
     saveTableData,
-    tabulator
   };
 });

@@ -62,6 +62,7 @@
               <v-btn @click="toggleTheme" icon="mdi-theme-light-dark" class="mr-5"/>
               <v-select v-model="selectedLanguage" :items="languages" label="Language"></v-select>
             </v-container>
+            <!--Tester-->
     </v-navigation-drawer>
 
       <!-- Alert Benachrichtigung -->
@@ -90,11 +91,13 @@ import { useI18n } from 'vue-i18n';
 import { useExport } from '../Import-Export/Export';
 import { useImport } from '../Import-Export/Import';
 import {useGlobalStore } from '@/store/GlobalOperations';
+import { useControlTableStore } from '@/store/ControlTableStore';
 import { watch } from 'vue';
 
 const exportStore = useExport();
 const importStore = useImport();
 const globalStore = useGlobalStore();
+const controlTable = useControlTableStore();
 
 const fileInput = ref<File[]>([]);
 const exportCheck = ref(false);

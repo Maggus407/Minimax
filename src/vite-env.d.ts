@@ -9,7 +9,3 @@ declare module '*.vue' {
 declare module 'vue-virtual-draglist' {
   export const VirtualList: any; 
 }
-
-declare module 'tabulator-tables'{
-  export const TabulatorFull: any;
-}

@@ -91,8 +91,7 @@ import { useControlTableStore } from '@/store/ControlTableStore';
 import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
-import {TabulatorFull as Tabulator} from 'tabulator-tables';
-import { ref, computed, onMounted, onBeforeUnmount,watch,reactive  } from 'vue';
+import { ref, computed} from 'vue';
 import { useDebugerStore } from '@/store/DebugerStore';
 import Table from './ReUsable/Table.vue'
 

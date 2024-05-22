@@ -225,7 +225,6 @@ import { useControlTableStore } from '@/store/ControlTableStore';
 import { useRegisterStore } from '@/store/RegisterStore';
 import { useMultiplexerStore } from '@/store/MultiplexerStore';
 import { useAluStore } from '@/store/AluStore';
-import VirtualList from 'vue-virtual-draglist';
 import draggable from 'vuedraggable';
 import { ref, computed } from 'vue';
 import { useDebugerStore } from '@/store/DebugerStore';

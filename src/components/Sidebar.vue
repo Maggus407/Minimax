@@ -24,14 +24,13 @@
                 <v-btn :disabled="name == ''" class="ml-3 mt-1" icon="mdi-content-save" @click="quickSave"></v-btn>
               </div>
               <div width="100%" class="d-flex flex-col">
-                <v-select variant="outlined" :items="['-', ...globalStore.quickSaves]" v-model="snapshot" return-object placeholder="Load QuickSaves" @update:modelValue="loadQuickSave">
+                <v-select variant="outlined" :items="[...globalStore.quickSaves]" v-model="snapshot" return-object placeholder="Load QuickSaves" @update:modelValue="loadQuickSave">
                   <!--TODO: Delete Option-->
                   <template v-slot:item="{ item, index }">
                       <v-list-item @click="selectItem(item)">
                         <div class="d-flex flex-col justify-space-between align-center">
                           <p>{{ item.title }}</p>
                           <v-icon
-                            v-if="item.title != '-'"
                             color="red"
                             @click.stop="deleteQuickSave(index)"
                             >mdi-delete</v-icon
@@ -48,12 +47,10 @@
           <v-container  class="pt-0 pb-0">
             <div width="100%" class="d-flex flex-col mt-5">
               <v-select variant="outlined" :items="itemsExport" v-model="currentExport" label="Export as..."></v-select>
-              <v-btn :disabled="exportCheck == false || currentExport == '-'" class="ml-3 mt-1" @click="exportData" icon="mdi-export"/>
             </div>
-            <!--Import-->
+
             <div class="d-flex flex-row">
               <v-file-input v-model="fileInput" variant="outlined" prepend-icon="" label="Import"></v-file-input>
-              <v-btn class="ml-3 mt-1" @click="importData" icon="mdi-import" :disabled="fileInput.length === 0"><v-icon>mdi-import</v-icon></v-btn>
             </div>
           </v-container>
           <v-divider/>
@@ -103,6 +100,7 @@ const selectedLanguage = ref<string>('de');
 const name = ref<string>('');
 const snapshot = ref<any>('');
 
+let isResetting = false;
 
 
 // Beobachten Sie die isImported ref und setzen Sie sie nach 2 Sekunden zurück
@@ -111,6 +109,19 @@ watch(() => importStore.isImported, (newValue) => {
     setTimeout(() => {
       importStore.isImported = false;
     }, 2000); // 2000 Millisekunden = 2 Sekunden
+  }
+});
+
+watch(() => fileInput.value, () => {
+  importData();
+})
+
+watch(() => currentExport.value, () => {
+  if (!isResetting) {
+    exportData();
+  } else {
+    // Reset the flag after the value is reset
+    isResetting = false;
   }
 });
 
@@ -141,7 +152,7 @@ watch(selectedLanguage, (newValue) => {
 
 const theme = useTheme();
 
-const itemsExport = ['-','.zip', 'machine.json', 'signal.json'];
+const itemsExport = ['.zip', 'machine.json', 'signal.json'];
 
 function toggleTheme() {
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
@@ -191,6 +202,9 @@ function exportData() {
       exportStore.exportSignal();
       break;
   }
+    // Set the flag to true before resetting
+    isResetting = true;
+  currentExport.value = ''; // Reset the value
 }
 
 function importData() {
@@ -207,11 +221,8 @@ function importData() {
 
 // Funktion zum Löschen eines QuickSaves
 function deleteQuickSave(index:any) {
-  // Hinweis: Die erste Option ist "-", daher ist der echte Index im Array um eins verschoben
-  if (index > 0) {
-    globalStore.quickSaves.splice(index - 1, 1);
-    snapshot.value = '-';
-  }
+    globalStore.quickSaves.splice(index, 1);
+    snapshot.value = '';
 }
 
 function selectItem(item:any) {

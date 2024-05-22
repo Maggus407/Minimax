@@ -39,7 +39,6 @@
             :item-value="item => item"
             :label="$t('mux.register_choose')"
             v-model="selectedRegister"
-            clearable
           ></v-select>
           <v-radio :label="$t('generell.number')" value="number"></v-radio>
           <!-- Eingabefeld für Zahlen, wenn 'number' ausgewählt ist -->
@@ -54,7 +53,6 @@
           <div class="d-flex flex-row justify-space-between">
             <v-btn class="button-large" @click="addToMux('A')" prepend-icon="mdi-arrow-left">MUX A</v-btn>
             <v-btn 
-              v-if="isEditedElementNumber && editedElement"
               class="button-large"
               @click="saveChanges"
             >
@@ -131,11 +129,11 @@ const listMuxA = muxStore.muxA;
 // Daten für das Dropdown-Menü
 const registers = registerStore.registerOrder.filter((register:any) => register.title !== 'MAR');
 const selectType = ref('register');
-const selectedRegister = ref(null);
+const selectedRegister:any = ref(null);
 const numberInput = ref(0);
 
 //Values for editing existing elements-Value
-const editedElement = ref(null);
+const editedElement:any = ref(null);
 const isEditedElementNumber = ref(false);
 
 function addToMux(mux: string) {
@@ -179,16 +177,26 @@ function editElement(mux: string, element: any) {
     // Wenn das Element ein Register ist, aktualisiere selectedRegister
     selectType.value = 'register';
     selectedRegister.value = element; // Setze selectedRegister auf das ganze Objekt
-
+    editedElement.value = element
+    console.log(element)
   }
 }
 
 function saveChanges() {
+  console.log(editedElement.value)
   if(editedElement.value){
-    if (editedElement.value) {
-      (editedElement.value as { title: string }).title = numberInput.value.toString();
+    if(isNumber(editedElement.value.title)){
+      if (editedElement.value) {
+        (editedElement.value as { title: string }).title = numberInput.value.toString();
+        (editedElement.value as { Value: number }).Value = Number(numberInput.value);
+      }
+    }else{
+      console.log("test")
+      if(selectedRegister.value != null){
+        editedElement.value.title = selectedRegister.value.title;
+        editedElement.value.Description = selectedRegister.value.Description;
+      }
     }
-    (editedElement.value as { Value: number }).Value = Number(numberInput.value);
   }
   controlTableStore.updateTable();
 }

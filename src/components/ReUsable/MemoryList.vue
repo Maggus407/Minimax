@@ -55,7 +55,7 @@
       <tr
         v-for="(item, index) in memStore.getMemory()"
         :key="item.name"
-        :class="{ 'marked-row': isMarkedRow(getCurrentPage(index)) }"
+        :class="{ 'marked-row': index == markedAddress }"
         @dblclick="selectItem(item, index)"
       >
         <td style="width: 20%; text-align: center;" class="pl-0">{{ getCurrentPage(index) < 16777216 ? toHex(getCurrentPage(index)) : '' }}</td>
@@ -66,6 +66,7 @@
           <v-icon v-if="getCurrentPage(index) < 16777216" small @click="selectItem(item, index)">mdi-pencil</v-icon>
         </td>
       </tr>
+
     </tbody>
 </v-table>
     <v-card-text class="text-center py-2 text-lg">
@@ -102,9 +103,20 @@
 import { useMemoryStore } from '@/store/MemoryStore';
 import { ref, computed } from 'vue';
 import Dec_Hex_Bin_Inputs from './Dec_Hex_Bin_Inputs.vue';
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted,watch } from 'vue';
 
 const model = ref(false);
+const memStore = useMemoryStore();
+const jumpAddress = ref("");
+
+const markedAddress = ref(-1); // -1 bedeutet, dass keine Adresse markiert ist
+
+// Zustand für die Detailansicht
+const selectedItem = ref({ index: 0, value: 0 });
+const newItemValueDec = ref('');
+const newItemValueHex = ref('');
+const newItemValueBin = ref('');
+const detailViewVisible = ref(false);
 
 function calculatePageSize() {
   // Beispiel zur Berechnung der Seitengröße basierend auf der Fensterbreite
@@ -141,40 +153,34 @@ const props = defineProps({
     }
 });
 
-const memStore = useMemoryStore();
-const jumpAddress = ref("");
-
-const markedAddress = ref(-1); // -1 bedeutet, dass keine Adresse markiert ist
-
-// Zustand für die Detailansicht
-const selectedItem = ref({ index: 0, value: 0 });
-const newItemValueDec = ref('');
-const newItemValueHex = ref('');
-const newItemValueBin = ref('');
-const detailViewVisible = ref(false);
-
 // Funktion zum Auswählen eines Elements
 const selectItem = (item: any, index: any) => {
+  markedAddress.value = index; // Setze die Markierung
   selectedItem.value = { index, value: item };
   newItemValueDec.value = ''; // Zurücksetzen des neuen Wertes
   detailViewVisible.value = true;
 };
 
-const cancel = () =>{
-  newItemValueDec.value = ''
-  newItemValueHex.value = ''
-  newItemValueBin.value = ''
+const cancel = () => {
+  newItemValueDec.value = '';
+  newItemValueHex.value = '';
+  newItemValueBin.value = '';
   detailViewVisible.value = false;
-}
+};
 
-// Funktion zum Aktualisieren des Elements
 const updateItem = () => {
   if (selectedItem.value.index !== null) {
-    // Aktualisieren Sie den Wert im Speicher
     memStore.updateMemory(getCurrentPage(selectedItem.value.index), parseInt(newItemValueDec.value));
     detailViewVisible.value = false;
   }
 };
+
+// Beobachte den Zustand des Dialogs und entferne die Markierung, wenn der Dialog geschlossen wird
+watch(detailViewVisible, (newVal) => {
+  if (!newVal) {
+    markedAddress.value = -1; // Entferne die Markierung
+  }
+});
 
 let page = ref(1); // Hier definieren wir die lokale Referenz 'page'
 if (props.mode === "memory") {
@@ -210,10 +216,6 @@ function goToFirstPage() {
 function goToLastPage() {
   page.value = totalPages.value; // Gehen Sie zur letzten Seite
   memStore.setMemoryPage(page.value); // Aktualisieren des Werts im Store
-}
-
-function isMarkedRow(addressIndex: number) {
-  return addressIndex === markedAddress.value;
 }
 
 function goToAddress() {
@@ -309,6 +311,6 @@ function handleWheel(event: WheelEvent) {
 }
 
 .marked-row {
-  background-color: #f0f0f0; /* Ihre bevorzugte Farbe für die Hervorhebung */
+  background-color: #1867C0; /* Ihre bevorzugte Farbe für die Hervorhebung */
 }
 </style>

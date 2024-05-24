@@ -4,7 +4,6 @@ import { useAluStore } from '../store/AluStore.ts';
 import { useRegisterStore } from '../store/RegisterStore.ts';
 import { useDebugerStore } from '../store/DebugerStore.ts';
 import { useMultiplexerStore } from './MultiplexerStore.ts';
-import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import { v4 as uuidv4 } from 'uuid'
 
 // Interface for control table

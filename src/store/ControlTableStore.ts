@@ -113,10 +113,12 @@ export const useControlTableStore = defineStore('controlTable', () => {
     updateAdressesAndNext();
   }
 
-  // Berechnete Eigenschaft für Zeilen mit gesetztem Label
-  function rowsForSelection() {
-    return controlTable.find((row, index) => row.label !== '')
-  }
+// Berechnete Eigenschaft für Zeilen mit gesetztem Label
+function rowsForSelection(): { title: string; value: number }[] {
+  return controlTable
+    .filter(row => row.label !== '' && row.label !== undefined && row.label !== null)
+    .map(row => ({ title: row.label, value: row.adress }));
+}
 
   function showTableConsole(){
     console.log(controlTable);

@@ -71,7 +71,6 @@ const onChange = (event: any) => {
   position: sticky;
   top: 0;
   z-index: 10; /* Erhöhe den z-index */
-  background-color: white; /* Hintergrundfarbe, um sicherzustellen, dass der Text sichtbar bleibt */
 }
 
 </style>

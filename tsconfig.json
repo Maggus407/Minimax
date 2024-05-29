@@ -30,6 +30,7 @@
     "src/**/*.js",
     "*.js",
     "src/components/*.vue",
+    "src/components/CT-Components/*.vue",
     "src/CLI/cli.ts",
     "src/**/*.tsx",
     "src/**/*.vue",

@@ -130,6 +130,9 @@ function createData_For_signal() {
               "cond1-target": row.jump.adress.toString()
           };
       }
+      if(row.comment) {
+        rowEntry["comment"] = row.comment
+      }
 
       signalTable.signaltable.row.push(rowEntry);
   });

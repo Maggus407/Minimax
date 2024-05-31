@@ -39,136 +39,126 @@
   >
       <thead>
           <tr>
-            <th class="center pr-0 pl-2">Br</th>
-            <th class="center pr-0 pl-1 text-center">Label</th>
-            <th class="center pr-0 pl-1 text-center">Adress</th>
-            <th class="center pr-0 pl-1 text-center">AluSelA</th>
-            <th class="center pr-0 pl-1 text-center">AluSelB</th>
-            <th class="center pr-0 pl-1 text-center">MDRSel</th>
-            <th class="center pr-0 pl-1 text-center">HsCs</th>
-            <th class="center pr-0 pl-1 text-center">Hs_R_W</th>
-            <th class="center pr-0 pl-1 text-center">AluCtrl</th>
-            <th v-for="r in registerStore.registerOrder" :key="r.title" class="pr-0 pl-1 text-center">
-                {{ r.title }}
-            </th>
-            <th class="center pr-0 pl-1 text-center">ALU == 0?</th>
-            <th class="center pr-0 pl-1 text-center">Next</th>
-            <th class="center pr-0 pl-2">RT-Notation</th>
-            <th class="center pr-0 pl-1 text-center">Aktionen</th>
+              <th class="center pr-0 pl-2">Br</th>
+              <th class="center pr-0 pl-1 text-center">Label</th>
+              <th class="center pr-0 pl-1 text-center">Adress</th>
+              <th class="center pr-0 pl-1 text-center">AluSelA</th>
+              <th class="center pr-0 pl-1 text-center">AluSelB</th>
+              <th class="center pr-0 pl-1 text-center">MDRSel</th>
+              <th class="center pr-0 pl-1 text-center">HsCs</th>
+              <th class="center pr-0 pl-1 text-center">Hs_R_W</th>
+              <th class="center pr-0 pl-1 text-center">AluCtrl</th>
+              <th v-for="r in registerStore.registerOrder" :key="r.title" class="pr-0 pl-1 text-center">
+                  {{ r.title }}
+              </th>
+              <th class="center pr-0 pl-1 text-center">ALU == 0?</th>
+              <th class="center pr-0 pl-1 text-center">Next</th>
+              <th class="center pr-0 pl-2">RT-Notation</th>
+              <th class="center pr-0 pl-1 text-center">Aktionen</th>
           </tr>
         </thead>
         <tbody>
           <tr :style="aboveItemsStyle">
           </tr>
-            <tr v-for="(element, index) in viewingItems" :key="element.id">
-              <!--Breakpoint-->
-              <td width="50vw" @click.stop="element.breakpoint = !element.breakpoint" class="pr-0 pl-2">
-                <v-icon v-if="element.breakpoint" color="red">mdi-record</v-icon>
-                <p v-else>&nbsp;</p>
-              </td>
-              <!--Label-->
-              <td class="pr-0 pl-0" width="130vw">
-                <v-text-field @change="controlTable.updateTable()" v-model="element.label" dense solo-inverted hide-details></v-text-field>
-              </td>
-              <!--Adress-->
-              <td class="text-center pr-0 pl-0">{{ element.adress }}</td>
-              <!--AluSelA-->
-              <td width="130vw">
-                <v-select
-                  :hide-details="true"
-                  density="compact"
-                  variant="outlined"
-                  menu-icon=""
-                  :items="['-', ...multiplexerStore.muxA]"
-                  v-model="element.AluSelA"
-                  return-object
-                  @update:modelValue="update(element, null)"
-                >
-                </v-select>
-              </td>
-              <!--AluSelB-->
-              <td width="130vw">
-                <v-select
-                  :hide-details="true"
-                  density="compact"
-                  variant="outlined"
-                  menu-icon=""
-                  :items="['-', ...multiplexerStore.muxB]"
-                  v-model="element.AluSelB"
-                  return-object
-                  @update:modelValue="update(element, null)"
-                >
-                </v-select>
-              </td>
-              <!--MDRSel-->
-              <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'MDRSel')">{{ +element.MDRSel }}</td>
-              <!--HsCs-->
-              <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'HsCs')">{{ +element.HsCs }}</td>
-              <!--Hs_R_W-->
-              <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
-              <!--AluCtrl-->
-              <td width="170vw">
-                <v-select
-                  :hide-details="true"
-                  density="compact"
-                  menu-icon=""
-                  variant="outlined"
-                  :items="['-', ...aluStore.aluOperationsListAdded]"
-                  v-model="element.AluCtrl"
-                  @update:modelValue="update(element, null)"
-                >
-                </v-select>
-              </td>
-              <!--Register-->
-              <td v-for="register in element.registerWrite" :key="register.title" class="center pointer pr-0 pl-0 text-center" @click.stop="update(element, register)">
-                    <p>{{ register.isActive ? 1 : 0 }}</p>
-              </td>
-              <!-- ALU == 0? -->
-              <td @click.stop="openDialog(element)">
-                <p v-if="element.jump === null">{{ element.jump !== null ?  element.jump.adress : "-"}}</p>
-                <div class="flex flex-col">
-                  <p v-if="element.jump !== null && element.jumpSet === true">1</p>
-                  <p v-if="element.jump !== null && element.jumpSet === true">0</p>
-                </div>
-              </td>
-              <!-- next -->
-              <td class="pr-0 pl-0 text-center">
-                <div class="flex flex-col">
-                  <p v-if="element.jump !== null">{{ element.jump.adress }}</p>
-                  <p v-if="true">{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</p>
-                </div>
-              </td>
-              <!-- description -->
-              <td class="pr-0 pl-2" width="200vw">
-                <div v-if="element.description.length > 0">
-                  <p v-for="(d, index) in element.description" :key="index">{{ d }}</p>
-                </div>
-                <div v-else>
-                  <p>&nbsp;</p>
-                </div>
-              </td>
-              <!-- Aktionen -->
-              <td class="pr-0 pl-0">
-                <div class="d-flex flex-row justify-end">
-                  <v-tooltip text="Write Comment">
-                    <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" @click.stop="toggleTextarea(index)" class="mr-5">mdi-text-box-edit</v-icon>
-                    </template>
-                  </v-tooltip>
-                  <v-icon @click.stop="controlTable.deleteRow(index)" color="red">mdi-delete</v-icon>
-                </div>
-              </td>
-                <td v-if="showTextareaIndex === index" :colspan="14">
-                  <v-textarea
-                    v-model="element.comment"
-                    auto-grow
-                    outlined
-                    rows="1"
-                    row-height="25"
-                    placeholder="Write a comment"
-                  ></v-textarea>
+              <tr v-for="(element, index) in viewingItems" :key="element.id">
+                <!--Breakpoint-->
+                <td width="50vw" @click.stop="element.breakpoint = !element.breakpoint" class="pr-0 pl-2">
+                  <v-icon v-if="element.breakpoint" color="red">mdi-record</v-icon>
+                  <p v-else>&nbsp;</p>
                 </td>
-            </tr>
+                <!--Label-->
+                <td class="pr-0 pl-0" width="130vw">
+                  <v-text-field @change="controlTable.updateTable()" v-model="element.label" dense solo-inverted hide-details></v-text-field>
+                </td>
+                <!--Adress-->
+                <td class="text-center pr-0 pl-0">{{ element.adress }}</td>
+                <!--AluSelA-->
+                <td width="130vw">
+                  <v-select
+                    :hide-details="true"
+                    density="compact"
+                    variant="outlined"
+                    menu-icon=""
+                    :items="['-', ...multiplexerStore.muxA]"
+                    v-model="element.AluSelA"
+                    return-object
+                    @update:modelValue="update(element, null)"
+                  >
+                  </v-select>
+                </td>
+                <!--AluSelB-->
+                <td width="130vw">
+                  <v-select
+                    :hide-details="true"
+                    density="compact"
+                    variant="outlined"
+                    menu-icon=""
+                    :items="['-', ...multiplexerStore.muxB]"
+                    v-model="element.AluSelB"
+                    return-object
+                    @update:modelValue="update(element, null)"
+                  >
+                  </v-select>
+                </td>
+                <!--MDRSel-->
+                <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'MDRSel')">{{ +element.MDRSel }}</td>
+                <!--HsCs-->
+                <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'HsCs')">{{ +element.HsCs }}</td>
+                <!--Hs_R_W-->
+                <td class="text-center pr-0 pl-0 pointer" @click.stop="update(element,null,null,'Hs_R_W')">{{ +element.Hs_R_W }}</td>
+                <!--AluCtrl-->
+                <td width="170vw">
+                  <v-select
+                    :hide-details="true"
+                    density="compact"
+                    menu-icon=""
+                    variant="outlined"
+                    :items="['-', ...aluStore.aluOperationsListAdded]"
+                    v-model="element.AluCtrl"
+                    @update:modelValue="update(element, null)"
+                  >
+                  </v-select>
+                </td>
+                <!--Register-->
+                <td v-for="register in element.registerWrite" :key="register.title" class="center pointer pr-0 pl-0 text-center" @click.stop="update(element, register)">
+                      <p>{{ register.isActive ? 1 : 0 }}</p>
+                </td>
+                <!-- ALU == 0? -->
+                <td @click.stop="openDialog(element)">
+                  <p v-if="element.jump === null">{{ element.jump !== null ?  element.jump.adress : "-"}}</p>
+                  <div class="flex flex-col">
+                    <p v-if="element.jump !== null && element.jumpSet === true">1</p>
+                    <p v-if="element.jump !== null && element.jumpSet === true">0</p>
+                  </div>
+                </td>
+                <!-- next -->
+                <td class="pr-0 pl-0 text-center">
+                  <div class="flex flex-col">
+                    <p v-if="element.jump !== null">{{ element.jump.adress || -1 }}</p>
+                    <p v-if="true">{{ typeof element.next === 'object' && element.next !== null ? element.next.adress : element.next }}</p>
+                  </div>
+                </td>
+                <!-- description -->
+                <td class="pr-0 pl-2" width="200vw">
+                  <div v-if="element.description.length > 0">
+                    <p v-for="(d, index) in element.description" :key="index" v-html="highlightQuestionMarks(d)"></p>
+                  </div>
+                  <div v-else>
+                    <p>&nbsp;</p>
+                  </div>
+                </td>
+                <!-- Aktionen -->
+                <td class="pr-0 pl-0">
+                  <div class="d-flex flex-row justify-end">
+                    <v-tooltip text="Write Comment">
+                      <template v-slot:activator="{ props }">
+                        <v-icon v-bind="props" @click.stop="toggleTextarea(element)" class="mr-5">mdi-text-box-edit</v-icon>
+                      </template>
+                    </v-tooltip>
+                    <v-icon @click.stop="controlTable.deleteRow(index)" color="red">mdi-delete</v-icon>
+                  </div>
+                </td>
+              </tr>
           <tr :style="belowItemsStyle">
           </tr>
         </tbody>
@@ -260,6 +250,25 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog
+      v-model="dialogComment"
+      max-width="30vw"
+      persistent
+    >
+      <v-card
+        prepend-icon="mdi-text-box-edit"
+        title="Comments"
+      >
+        <template v-slot:actions>
+          <v-btn
+            class="ms-auto"
+            text="Ok"
+            @click="closecommentDialog()"
+          ></v-btn>
+        </template>
+        <v-textarea class="pa-3" v-model="currentComment" clearable label="Comment" variant="outlined"></v-textarea>
+      </v-card>
+    </v-dialog>
     </div>
 </template>
 
@@ -279,7 +288,6 @@ const deb = useDebugerStore();
 const aluStore = useAluStore();
 
 const items = controlTable.controlTable
-const dialog = ref(false);
 const selectedRow = ref<any | null>(null);
 const selectedJumpType = ref('next');
 
@@ -287,7 +295,8 @@ const inputAdresse = ref<string>('');
 const numberOfRows = ref<string>('');
 
 const currentComment = ref('');
-const isCommentDialog = ref(false);
+const dialog = ref(false);
+const dialogComment = ref(false);
 
 const unconditionalJump:any = ref(null);
 const conditionalJumpIfZero:any = ref(null);
@@ -316,6 +325,19 @@ watch(cond_IfNotZeroObject, (newValue) => {
     conditionalJumpIfNotZero.value = newValue.value;
   }
 });
+
+const highlightQuestionMarks = (str:any) => {
+  const regex = /(\?\?\?)/g
+  const parts = str.split(regex)
+
+  return parts.map((part:any, index:any) => {
+    if (part.match(regex)) {
+      return `<span style="color: red;">${part}</span>`
+    } else {
+      return part
+    }
+  }).join('')
+}
 
 const validateNumber = (event: KeyboardEvent, field: 'inputAdresse' | 'numberOfRows') => {
   const validKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', "Backspace", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown",
@@ -350,21 +372,24 @@ function setRows(){
   }
 }
 
-// Variable to track the currently displayed textarea index
-const showTextareaIndex = ref<number | null>(null);
 // Function to toggle the textarea
-const toggleTextarea = (index: number) => {
-  if (showTextareaIndex.value === index) {
-    showTextareaIndex.value = null;
-  } else {
-    showTextareaIndex.value = index;
-  }
+const toggleTextarea = (element: any) => {
+  dialogComment.value = true;
+  selectedRow.value = element;
+  currentComment.value = element.comment;
 };
+
+function closecommentDialog(){
+  selectedRow.value.comment = currentComment.value;
+  dialogComment.value = false;
+  console.log(selectedRow.value)
+  selectedRow.value = null;
+}
 
 const rowsForSelection = computed(() => {
   return controlTable.controlTable
-    .filter(row => row.label !== '' && row.label !== undefined && row.label !== null)
-    .map(row => ({ title: row.label, value: row.adress, displayText: `${row.label} (${row.adress})` }))
+    .filter((row:any) => row.label !== '' && row.label !== undefined && row.label !== null)
+    .map((row:any) => ({ title: row.label, value: row.adress, displayText: `${row.label} (${row.adress})` }))
 })
 
 // Formatierte Elemente für v-select
@@ -487,8 +512,7 @@ const viewingStartIndex = computed(() => {
 })
 
 const viewingItems = computed(() => {
-  let endIndex = Math.ceil((scrollY.value + viewableHeight.value) / rowHeight) + 10
-  console.log(endIndex)
+  let endIndex = Math.ceil((scrollY.value + viewableHeight.value) / rowHeight)
   if (endIndex > items.length) {
     endIndex = items.length
   }
@@ -528,6 +552,10 @@ const tableScrolled = (e: any) => {
 <style lang="scss" scoped>
 .pointer{
   cursor: pointer;
+}
+
+.red {
+  color: red;
 }
 
 .scrollable {

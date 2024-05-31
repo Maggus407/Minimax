@@ -64,14 +64,14 @@ export const useControlTableStore = defineStore('controlTable', () => {
 
   //given a number, return the next row with that id
   function getNextRowById(adress: number) {
-    let row = controlTable.find((row) => row.adress == adress);
+    let row = controlTable.find((row:any) => row.adress == adress);
     //console.log("ROW: "+ row);
     return row;
   }
 
   //remove Register from writable register in control table
   function updateRemovedRegisterInCT(register: string){
-    controlTable.forEach((row) => {
+    controlTable.forEach((row:any) => {
       row.AluSelA?.title === register ? row.AluSelA = null : null;
       row.AluSelB?.title === register ? row.AluSelB = null : null;
       row.registerWrite = row.registerWrite.filter((reg: any) => reg.title !== register);
@@ -80,7 +80,7 @@ export const useControlTableStore = defineStore('controlTable', () => {
   }
 
   function updateCTAddedRegister(register: string){
-    controlTable.forEach((row) => {
+    controlTable.forEach((row:any) => {
       row.registerWrite.push({title: register, isActive: false});
     });
   }
@@ -116,8 +116,8 @@ export const useControlTableStore = defineStore('controlTable', () => {
 // Berechnete Eigenschaft für Zeilen mit gesetztem Label
 function rowsForSelection(): { title: string; value: number }[] {
   return controlTable
-    .filter(row => row.label !== '' && row.label !== undefined && row.label !== null)
-    .map(row => ({ title: row.label, value: row.adress }));
+    .filter((row:any) => row.label !== '' && row.label !== undefined && row.label !== null)
+    .map((row:any) => ({ title: row.label, value: row.adress }));
 }
 
   function showTableConsole(){
@@ -126,7 +126,7 @@ function rowsForSelection(): { title: string; value: number }[] {
   }
 
   function updateAdressesAndNext() {
-    controlTable.forEach((row, index) => {
+    controlTable.forEach((row:any, index:any) => {
       if(!row.jumpSet){
         row.adress = index; // Setze die Adresse auf den aktuellen Index
         row.next = index + 1 < controlTable.length ? index + 1 : -1; // Setze 'next' auf den nächsten Index oder -1, wenn es das letzte Element ist
@@ -138,7 +138,7 @@ function rowsForSelection(): { title: string; value: number }[] {
     console.log("updateTable");
     updateAdressesAndNext();
     rowsForSelection();
-    controlTable.forEach((row) => {
+    controlTable.forEach((row:any) => {
       create_RT_Notation(row);
     });
     debuggerStore.executing = false;
@@ -146,7 +146,7 @@ function rowsForSelection(): { title: string; value: number }[] {
   }
 
   function aluRemoved(alu: string){
-    controlTable.forEach((row) => {
+    controlTable.forEach((row:any) => {
       if(row.AluCtrl === alu){
         row.AluCtrl = null;
       }
@@ -214,7 +214,7 @@ function rowsForSelection(): { title: string; value: number }[] {
         const deletedRowId = controlTable[index].id;
   
         // Gehe durch alle Zeilen und aktualisiere die 'jump' und 'next' Werte, falls nötig
-        controlTable.forEach(row => {
+        controlTable.forEach((row:any) => {
           // Überprüfe, ob 'jump' oder 'next' die gelöschte Zeile referenzieren
           if (row.jump !== null && row.jump.id === deletedRowId) {
             row.jump = -1; // Oder einen anderen geeigneten Wert
@@ -224,8 +224,9 @@ function rowsForSelection(): { title: string; value: number }[] {
           }
         });
     // Lösche die Zeile aus dem Array
+    console.log(controlTable)
     controlTable.splice(index, 1);
-  
+    console.log(controlTable)
     // Aktualisiere die Adressen und 'next'-Werte aller Zeilen
     updateAdressesAndNext();
   }
@@ -251,10 +252,15 @@ function rowsForSelection(): { title: string; value: number }[] {
       let AluCtrl = null;
       let registerWrite: any;
       let description:any;
+      let comment:any;
 
       //console.log(row);
       if(row.label){
         label = row.label;
+      }
+      if(row['comment']){
+        comment = row.comment;
+        console.log(row.comment);
       }
       if (row['unconditional-jump']) {
         jumpSet = true;
@@ -311,18 +317,19 @@ function rowsForSelection(): { title: string; value: number }[] {
         jumpSet: jumpSet,
         next: next != null ? next : controlTable.length + 1,
         description: [],
-        comment: "",
+        comment: comment,
       };
       controlTable.push(newRow);
     });
     //console.log(controlTable);
     updateTable();
     setJumps();
+    console.log(controlTable);
   }
 
   //Remove the next, jump Number with the controlTable Object with the Index IF jumpSet is True
   function setJumps() {
-    controlTable.forEach((row, index) => {
+    controlTable.forEach((row:any, index:any) => {
       if (row.jumpSet) {
         // Überprüfen, ob 'next' eine Nummer ist
         const nextIndex = parseInt(row.next);

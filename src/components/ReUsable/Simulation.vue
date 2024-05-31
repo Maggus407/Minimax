@@ -83,7 +83,7 @@
           </td>
           <td>
             <div v-if="data.description.length > 0">
-                <p v-for="(d, index) in data.description" :key="index">{{ d }}</p>
+              <p v-for="(d, index) in data.description" :key="index" v-html="highlightQuestionMarks(d)"></p>
               </div>
               <div v-else>
                 <p>&nbsp;</p>
@@ -131,6 +131,19 @@ function refresh() {
   debuggerStore.executing = true;
   debuggerStore.start();
   memoryStore.setInitialMemory();
+}
+
+const highlightQuestionMarks = (str:any) => {
+  const regex = /(\?\?\?)/g
+  const parts = str.split(regex)
+
+  return parts.map((part:any, index:any) => {
+    if (part.match(regex)) {
+      return `<span style="color: red;">${part}</span>`
+    } else {
+      return part
+    }
+  }).join('')
 }
 
 function step() {

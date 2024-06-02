@@ -6,14 +6,9 @@
     </template>
 
     <template #center>
-      <div class="flex-auto">
-          <label for="minmax" class="font-bold block mb-2"> Start address: </label>
-          <input variant="filled" type="number" placeholder="Start address:"  class="mr-3" :class="toolbar" v-model="inputAdresse" inputId="minmax" :min="0" :max="items.length == 0 ? 0 : items.length - 1" />
-    </div>
-    <div class="flex-auto">
-        <label for="minmax" class="font-bold block mb-2">#Rows to add: </label>
-        <input class="mr-3" type="number" :class="toolbar" v-model="numberOfRows" inputId="minmax" :min="0" :max="100" />
-      </div>
+        <input variant="filled" type="number" placeholder="Start address insert:" :class="toolbar" v-model="inputAdresse" inputId="minmax" :min="0" :max="items.length == 0 ? 0 : items.length - 1" />
+        <span>-</span>
+        <input class="mr-3" type="number" placeholder="#Rows to add" :class="toolbar" v-model="numberOfRows" inputId="minmax" />
       <v-btn @click="setRows" color="success"> ADD </v-btn>
     </template>
 
@@ -280,8 +275,8 @@ const items = controlTable.controlTable
 const selectedRow = ref<any | null>(null);
 const selectedJumpType = ref('next');
 
-const inputAdresse = ref<number>(0);
-const numberOfRows = ref<number>(0);
+const inputAdresse = ref<any>();
+const numberOfRows = ref<any>();
 
 const currentComment = ref('');
 const dialog = ref(false);
@@ -571,19 +566,16 @@ thead {
   color: #ffffff; /* Helle Schriftfarbe */
 }
 .dark-input {
-    width: 5vw;
+    width: 9vw;
     border: 1px solid;
     border-radius: 4px; /* Leicht abgerundete Ecken */
 }
 
 .light-input{
-  width: 5vw;
+  width: 9vw;
   border: 1px solid;
   border-radius: 4px; /* Leicht abgerundete Ecken */
 }
 
-.has-comment {
-  color: #0ed1d8; /* Farbe ändern, wenn Kommentar vorhanden ist */
-}
 
 </style>

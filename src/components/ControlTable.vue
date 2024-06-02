@@ -7,12 +7,12 @@
 
     <template #center>
       <div class="flex-auto">
-        <label for="minmax" class="font-bold block mb-2"> Start address: </label>
-      <input class="mr-3" :class="toolbar" v-model="inputAdresse" inputId="minmax" :min="0" :max="items.length == 0 ? 0 : items.length - 1" />
+          <label for="minmax" class="font-bold block mb-2"> Start address: </label>
+          <input variant="filled" type="number" placeholder="Start address:"  class="mr-3" :class="toolbar" v-model="inputAdresse" inputId="minmax" :min="0" :max="items.length == 0 ? 0 : items.length - 1" />
     </div>
     <div class="flex-auto">
         <label for="minmax" class="font-bold block mb-2">#Rows to add: </label>
-        <input class="mr-3" :class="toolbar" v-model="numberOfRows" inputId="minmax" :min="0" :max="100" />
+        <input class="mr-3" type="number" :class="toolbar" v-model="numberOfRows" inputId="minmax" :min="0" :max="100" />
       </div>
       <v-btn @click="setRows" color="success"> ADD </v-btn>
     </template>
@@ -140,7 +140,14 @@
           <div class="d-flex flex-row justify-end">
             <v-tooltip text="Write Comment">
               <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" @click.stop="toggleTextarea(element)" class="mr-5">mdi-text-box-edit</v-icon>
+                <v-icon 
+                v-bind="props" 
+                @click.stop="toggleTextarea(element)" 
+                class="mr-5"
+                :style="{ color: element.comment ? '#0ed1d8' : '' }"
+                >
+                mdi-text-box-edit
+              </v-icon>
               </template>
             </v-tooltip>
             <v-icon @click.stop="controlTable.deleteRow(index)" color="red">mdi-delete</v-icon>
@@ -346,6 +353,7 @@ const highlightQuestionMarks = (str:any) => {
 }
 
 function setRows(){
+  if(numberOfRows.value > 100)numberOfRows.value = 100;
   for(let i = 0; i < Number(numberOfRows.value); i++){
     controlTable.placeRowBetween(Number(inputAdresse.value)+1);
   }
@@ -562,17 +570,20 @@ thead {
   background-color: #333333; /* Dunkle Hintergrundfarbe */
   color: #ffffff; /* Helle Schriftfarbe */
 }
-
 .dark-input {
-  border: 1px solid #ffffff;
-  border-radius: 4px;
-  width: 5vw;
+    width: 5vw;
+    border: 1px solid;
+    border-radius: 4px; /* Leicht abgerundete Ecken */
 }
 
 .light-input{
-  border: 1px solid rgb(184, 184, 184);
-  border-radius: 4px;
   width: 5vw;
+  border: 1px solid;
+  border-radius: 4px; /* Leicht abgerundete Ecken */
+}
+
+.has-comment {
+  color: #0ed1d8; /* Farbe ändern, wenn Kommentar vorhanden ist */
 }
 
 </style>

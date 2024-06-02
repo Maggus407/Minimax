@@ -9,7 +9,7 @@ import vuetify from './vuetify'
 import pinia from '../store'
 import router from '../router'
 import i18n from '../i18n.js'
-//import VueVirtualScroller from 'vue-virtual-scroller'
+import PrimeVue from 'primevue/config';
 
 import 'vuetify/styles'
 
@@ -21,6 +21,6 @@ export function registerPlugins (app: App) {
     .use(vuetify)
     .use(router)
     .use(pinia)
-    //.use(VueVirtualScroller)
     .use(i18n)
+    .use(PrimeVue);
 }

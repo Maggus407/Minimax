@@ -29,6 +29,7 @@
     "src/**/*.d.ts",
     "src/**/*.js",
     "*.js",
+    "src/components/ReUsable/*.vue",
     "src/components/*.vue",
     "src/components/CT-Components/*.vue",
     "src/CLI/cli.ts",

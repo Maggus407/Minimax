@@ -60,6 +60,8 @@ export const useControlTableStore = defineStore('controlTable', () => {
     });
     controlTable.push(newRow);
     updateAdressesAndNext();
+
+    console.log(controlTable)
   }
 
   //given a number, return the next row with that id

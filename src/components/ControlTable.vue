@@ -23,21 +23,21 @@
   <v-table density="compact" fixed-header>
       <thead>
         <tr>
-          <th class="center pr-0 pl-2 text-center">Br</th>
-          <th class="center pr-0 pl-1 text-center">Label</th>
+          <th class="center pr-0 pl-2 text-center" width="50vw">Br</th>
+          <th class="center pr-0 pl-1 text-center" width="130vw">Label</th>
           <th class="center pr-0 pl-1 text-center">Adress</th>
-          <th class="center pr-0 pl-1 text-center">AluSelA</th>
-          <th class="center pr-0 pl-1 text-center">AluSelB</th>
+          <th class="center pr-0 pl-1 text-center" width="130vw">AluSelA</th>
+          <th class="center pr-0 pl-1 text-center" width="130vw">AluSelB</th>
           <th class="center pr-0 pl-1 text-center">MDRSel</th>
           <th class="center pr-0 pl-1 text-center">HsCs</th>
           <th class="center pr-0 pl-1 text-center">Hs_R_W</th>
-          <th class="center pr-0 pl-1 text-center">AluCtrl</th>
+          <th class="center pr-0 pl-1 text-center" width="170vw">AluCtrl</th>
           <th v-for="r in registerStore.registerOrder" :key="r.title" class="pr-0 pl-1 text-center">
             {{ r.title }}
           </th>
           <th class="center pr-0 pl-1 text-center">ALU == 0?</th>
           <th class="center pr-0 pl-1 text-center">Next</th>
-          <th class="center pr-0 pl-2">RT-Notation</th>
+          <th class="center pr-0 pl-2" width="200vw">RT-Notation</th>
           <th class="center pr-0 pl-1 text-center">Aktionen</th>
         </tr>
       </thead>
@@ -233,7 +233,7 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-  <v-dialog v-model="dialogComment" max-width="30vw" persistent>
+  <v-dialog v-model="dialogComment" max-width="30vw">
     <v-card prepend-icon="mdi-text-box-edit" title="Comments">
       <template v-slot:actions>
         <v-btn class="ms-auto" text="Ok" @click="closecommentDialog()"></v-btn>
@@ -320,6 +320,10 @@ watch(uncond_Object, (newValue) => {
   if (newValue) {
     unconditionalJump.value = newValue.value;
   }
+});
+
+watch(currentComment, (newValue) => {
+  selectedRow.value.comment = newValue;
 });
 
 watch(cond_IfZeroObject, (newValue) => {

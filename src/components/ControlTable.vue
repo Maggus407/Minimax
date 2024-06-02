@@ -1,37 +1,29 @@
 <template>
   <!-- Schaltfläche zum Hinzufügen einer neuen Reihe -->
-  <div class="d-flex flex-row align-center">
-    <v-tooltip open-delay="500" text="Add Row">
-    <template v-slot:activator="{ props }">
-      <v-icon v-bind="props" @click="controlTable.addRow()" color="green" size="42" class="pt-0 mr-10">mdi-plus-box</v-icon>
+  <Toolbar class="mb-2" :class="themeClass">
+    <template #start>
+          <v-btn @click="controlTable.addRow()" color="green" class="ma-1">Add Row</v-btn>
     </template>
-    </v-tooltip>
-    <!-- Input field for numbers -->
-      <v-text-field
-        v-model="inputAdresse"
-        dense
-        label="Add Row after givern Adress: Standard is 0"
-        solo-inverted
-        hide-details
-        clearable
-        class="mr-10"
-        @keydown="(event: KeyboardEvent) => validateNumber(event, 'inputAdresse')"
-      ></v-text-field>
-      <v-text-field
-        v-model="numberOfRows"
-        dense
-        label="Number of rows to add"
-        solo-inverted
-        hide-details
-        clearable
-        class="mr-10"
-        @keydown="(event: KeyboardEvent) => validateNumber(event, 'numberOfRows')"
-      ></v-text-field>
-      <!-- Button next to the input field -->
-      <v-icon @click="setRows"> mdi-plus-box </v-icon>
-  </div>
-  
-  <v-divider></v-divider>
+
+    <template #center>
+      <div class="flex-auto">
+        <label for="minmax" class="font-bold block mb-2"> Start address: </label>
+      <input class="mr-3" :class="toolbar" v-model="inputAdresse" inputId="minmax" :min="0" :max="items.length == 0 ? 0 : items.length - 1" />
+    </div>
+    <div class="flex-auto">
+        <label for="minmax" class="font-bold block mb-2">#Rows to add: </label>
+        <input class="mr-3" :class="toolbar" v-model="numberOfRows" inputId="minmax" :min="0" :max="100" />
+      </div>
+      <v-btn @click="setRows" color="success"> ADD </v-btn>
+    </template>
+
+    <template #end>
+      <Toast />
+      <ConfirmDialog></ConfirmDialog>
+      <v-btn class="ma-1" color="error" label="Delete" severity="danger" @click="confirm1()">CLEAR TABLE</v-btn>
+    </template>
+</Toolbar>
+
   <div class="scrollable" @scroll="tableScrolled">
   <v-table density="compact" fixed-header>
       <thead>
@@ -77,6 +69,7 @@
             menu-icon=""
             :items="['-', ...multiplexerStore.muxA]"
             v-model="element.AluSelA"
+            placeholder=" - "
             return-object
             @update:modelValue="update(element, null)"
           ></v-select>
@@ -90,6 +83,7 @@
             menu-icon=""
             :items="['-', ...multiplexerStore.muxB]"
             v-model="element.AluSelB"
+            placeholder=" - "
             return-object
             @update:modelValue="update(element, null)"
           ></v-select>
@@ -107,6 +101,7 @@
             density="compact"
             menu-icon=""
             variant="outlined"
+            placeholder=" - "
             :items="['-', ...aluStore.aluOperationsListAdded]"
             v-model="element.AluCtrl"
             @update:modelValue="update(element, null)"
@@ -256,6 +251,17 @@ import { useAluStore } from '@/store/AluStore';
 import { ref, computed, watch} from 'vue';
 import { useDebugerStore } from '@/store/DebugerStore';
 import { VSelect, VIcon } from 'vuetify/components'
+import Toolbar from 'primevue/toolbar';
+import InputNumber from 'primevue/inputnumber';
+import Tooltip from 'primevue/tooltip';
+import ConfirmDialog from 'primevue/confirmdialog';
+import { useTheme } from 'vuetify';
+import { useConfirm } from "primevue/useconfirm";
+import Toast from 'primevue/toast';
+import { useToast } from "primevue/usetoast";
+
+const toast = useToast();
+const confirm = useConfirm();
 
 const registerStore = useRegisterStore();
 const controlTable = useControlTableStore();
@@ -267,8 +273,8 @@ const items = controlTable.controlTable
 const selectedRow = ref<any | null>(null);
 const selectedJumpType = ref('next');
 
-const inputAdresse = ref<string>('');
-const numberOfRows = ref<string>('');
+const inputAdresse = ref<number>(0);
+const numberOfRows = ref<number>(0);
 
 const currentComment = ref('');
 const dialog = ref(false);
@@ -282,6 +288,30 @@ const conditionalJumpIfNotZero:any = ref(null);
 const uncond_Object:any = ref(null);
 const cond_IfZeroObject:any = ref(null);
 const cond_IfNotZeroObject:any = ref(null);
+
+const theme = useTheme();
+
+const themeClass = computed(() => theme.global.current.value.dark ? 'dark-theme' : 'light-theme');
+const toolbar = computed(() => theme.global.current.value.dark ? 'dark-input' : 'light-input');
+
+const confirm1 = () => {
+    confirm.require({
+        message: 'Do you want to delete the whole Table?',
+        header: 'Danger Zone',
+        icon: 'pi pi-info-circle',
+        rejectLabel: 'Cancel',
+        acceptLabel: 'Delete',
+        rejectClass: 'p-button-secondary p-button-outlined',
+        acceptClass: 'p-button-danger',
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Table deleted', life: 3000 });
+            controlTable.clearTable();
+        },
+        reject: () => {
+            toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        }
+    });
+};
 
 // Watcher für Label Objects
 watch(uncond_Object, (newValue) => {
@@ -314,33 +344,6 @@ const highlightQuestionMarks = (str:any) => {
     }
   }).join('')
 }
-
-const validateNumber = (event: KeyboardEvent, field: 'inputAdresse' | 'numberOfRows') => {
-  const validKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', "Backspace", "ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown",
-    "Delete", "End", "Home", "Tab"];
-  const maxValue = computed(() => controlTable.controlTable.length);
-
-  if (!validKeys.includes(event.key)) {
-    event.preventDefault();
-    return;
-  }
-
-  if (field === 'inputAdresse') {
-    console.log(Number(inputAdresse.value + event.key));
-    if (Number(inputAdresse.value + event.key) >= maxValue.value) {
-      if ((Number(inputAdresse.value + event.key) > maxValue.value && event.key !== 'Backspace' && event.key !== 'Delete') || (Number(inputAdresse.value + event.key) === maxValue.value && event.key !== 'Backspace' && event.key !== 'Delete')) {
-        event.preventDefault();
-        return;
-      }else{
-        inputAdresse.value = inputAdresse.value?.replace(/[^0-9]/g, '') || '';
-      }
-    }else{
-      return;
-    }
-  } else if (field === 'numberOfRows') {
-    numberOfRows.value = numberOfRows.value?.replace(/[^0-9]/g, '') || '';
-  }
-};
 
 function setRows(){
   for(let i = 0; i < Number(numberOfRows.value); i++){
@@ -548,6 +551,28 @@ thead {
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.light-theme {
+  background-color: #ffffff; /* Helle Hintergrundfarbe */
+  color: #000000; /* Dunkle Schriftfarbe */
+}
+
+.dark-theme {
+  background-color: #333333; /* Dunkle Hintergrundfarbe */
+  color: #ffffff; /* Helle Schriftfarbe */
+}
+
+.dark-input {
+  border: 1px solid #ffffff;
+  border-radius: 4px;
+  width: 5vw;
+}
+
+.light-input{
+  border: 1px solid rgb(184, 184, 184);
+  border-radius: 4px;
+  width: 5vw;
 }
 
 </style>

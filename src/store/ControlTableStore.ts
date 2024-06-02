@@ -233,6 +233,10 @@ function rowsForSelection(): { title: string; value: number }[] {
     updateAdressesAndNext();
   }
 
+  function clearTable(){
+    controlTable.splice(0, controlTable.length);
+  }
+
   /**
    * 
    */
@@ -391,6 +395,7 @@ function rowsForSelection(): { title: string; value: number }[] {
     updateRemovedRegisterInCT,
     updateCTAddedRegister,
     create_RT_Notation,
+    clearTable,
     aluRemoved,
     setControlTableFromImport,
     placeRowBetween

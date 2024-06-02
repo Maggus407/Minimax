@@ -19,6 +19,7 @@
     "core-js": "^3.29.0",
     "jszip": "^3.10.1",
     "pinia": "^2.0.0",
+    "primeicons": "^7.0.0",
     "primevue": "^3.52.0",
     "roboto-fontface": "*",
     "sortablejs": "^1.15.2",

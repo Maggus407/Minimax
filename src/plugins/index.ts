@@ -10,8 +10,13 @@ import pinia from '../store'
 import router from '../router'
 import i18n from '../i18n.js'
 import PrimeVue from 'primevue/config';
+import ConfirmationService from 'primevue/confirmationservice';
+import ToastService from 'primevue/toastservice';
 
 import 'vuetify/styles'
+import 'primevue/resources/themes/aura-light-green/theme.css';
+import 'primeicons/primeicons.css'
+
 
 // Types
 import type { App } from 'vue'
@@ -22,5 +27,7 @@ export function registerPlugins (app: App) {
     .use(router)
     .use(pinia)
     .use(i18n)
-    .use(PrimeVue);
+    .use(PrimeVue)
+    .use(ConfirmationService)
+    .use(ToastService);
 }

@@ -4,7 +4,7 @@
 
 ```
 1. npm install
-2. npm run devs
+2. npm run dev
 
 ```
 

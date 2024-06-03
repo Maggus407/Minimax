@@ -4,16 +4,16 @@
       <v-col sm="12" md="5" lg="5" class="">
         <v-card variant="outlined" class="pa-5 mb-5" title="Import">
           <!--Import-->
-            <v-file-input persistent-clear  label="File input" variant="outlined" v-model="selectedFile" @change="updateFileSize" show-size></v-file-input>
+            <v-file-input persistent-clear  label="File input (max. 64MB)" variant="outlined" v-model="selectedFile" @change="updateFileSize" :show-size="1024"></v-file-input>
             <v-text-field
-                label="Startadresse (Standardwert: 0)"
+                label="Start address (Default: 0)"
                 v-model="hexInput"
                 @keydown="(event: KeyboardEvent) => validateHexInput(event, 'hexInput')"
                 clearable
             ></v-text-field>
           
             <v-text-field
-                label="Dateigröße (Byte)"
+                label="File size (Byte)"
                 v-model="fileSize"
                 type="number"
                 clearable
@@ -47,16 +47,15 @@
             <v-btn :disabled="fileName === '' || fileName === null || fileName === undefined" @click="exportMemoryToFile()">Export Memory</v-btn>
 
           </v-card>
-  
           <!-- Dialog für Überschreibwarnung -->
           <v-dialog v-model="showOverwriteConfirmDialog" persistent max-width="40vw">
             <v-card>
-              <v-card-title class="text-h5">Überschreibungswarnung</v-card-title>
-              <v-card-text>Sie sind dabei, Daten im Speicher zu überschreiben. Möchten Sie fortfahren?</v-card-text>
+              <v-card-title class="text-h5">{{ $t('memory.overwrite') }}</v-card-title>
+              <v-card-text>{{ $t('memory.overwrite_text') }}</v-card-text>
               <v-card-actions>
-                <v-btn color="red darken-1" @click="showOverwriteConfirmDialog = false">Abbrechen</v-btn>
+                <v-btn color="red darken-1" @click="showOverwriteConfirmDialog = false">{{ $t('button.cancel') }}</v-btn>
                 <!--goAhead gives the Permission to overwrite the existing Memory-->
-                <v-btn color="green darken-1" @click="() => {goAhead = true;  overWriteMemory();}">Fortfahren</v-btn>
+                <v-btn color="green darken-1" @click="() => {goAhead = true;  overWriteMemory();}">{{ $t('button.continue') }}</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -64,11 +63,11 @@
           <!-- Dialog for importing to big files -->
           <v-dialog width="70vw" v-model="showConfirmDialog" persistent>
             <v-card>
-          <v-card-title class="text-h5">Warnung</v-card-title>
-          <v-card-text>Die Datei ist um {{overSizeBytes}} Bytes ({{ (overSizeBytes / 1048576).toFixed(2) }} MB) größer als die erlaubten 64MB. Diese werden abgeschnitten. Möchten Sie trotzdem fortfahren?</v-card-text>
+          <v-card-title class="text-h5" color="red">{{ $t('generell.warning') }}</v-card-title>
+          <v-card-text>The file is {{overSizeBytes}} Bytes ({{ (overSizeBytes / 1048576).toFixed(2) }} MB) larger than the permitted 64 MB. These are cut off. Would you still like to continue?</v-card-text>
           <v-card-actions>
-            <v-btn color="red darken-1" @click="showConfirmDialog = false">Abbrechen</v-btn>
-            <v-btn color="green darken-1" @click="proceedWithFileImport">Fortfahren</v-btn>
+            <v-btn color="red darken-1" @click="showConfirmDialog = false">{{ $t('button.cancel') }}</v-btn>
+            <v-btn color="green darken-1" @click="proceedWithFileImport">{{ $t('button.continue') }}</v-btn>
           </v-card-actions>
             </v-card>
           </v-dialog>

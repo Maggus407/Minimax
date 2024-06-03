@@ -24,8 +24,11 @@
               v-for="regName in registerStore.BASE_REGISTERS"
               :key="regName"
               :title="regName"
-              :text="registerDescriptions[regName]"
-            ></v-expansion-panel>
+            >
+            <v-expansion-panel-text>
+              <p v-html="registerDescriptions[regName]"></p>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
           </v-expansion-panels>
         </v-card>
       </v-col>

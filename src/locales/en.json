@@ -16,7 +16,8 @@
     "reset": "Reset",
     "run": "Run",
     "back": "Back",
-    "next": "Next"
+    "next": "Next",
+    "continue": "Continue"
   },
   "generell": {
     "changeValue": "Change Value",
@@ -25,7 +26,8 @@
     "currentValue": "Current Value",
     "currentIndex": "Current Index",
     "read": "Read",
-    "write": "Write"
+    "write": "Write",
+    "warning": "Warning"
   },
     "nav": {
         "overview": "Overview",
@@ -57,7 +59,9 @@
         "startAddress": "Start Address",
         "endAddress": "End Address",
         "selectFile": "Select File",
-        "fileSize": "File Size"
+        "fileSize": "File Size",
+        "overwrite": "Overwrite warning",
+        "overwrite_text": "You are about to overwrite data in the memory. Would you like to continue?"
       },
       "register":{
         "baseRegister": "Base Register",
@@ -65,8 +69,8 @@
         "description": "Description",
         "pc": "Stores the address of the next assembly instruction to be executed. The 8 most significant bits are usually zero.",
         "ir": "Contains the currently executed assembly instruction. The 8 most significant bits contain the opcode, and the 24 less significant bits contain the parameter.",
-        "mdr": "Data interface for read and write operations on the main memory. Possible microinstructions are:\n\nM[MAR] ← MDR\nMDR ← M[MAR]",
-        "mar": "Address interface for read and write operations on the main memory. Possible microinstructions are:\n\nM[MAR] ← MDR\nMDR ← M[MAR]",
+        "mdr": "Data interface for read and write operations on the main memory. Possible microinstructions are: <br> M[MAR] ← MDR <br> MDR ← M[MAR]",
+        "mar": "Address interface for read and write operations on the main memory. Possible microinstructions are: <br> M[MAR] ← MDR <br> MDR ← M[MAR]",
         "accu": "Typically the working register used for most arithmetic operations."
       },
       "alu":{

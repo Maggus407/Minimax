@@ -16,7 +16,8 @@
     "reset": "Reset",
     "run": "Ausführen",
     "back": "Zurück",
-    "next": "Weiter"
+    "next": "Weiter",
+    "continue": "Fortfahren"
   },
   "generell": {
     "changeValue": "Wert Ändern",
@@ -25,7 +26,8 @@
     "currentValue": "Aktueller Wert",
     "currentIndex": "Aktueller Index",
     "read": "Lesen",
-    "write": "Schreiben"
+    "write": "Schreiben",
+    "warnings": "Warnung"
   },
   "nav": {
     "overview": "Overview",
@@ -57,7 +59,9 @@
     "endAddress": "bis Adresse",
     "selectFile": "Datei auswählen",
     "export": "Datei Exportieren",
-    "fileSize": "Dateigröße"
+    "fileSize": "Dateigröße",
+    "overwrite": "Überschreibungswarnung",
+    "overwrite_text": "Sie sind dabei, Daten im Speicher zu überschreiben. Möchten Sie fortfahren?"
   },
   "register":{
     "baseRegister": "Basisregister",
@@ -65,8 +69,8 @@
     "description": "Beschreibung",
     "pc": "Speichert die Adresse des nächsten auszuführenden Assembler-Befehls. Die 8 höchstwertigen Bits sind normalerweise Null.",
     "ir": "Enthält den aktuell ausgeführten Assemblerbefehl. Die 8 höchstwertigen Bits enthalten den OP-Code, die 24 niedrigwertigen Bits enthalten den Parameter.",
-    "mdr": "Datenschnittstelle für Schreib- und Leseoperationen auf dem Hauptspeicher.\nMögliche Mikrobefehle sind:\n\nM[MAR] ← MDR\nMDR ← M[MAR]",
-    "mar": "Adressschnittstelle für Schreib- und Leseoperationen auf dem Hauptspeicher.\nMögliche Mikrobefehle sind:\n\nM[MAR] ← MDR\nMDR ← M[MAR]",
+    "mdr": "Datenschnittstelle für Schreib- und Leseoperationen auf dem Hauptspeicher.<br> Mögliche Mikrobefehle sind:<br> M[MAR] ← MDR <br> MDR ← M[MAR]",
+    "mar": "Adressschnittstelle für Schreib- und Leseoperationen auf dem Hauptspeicher.<br> Mögliche Mikrobefehle sind: <br> M[MAR] ← MDR <br> MDR ← M[MAR]",
     "accu": "Üblicherweise das benutzte Arbeitsregister für die meisten arithmetischen Operationen."
   },
   "alu":{

@@ -50,4 +50,7 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  build: {
+    target: 'es2022',  // Ensure the build target supports top-level await
+  }
 })
